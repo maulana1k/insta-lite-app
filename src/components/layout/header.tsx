@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,9 @@ export function Header() {
           <Link href="/discover">
             <NavButton icon={Search} label="Discover" active={pathname === '/discover'} iconType="lucide" />
           </Link>
-          <SearchOverlay />
+          <Suspense fallback={<div className="w-52 h-10" />}>
+            <SearchOverlay />
+          </Suspense>
           <Link href="/videos">
             <NavButton icon={ClapperboardPlay} label="Reels" active={pathname === '/videos'} iconType="solar" />
           </Link>

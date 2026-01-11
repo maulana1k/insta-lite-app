@@ -63,35 +63,35 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  IconPlus,
-  IconBluetooth,
-  IconDotsVertical,
-  IconFile,
-  IconFolder,
-  IconFolderOpen,
-  IconFileCode,
-  IconDots,
-  IconFolderSearch,
-  IconDeviceFloppy,
-  IconDownload,
-  IconEye,
-  IconLayout,
-  IconPalette,
-  IconSun,
-  IconMoon,
-  IconDeviceDesktop,
-  IconUser,
-  IconCreditCard,
-  IconSettings,
-  IconKeyboard,
-  IconLanguage,
-  IconBell,
-  IconMail,
-  IconShield,
-  IconHelpCircle,
-  IconFileText,
-  IconLogout,
-} from "@tabler/icons-react";
+  Plus,
+  Bluetooth,
+  MoreVertical,
+  File,
+  Folder,
+  FolderOpen,
+  FileCode,
+  MoreHorizontal,
+  FolderSearch,
+  Save,
+  Download,
+  Eye,
+  Layout,
+  Palette,
+  Sun,
+  Moon,
+  Monitor,
+  User,
+  CreditCard,
+  Settings,
+  Keyboard,
+  Languages,
+  Bell,
+  Mail,
+  Shield,
+  HelpCircle,
+  FileText,
+  LogOut,
+} from "lucide-react";
 
 export function ComponentExample() {
   return (
@@ -125,14 +125,14 @@ function CardExample() {
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button>
-                <IconPlus data-icon="inline-start" />
+                <Plus data-icon="inline-start" />
                 Show Dialog
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent size="sm">
               <AlertDialogHeader>
                 <AlertDialogMedia>
-                  <IconBluetooth />
+                  <Bluetooth />
                 </AlertDialogMedia>
                 <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -181,7 +181,7 @@ function FormExample() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <IconDotsVertical />
+                  <MoreVertical />
                   <span className="sr-only">More options</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -189,18 +189,18 @@ function FormExample() {
                 <DropdownMenuGroup>
                   <DropdownMenuLabel>File</DropdownMenuLabel>
                   <DropdownMenuItem>
-                    <IconFile />
+                    <File />
                     New File
                     <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <IconFolder />
+                    <Folder />
                     New Folder
                     <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
                   </DropdownMenuItem>
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
-                      <IconFolderOpen />
+                      <FolderOpen />
                       Open Recent
                     </DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
@@ -208,26 +208,26 @@ function FormExample() {
                         <DropdownMenuGroup>
                           <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
                           <DropdownMenuItem>
-                            <IconFileCode />
+                            <FileCode />
                             Project Alpha
                           </DropdownMenuItem>
                           <DropdownMenuItem>
-                            <IconFileCode />
+                            <FileCode />
                             Project Beta
                           </DropdownMenuItem>
                           <DropdownMenuSub>
                             <DropdownMenuSubTrigger>
-                              <IconDots />
+                              <MoreHorizontal />
                               More Projects
                             </DropdownMenuSubTrigger>
                             <DropdownMenuPortal>
                               <DropdownMenuSubContent>
                                 <DropdownMenuItem>
-                                  <IconFileCode />
+                                  <FileCode />
                                   Project Gamma
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
-                                  <IconFileCode />
+                                  <FileCode />
                                   Project Delta
                                 </DropdownMenuItem>
                               </DropdownMenuSubContent>
@@ -237,7 +237,7 @@ function FormExample() {
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                           <DropdownMenuItem>
-                            <IconFolderSearch />
+                            <FolderSearch />
                             Browse...
                           </DropdownMenuItem>
                         </DropdownMenuGroup>
@@ -246,12 +246,12 @@ function FormExample() {
                   </DropdownMenuSub>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <IconDeviceFloppy />
+                    <Save />
                     Save
                     <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <IconDownload />
+                    <Download />
                     Export
                     <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
                   </DropdownMenuItem>
@@ -268,7 +268,7 @@ function FormExample() {
                       })
                     }
                   >
-                    <IconEye />
+                    <Eye />
                     Show Sidebar
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
@@ -280,12 +280,12 @@ function FormExample() {
                       })
                     }
                   >
-                    <IconLayout />
+                    <Layout />
                     Show Status Bar
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
-                      <IconPalette />
+                      <Palette />
                       Theme
                     </DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
@@ -297,15 +297,15 @@ function FormExample() {
                             onValueChange={setTheme}
                           >
                             <DropdownMenuRadioItem value="light">
-                              <IconSun />
+                              <Sun />
                               Light
                             </DropdownMenuRadioItem>
                             <DropdownMenuRadioItem value="dark">
-                              <IconMoon />
+                              <Moon />
                               Dark
                             </DropdownMenuRadioItem>
                             <DropdownMenuRadioItem value="system">
-                              <IconDeviceDesktop />
+                              <Monitor />
                               System
                             </DropdownMenuRadioItem>
                           </DropdownMenuRadioGroup>
@@ -318,17 +318,17 @@ function FormExample() {
                 <DropdownMenuGroup>
                   <DropdownMenuLabel>Account</DropdownMenuLabel>
                   <DropdownMenuItem>
-                    <IconUser />
+                    <User />
                     Profile
                     <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <IconCreditCard />
+                    <CreditCard />
                     Billing
                   </DropdownMenuItem>
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
-                      <IconSettings />
+                      <Settings />
                       Settings
                     </DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
@@ -336,16 +336,16 @@ function FormExample() {
                         <DropdownMenuGroup>
                           <DropdownMenuLabel>Preferences</DropdownMenuLabel>
                           <DropdownMenuItem>
-                            <IconKeyboard />
+                            <Keyboard />
                             Keyboard Shortcuts
                           </DropdownMenuItem>
                           <DropdownMenuItem>
-                            <IconLanguage />
+                            <Languages />
                             Language
                           </DropdownMenuItem>
                           <DropdownMenuSub>
                             <DropdownMenuSubTrigger>
-                              <IconBell />
+                              <Bell />
                               Notifications
                             </DropdownMenuSubTrigger>
                             <DropdownMenuPortal>
@@ -363,7 +363,7 @@ function FormExample() {
                                       })
                                     }
                                   >
-                                    <IconBell />
+                                    <Bell />
                                     Push Notifications
                                   </DropdownMenuCheckboxItem>
                                   <DropdownMenuCheckboxItem
@@ -375,7 +375,7 @@ function FormExample() {
                                       })
                                     }
                                   >
-                                    <IconMail />
+                                    <Mail />
                                     Email Notifications
                                   </DropdownMenuCheckboxItem>
                                 </DropdownMenuGroup>
@@ -386,7 +386,7 @@ function FormExample() {
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                           <DropdownMenuItem>
-                            <IconShield />
+                            <Shield />
                             Privacy & Security
                           </DropdownMenuItem>
                         </DropdownMenuGroup>
@@ -397,18 +397,18 @@ function FormExample() {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
-                    <IconHelpCircle />
+                    <HelpCircle />
                     Help & Support
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <IconFileText />
+                    <FileText />
                     Documentation
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem variant="destructive">
-                    <IconLogout />
+                    <LogOut />
                     Sign Out
                     <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
                   </DropdownMenuItem>
