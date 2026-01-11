@@ -1,0 +1,3 @@
+src/components/component-example.tsx(94,8): error TS2307: Cannot find module '@tabler/icons-react' or its corresponding type declarations.
+src/components/ui/dropdown-menu.tsx(7,45): error TS2307: Cannot find module '@tabler/icons-react' or its corresponding type declarations.
+src/components/ui/select.tsx(12,8): error TS2307: Cannot find module '@tabler/icons-react' or its corresponding type declarations.
