@@ -9,18 +9,16 @@ import { useFeedStore } from '@/features/post/store/feed-store';
 import { useSpaceStore } from '@/features/space/store/space-store';
 import { SPACES } from '@/features/space/api/mock-data';
 import { FeedList } from '@/features/post/components/feed-list';
-import { FeedSkeleton } from '@/features/post/components/feed-skeleton';
 import { SpaceSidebar } from '@/features/space/components/space-sidebar';
 import { SpaceSidebarSkeleton } from '@/features/space/components/space-sidebar-skeleton';
-import { EventsList } from '@/features/event/components/events-list';
 import { SpaceFeedToolbar } from '@/features/space/components/space-feed-toolbar';
 import { SpaceProfileHeader } from '@/features/space/components/space-profile-header';
-import { SpaceRightPanel } from '@/features/space/components/space-right-panel';
+import { SuggestedUsers } from '@/components/layout/suggested-users';
 import { useFeed } from '@/features/post/hooks/use-feed';
 
 export function SpacePageContent({ slug }: { slug: string }) {
   const { setActiveSpaceId } = useFeedStore();
-  const { spaceViewMode, setSpaceViewMode } = useSpaceStore();
+  const { setSpaceViewMode } = useSpaceStore();
   const { isLoading } = useFeed();
   const [isMember, setIsMember] = useState(false);
 
@@ -40,9 +38,10 @@ export function SpacePageContent({ slug }: { slug: string }) {
       <EventDetailModal />
       <Header />
 
-      <div className="mx-auto py-8">
-        <div className="flex w-full justify-center relative min-h-screen">
-          <div className="grid grid-cols-[auto_1fr_auto] max-w-7xl w-full gap-6 px-4">
+      {/* Match exact outer container structure from For You page */}
+      <div className="mx-auto px-4 py-8 space-y-6">
+        <div className="flex w-full justify-center relative min-h-screen px-4">
+          <div className="grid grid-cols-[auto_1fr_auto] max-w-7xl w-full gap-6">
 
             {/* ── Left sidebar ── */}
             <aside className="hidden lg:block">
@@ -59,21 +58,20 @@ export function SpacePageContent({ slug }: { slug: string }) {
                 />
               )}
 
-              <SpaceFeedToolbar />
-
+              {/* FeedList already includes SpaceFeedToolbar + Posts/Events switching.
+                  For locked spaces, render the toolbar once + lock screen instead. */}
               {isLocked ? (
-                <PrivateSpaceLock onJoin={() => setIsMember(true)} />
-              ) : spaceViewMode === 'events' ? (
-                <EventsList />
-              ) : isLoading ? (
-                <FeedSkeleton />
+                <>
+                  <SpaceFeedToolbar />
+                  <PrivateSpaceLock onJoin={() => setIsMember(true)} />
+                </>
               ) : (
                 <FeedList />
               )}
             </div>
 
-            {/* ── Right panel ── */}
-            <SpaceRightPanel currentSpaceId={space?.id} />
+            {/* ── Right panel — same as For You page ── */}
+            <SuggestedUsers />
           </div>
         </div>
       </div>
