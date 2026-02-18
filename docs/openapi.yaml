@@ -1,0 +1,1052 @@
+openapi: 3.0.3
+
+info:
+  title: Jends API
+  description: |
+    REST API for **Jends** — a social platform for communities and conversations.
+
+    - All request/response bodies are `application/json`
+    - Timestamps are ISO 8601 strings in UTC (`2025-04-20T12:00:00Z`)
+    - Authentication uses JWT Bearer tokens in the `Authorization` header
+    - Feeds use **cursor-based pagination** (see `nextCursor` in response)
+  version: 1.0.0
+  contact:
+    name: Jends Engineering
+
+servers:
+  - url: https://api.jends.id/v1
+    description: Production
+  - url: http://localhost:3001/v1
+    description: Local development
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Feed
+    description: Post feeds — For You, Following, Saved, and Space feeds
+  - name: Posts
+    description: Individual post and comment operations
+  - name: Spaces
+    description: Community spaces (browse and join)
+  - name: Events
+    description: Events hosted within spaces
+  - name: Users
+    description: User profiles and user discovery
+  - name: Activities
+    description: Notification and activity feed
+  - name: Videos
+    description: Short-form video feed
+  - name: Messages
+    description: Direct message conversations (REST — see asyncapi.yaml for WebSocket)
+  - name: Discover
+    description: Trending content and discovery feed
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────────────────────────────────────
+
+paths:
+
+  # ── Feed ──────────────────────────────────────────────────────────────────
+
+  /posts:
+    get:
+      tags: [Feed]
+      summary: Get post feed
+      description: |
+        Returns a paginated list of posts for the specified feed type.
+        Pass `nextCursor` from the previous response as `cursor` to get the next page.
+      operationId: getFeed
+      parameters:
+        - name: feed
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [for_you, following, saved]
+            default: for_you
+          description: Feed type to load
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated post feed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostFeedPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Posts ──────────────────────────────────────────────────────────────────
+
+  /posts/{post_id}:
+    get:
+      tags: [Posts]
+      summary: Get a post by ID
+      operationId: getPost
+      parameters:
+        - $ref: '#/components/parameters/PostId'
+      responses:
+        '200':
+          description: Post object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /posts/{post_id}/comments:
+    get:
+      tags: [Posts]
+      summary: Get comments for a post
+      description: Returns a flat list with nested `replies` on each top-level comment (one level deep).
+      operationId: getPostComments
+      parameters:
+        - $ref: '#/components/parameters/PostId'
+      responses:
+        '200':
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostComment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Spaces ─────────────────────────────────────────────────────────────────
+
+  /spaces:
+    get:
+      tags: [Spaces]
+      summary: List all spaces
+      description: Returns the full list of available community spaces (no pagination — bounded set).
+      operationId: getSpaces
+      responses:
+        '200':
+          description: List of spaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Space'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /spaces/{slug}:
+    get:
+      tags: [Spaces]
+      summary: Get a space by slug
+      operationId: getSpace
+      parameters:
+        - $ref: '#/components/parameters/SpaceSlug'
+      responses:
+        '200':
+          description: Space object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Space'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /spaces/{slug}/posts:
+    get:
+      tags: [Spaces, Feed]
+      summary: Get posts within a space
+      operationId: getSpaceFeed
+      parameters:
+        - $ref: '#/components/parameters/SpaceSlug'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated post feed for the space
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostFeedPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /spaces/{slug}/events:
+    get:
+      tags: [Spaces, Events]
+      summary: Get events for a space
+      description: |
+        Upcoming events are sorted ascending by date; past events descending.
+        When `filter=all`, upcoming events appear before past events.
+      operationId: getSpaceEvents
+      parameters:
+        - $ref: '#/components/parameters/SpaceSlug'
+        - name: filter
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [all, upcoming, past]
+            default: all
+          description: Filter events by status
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpaceEvent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Events ──────────────────────────────────────────────────────────────────
+
+  /events/{event_id}:
+    get:
+      tags: [Events]
+      summary: Get an event by ID
+      operationId: getEvent
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+      responses:
+        '200':
+          description: Event object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpaceEvent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Users ───────────────────────────────────────────────────────────────────
+
+  /users/suggested:
+    get:
+      tags: [Users]
+      summary: Get suggested users to follow
+      description: Returns a short curated list of user profiles (no pagination).
+      operationId: getSuggestedUsers
+      responses:
+        '200':
+          description: List of suggested user profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/{username}:
+    get:
+      tags: [Users]
+      summary: Get a user profile
+      operationId: getUserProfile
+      parameters:
+        - $ref: '#/components/parameters/Username'
+      responses:
+        '200':
+          description: Full user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{username}/posts:
+    get:
+      tags: [Users]
+      summary: Get posts by a user
+      operationId: getUserPosts
+      parameters:
+        - $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated list of the user's posts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostFeedPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Activities ──────────────────────────────────────────────────────────────
+
+  /activities:
+    get:
+      tags: [Activities]
+      summary: Get activity feed
+      description: Returns notifications grouped by type. Filter with `tab` to scope results.
+      operationId: getActivities
+      parameters:
+        - name: tab
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [all, follows, mentions, likes, comments]
+            default: all
+          description: Activity type filter
+      responses:
+        '200':
+          description: List of activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Videos ──────────────────────────────────────────────────────────────────
+
+  /videos:
+    get:
+      tags: [Videos]
+      summary: Get video feed
+      description: Returns a paginated list of short-form videos, optionally filtered by category.
+      operationId: getVideos
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - For You
+              - Following
+              - Popular
+              - Featured
+              - Live
+              - Continue Watching
+              - Watch Later
+          description: Video category filter
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated video feed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoFeedPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Messages ─────────────────────────────────────────────────────────────────
+
+  /conversations:
+    get:
+      tags: [Messages]
+      summary: List conversations
+      description: Returns all conversations for the authenticated user, sorted by most recent message.
+      operationId: getConversations
+      responses:
+        '200':
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conversation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /conversations/{conversation_id}/messages:
+    get:
+      tags: [Messages]
+      summary: Get messages in a conversation
+      description: Returns paginated messages ordered newest-first. Use `cursor` for earlier messages.
+      operationId: getMessages
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated list of messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageFeedPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Discover ─────────────────────────────────────────────────────────────────
+
+  /discover:
+    get:
+      tags: [Discover]
+      summary: Get discovery feed
+      description: |
+        Returns trending hashtags, trending topics, featured posts, and content categories
+        in a single aggregated response — optimized for the Discover page.
+      operationId: getDiscover
+      responses:
+        '200':
+          description: Discovery feed data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscoverFeed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# COMPONENTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+components:
+
+  # ── Security ──────────────────────────────────────────────────────────────
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Pass a JWT obtained from the auth service.
+        Header format: `Authorization: Bearer <token>`
+
+  # ── Reusable parameters ───────────────────────────────────────────────────
+
+  parameters:
+    PostId:
+      name: post_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique post identifier (e.g. `t1`)
+
+    SpaceSlug:
+      name: slug
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Space URL slug (e.g. `jakartavibes`)
+
+    EventId:
+      name: event_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique event identifier (e.g. `ev1`)
+
+    Username:
+      name: username
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Username without `@` prefix (e.g. `sarahcodes`)
+
+    ConversationId:
+      name: conversation_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique conversation identifier
+
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type: string
+      description: |
+        Pagination cursor — the `nextCursor` value from the previous response.
+        Omit for the first page.
+
+  # ── Reusable responses ────────────────────────────────────────────────────
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid Bearer token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: UNAUTHORIZED
+              message: Authentication token is missing or invalid
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: NOT_FOUND
+              message: The requested resource was not found
+
+  # ── Schemas ───────────────────────────────────────────────────────────────
+
+  schemas:
+
+    # ── Core entities ─────────────────────────────────────────────────────
+
+    User:
+      type: object
+      required: [id, username, full_name, avatar_url, created_at]
+      properties:
+        id:
+          type: string
+          example: u1
+        username:
+          type: string
+          example: sarahcodes
+        full_name:
+          type: string
+          example: Sarah Kusuma
+        avatar_url:
+          type: string
+          format: uri
+        bio:
+          type: string
+          nullable: true
+          example: Software engineer based in Jakarta
+        verified:
+          type: boolean
+          default: false
+        created_at:
+          type: string
+          format: date-time
+
+    UserProfile:
+      description: User with social stats — used in suggested users list
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          required: [followers_count, following_count]
+          properties:
+            followers_count:
+              type: integer
+              example: 1500
+            following_count:
+              type: integer
+              example: 340
+            mutual_follower:
+              type: string
+              nullable: true
+              description: Username of a mutual follower, if any
+              example: marcusj
+
+    ProfileUser:
+      description: Full user profile — returned on profile page
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          required: [stats, highlights]
+          properties:
+            category:
+              type: string
+              nullable: true
+              example: Software Engineer
+            website:
+              type: string
+              format: uri
+              nullable: true
+            is_following:
+              type: boolean
+              nullable: true
+              description: Whether the authenticated user follows this user
+            stats:
+              type: object
+              required: [posts, followers, following]
+              properties:
+                posts:
+                  type: integer
+                  example: 128
+                followers:
+                  type: integer
+                  example: 4200
+                following:
+                  type: integer
+                  example: 310
+            highlights:
+              type: array
+              items:
+                type: object
+                required: [id, title, cover_image]
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  cover_image:
+                    type: string
+                    format: uri
+
+    Space:
+      type: object
+      required: [id, name, slug, description, avatar_url, banner_url, members_count, posts_count, created_at]
+      properties:
+        id:
+          type: string
+          example: sp1
+        name:
+          type: string
+          example: Jakarta Vibes
+        slug:
+          type: string
+          example: jakartavibes
+        description:
+          type: string
+          example: Komunitas diskusi seputar kehidupan di Jakarta
+        avatar_url:
+          type: string
+          format: uri
+        banner_url:
+          type: string
+          format: uri
+        members_count:
+          type: integer
+          example: 12500
+        posts_count:
+          type: integer
+          example: 3200
+        created_at:
+          type: string
+          format: date-time
+
+    Post:
+      type: object
+      required: [id, content, user_id, user, created_at, likes_count, comments_count, reposts_count, views_count]
+      properties:
+        id:
+          type: string
+          example: t1
+        content:
+          type: string
+          example: Cuaca Jakarta hari ini bikin males keluar rumah 😅
+        image_urls:
+          type: array
+          items:
+            type: string
+            format: uri
+          nullable: true
+          description: Optional attached images (max 4)
+        user_id:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        created_at:
+          type: string
+          format: date-time
+        likes_count:
+          type: integer
+          example: 247
+        comments_count:
+          type: integer
+          example: 38
+        reposts_count:
+          type: integer
+          example: 12
+        views_count:
+          type: integer
+          example: 4100
+        repliers_avatars:
+          type: array
+          items:
+            type: string
+            format: uri
+          nullable: true
+          description: Avatars of recent commenters (for preview display)
+        space:
+          allOf:
+            - $ref: '#/components/schemas/Space'
+          nullable: true
+          description: Space this post belongs to, if any
+        is_anonymous:
+          type: boolean
+          nullable: true
+          default: false
+        repost:
+          allOf:
+            - $ref: '#/components/schemas/Post'
+          nullable: true
+          description: The original post, if this is a repost
+
+    PostComment:
+      type: object
+      required: [id, post_id, user, content, created_at, likes_count]
+      properties:
+        id:
+          type: string
+        post_id:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        likes_count:
+          type: integer
+          example: 5
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostComment'
+          description: Nested replies — one level deep only
+
+    SpaceEvent:
+      type: object
+      required: [id, space_id, title, description, banner_url, created_by, schedule, location, cta, attendees_count, status, created_at]
+      properties:
+        id:
+          type: string
+          example: ev1
+        space_id:
+          type: string
+        title:
+          type: string
+          example: Jakarta Tech Meetup Q2
+        description:
+          type: string
+        banner_url:
+          type: string
+          format: uri
+        created_by:
+          $ref: '#/components/schemas/User'
+        schedule:
+          type: object
+          required: [date, time, timezone]
+          properties:
+            date:
+              type: string
+              format: date
+              example: "2025-04-20"
+            time:
+              type: string
+              example: "19:00"
+            timezone:
+              type: string
+              example: WIB
+        location:
+          type: object
+          required: [type]
+          properties:
+            type:
+              type: string
+              enum: [online, offline, hybrid]
+            venue:
+              type: string
+              nullable: true
+              description: Venue name for offline/hybrid events
+            platform:
+              type: string
+              nullable: true
+              example: Zoom
+              description: Platform name for online/hybrid events
+            address:
+              type: string
+              nullable: true
+        cta:
+          type: object
+          required: [type, label]
+          properties:
+            type:
+              type: string
+              enum: [register, url, custom]
+            label:
+              type: string
+              example: Daftar Sekarang
+            url:
+              type: string
+              format: uri
+              nullable: true
+        attendees_count:
+          type: integer
+          example: 87
+        max_attendees:
+          type: integer
+          nullable: true
+          example: 150
+        status:
+          type: string
+          enum: [upcoming, past]
+        created_at:
+          type: string
+          format: date-time
+
+    Video:
+      type: object
+      required: [id, title, thumbnail_url, video_url, duration, views_count, user_id, user, created_at, category]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        thumbnail_url:
+          type: string
+          format: uri
+        video_url:
+          type: string
+          format: uri
+        duration:
+          type: string
+          description: Duration formatted as `MM:SS`
+          example: "3:42"
+        views_count:
+          type: integer
+          example: 18400
+        user_id:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        created_at:
+          type: string
+          format: date-time
+        category:
+          type: string
+          enum: [For You, Following, Popular, Featured, Live, Continue Watching, Watch Later]
+
+    Activity:
+      type: object
+      required: [id, type, user, timestamp, read]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [follow, mention, like, comment, system]
+        user:
+          type: object
+          required: [username, avatar_url]
+          properties:
+            username:
+              type: string
+            avatar_url:
+              type: string
+              format: uri
+            verified:
+              type: boolean
+        content:
+          type: string
+          nullable: true
+          description: Contextual text for the activity
+        post:
+          type: object
+          nullable: true
+          description: Related post, if the activity is post-level
+          properties:
+            id:
+              type: string
+            content:
+              type: string
+            image_url:
+              type: string
+              format: uri
+              nullable: true
+        timestamp:
+          type: string
+          format: date-time
+        read:
+          type: boolean
+
+    Conversation:
+      type: object
+      required: [id, user, last_message, last_message_by, timestamp, unread]
+      properties:
+        id:
+          type: string
+        user:
+          type: object
+          required: [name, username, avatar_url]
+          description: The other participant in the conversation
+          properties:
+            name:
+              type: string
+            username:
+              type: string
+            avatar_url:
+              type: string
+              format: uri
+        last_message:
+          type: string
+        last_message_by:
+          type: string
+          enum: [me, them]
+        timestamp:
+          type: string
+          format: date-time
+        unread:
+          type: boolean
+
+    Message:
+      type: object
+      required: [id, conversation_id, sender, content, timestamp, type]
+      properties:
+        id:
+          type: string
+        conversation_id:
+          type: string
+        sender:
+          type: string
+          enum: [me, them]
+        content:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum: [text, image]
+        image_url:
+          type: string
+          format: uri
+          nullable: true
+
+    TrendingHashtag:
+      type: object
+      required: [tag, posts_count]
+      properties:
+        tag:
+          type: string
+          example: "#JakartaVibes"
+        posts_count:
+          type: integer
+          example: 4200
+
+    TrendingTopic:
+      type: object
+      required: [label, category, posts_count]
+      properties:
+        label:
+          type: string
+          example: Politik Indonesia
+        category:
+          type: string
+          example: Politik
+        posts_count:
+          type: integer
+          example: 12800
+
+    DiscoverFeed:
+      type: object
+      required: [trending_hashtags, trending_topics, posts, categories]
+      description: Aggregated discovery feed — all data for the Discover page in one request
+      properties:
+        trending_hashtags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendingHashtag'
+        trending_topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendingTopic'
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+          description: Featured/trending posts for display cards
+        categories:
+          type: array
+          description: Content categories for browsing
+          items:
+            type: object
+            required: [id, name, thumbnail_url]
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              thumbnail_url:
+                type: string
+                format: uri
+
+    # ── Pagination wrappers ───────────────────────────────────────────────
+
+    PostFeedPage:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+        nextCursor:
+          type: string
+          nullable: true
+          description: Pass as `cursor` in the next request. `null` means no more pages.
+
+    VideoFeedPage:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Video'
+        nextCursor:
+          type: string
+          nullable: true
+
+    MessageFeedPage:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        nextCursor:
+          type: string
+          nullable: true
+          description: Cursor for loading older messages
+
+    # ── Error ─────────────────────────────────────────────────────────────
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code
+              example: NOT_FOUND
+            message:
+              type: string
+              description: Human-readable description
+              example: The requested resource was not found

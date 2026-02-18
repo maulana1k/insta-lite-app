@@ -1,0 +1,265 @@
+asyncapi: 2.6.0
+
+info:
+  title: Jends Real-time Messaging
+  version: 1.0.0
+  description: |
+    WebSocket API for real-time direct messaging in Jends.
+
+    **Connection**
+    Connect with a valid JWT Bearer token via the `Authorization` header
+    (or `?token=<jwt>` query param for environments that don't support WS headers).
+
+    **Message format**
+    All frames are JSON. Each message has an `event` discriminator field.
+
+    **Reconnection**
+    Clients should implement exponential back-off reconnection.
+    The server will send a `ping` frame every 30 s; reply with `pong`.
+
+servers:
+  production:
+    url: wss://api.jends.id/v1
+    protocol: wss
+    description: Production WebSocket server
+    security:
+      - bearerAuth: []
+  development:
+    url: ws://localhost:3001/v1
+    protocol: ws
+    description: Local development WebSocket server
+
+defaultContentType: application/json
+
+channels:
+
+  # ── Message stream ──────────────────────────────────────────────────────────
+
+  conversations/{conversation_id}/messages:
+    description: |
+      Real-time message stream for a single conversation.
+
+      - **Subscribe** — receive new messages sent by either participant
+      - **Publish** — send a message to the conversation
+    parameters:
+      conversation_id:
+        description: The conversation to connect to
+        schema:
+          type: string
+    subscribe:
+      operationId: onNewMessage
+      summary: Receive a new message
+      message:
+        $ref: '#/components/messages/IncomingMessage'
+    publish:
+      operationId: sendMessage
+      summary: Send a message to the conversation
+      message:
+        $ref: '#/components/messages/OutgoingMessage'
+
+  # ── Typing indicator ────────────────────────────────────────────────────────
+
+  conversations/{conversation_id}/typing:
+    description: |
+      Typing presence channel for a conversation.
+
+      - **Subscribe** — receive typing status from the other participant
+      - **Publish** — broadcast your own typing status
+    parameters:
+      conversation_id:
+        description: The conversation to receive/send typing events for
+        schema:
+          type: string
+    subscribe:
+      operationId: onTypingIndicator
+      summary: Receive typing status from the other participant
+      message:
+        $ref: '#/components/messages/TypingEvent'
+    publish:
+      operationId: sendTypingIndicator
+      summary: Broadcast your typing status
+      message:
+        $ref: '#/components/messages/TypingEvent'
+
+  # ── Global presence ─────────────────────────────────────────────────────────
+
+  presence:
+    description: |
+      Global channel for online/offline presence events.
+      Subscribe after connecting to get notified when contacts come online or go offline.
+    subscribe:
+      operationId: onPresenceChange
+      summary: Receive online/offline status of contacts
+      message:
+        $ref: '#/components/messages/PresenceEvent'
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  messages:
+
+    IncomingMessage:
+      name: IncomingMessage
+      title: New message received
+      summary: A message sent by either participant in the conversation
+      contentType: application/json
+      payload:
+        type: object
+        required: [event, data]
+        properties:
+          event:
+            type: string
+            const: message.new
+            description: Discriminator field
+          data:
+            $ref: '#/components/schemas/Message'
+      examples:
+        - name: Text message from other user
+          payload:
+            event: message.new
+            data:
+              id: msg_001
+              conversation_id: conv_42
+              sender: them
+              content: Hei, besok jadi ketemuan?
+              timestamp: "2025-04-20T10:30:00Z"
+              type: text
+              image_url: null
+
+    OutgoingMessage:
+      name: OutgoingMessage
+      title: Send a message
+      summary: Payload the client sends to post a new message
+      contentType: application/json
+      payload:
+        type: object
+        required: [event, data]
+        properties:
+          event:
+            type: string
+            const: message.send
+          data:
+            type: object
+            required: [content, type]
+            properties:
+              content:
+                type: string
+                description: Text content of the message
+                example: Jadi, ketemu jam 7 ya!
+              type:
+                type: string
+                enum: [text, image]
+              image_url:
+                type: string
+                format: uri
+                nullable: true
+                description: Required when `type` is `image`
+      examples:
+        - name: Send a text message
+          payload:
+            event: message.send
+            data:
+              content: Jadi, ketemu jam 7 ya!
+              type: text
+
+    TypingEvent:
+      name: TypingEvent
+      title: Typing indicator
+      contentType: application/json
+      payload:
+        type: object
+        required: [event, data]
+        properties:
+          event:
+            type: string
+            const: typing.update
+          data:
+            type: object
+            required: [username, is_typing]
+            properties:
+              username:
+                type: string
+                description: The user whose typing status changed
+                example: sarahcodes
+              is_typing:
+                type: boolean
+                example: true
+      examples:
+        - name: User starts typing
+          payload:
+            event: typing.update
+            data:
+              username: sarahcodes
+              is_typing: true
+        - name: User stops typing
+          payload:
+            event: typing.update
+            data:
+              username: sarahcodes
+              is_typing: false
+
+    PresenceEvent:
+      name: PresenceEvent
+      title: User presence change
+      contentType: application/json
+      payload:
+        type: object
+        required: [event, data]
+        properties:
+          event:
+            type: string
+            const: presence.update
+          data:
+            type: object
+            required: [username, status]
+            properties:
+              username:
+                type: string
+                example: marcusj
+              status:
+                type: string
+                enum: [online, offline]
+              last_seen:
+                type: string
+                format: date-time
+                nullable: true
+                description: Set when `status` is `offline`
+      examples:
+        - name: User comes online
+          payload:
+            event: presence.update
+            data:
+              username: marcusj
+              status: online
+              last_seen: null
+
+  schemas:
+
+    Message:
+      type: object
+      required: [id, conversation_id, sender, content, timestamp, type]
+      properties:
+        id:
+          type: string
+        conversation_id:
+          type: string
+        sender:
+          type: string
+          enum: [me, them]
+        content:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum: [text, image]
+        image_url:
+          type: string
+          format: uri
+          nullable: true
