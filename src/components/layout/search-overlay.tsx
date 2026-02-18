@@ -84,7 +84,7 @@ export function SearchOverlay() {
               flex items-center justify-center gap-2
               w-52 px-4 py-2
               rounded-xl
-              bg-muted
+              bg-muted dark:bg-muted/50
               border border-border
               text-sm font-medium text-muted-foreground
 
