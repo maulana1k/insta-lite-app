@@ -1,39 +1,22 @@
-'use client';
+import { ProfilePageContent } from "./profile-page-content";
 
-import { use } from 'react';
-import { Header } from '@/components/layout/header';
-import { ProfileInfo } from '@/features/profile/components/profile-info';
-import { ProfileContent } from '@/features/profile/components/profile-content';
-import { useProfile } from '@/features/profile/hooks/use-profile'; // Fixed path
-import { PostDetailModal } from '@/features/posts/components/post-detail-modal';
-import { Loader2 } from 'lucide-react';
-
-interface PageProps {
-  params: Promise<{ username: string }>;
+export function generateStaticParams() {
+  // TODO: replace with API call: GET /api/v1/users?fields=username to get all usernames
+  const usernames = [
+    'sarahcodes','marcusj','elena.dev','jakethesnake','priya.design',
+    'tombuilds','ninawrites','alexfromtech','davidux','miathemaker',
+    'ryanstartup','chloecreates','kaidev','zaraml','liambuilds',
+    'budikoding','rinadev_','agus.backend','dinda.ui','fajar_ngoding',
+    'sitiux','andistartupin','megacloud',
+  ];
+  return usernames.map((username) => ({ username }));
 }
 
-export default function ProfilePage({ params }: PageProps) {
-  const { username } = use(params);
-  const { data: user, isLoading } = useProfile(username);
-
-  return (
-    <div className="min-h-screen bg-background font-sans text-foreground">
-      <Header />
-      
-      <main className="container max-w-7xl mx-auto px-4 py-8">
-        {isLoading || !user ? (
-           <div className="flex items-center justify-center py-20">
-               <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-           </div>
-        ) : (
-          <div className="flex flex-col md:flex-row gap-12">
-            <ProfileInfo user={user} />
-            <ProfileContent username={username} />
-          </div>
-        )}
-      </main>
-
-      <PostDetailModal />
-    </div>
-  );
+export default async function ProfilePage({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) {
+  const { username } = await params;
+  return <ProfilePageContent username={username} />;
 }

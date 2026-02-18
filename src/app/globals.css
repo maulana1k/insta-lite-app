@@ -83,7 +83,8 @@
 }
 
 .dark {
-  --background: oklch(0 0 0);
+  /* --background: oklch(0 0 0); */
+  --background: #111111;
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -120,6 +121,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -131,9 +133,20 @@
   button {
     cursor: pointer;
   }
+
   .scrollbar-hide::-webkit-scrollbar {
-  display: none;           /* Chrome, Safari, Edge */
-}
+    display: none;
+    /* Chrome, Safari, Edge */
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @keyframes pulse {
