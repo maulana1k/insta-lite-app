@@ -1,5 +1,6 @@
 
-import { Post } from "@/types/database";
+import { Post, User } from "@/types/database";
+import { USERS } from '@/features/post/api/mock-data';
 
 export interface DiscoverCategory {
   id: string;
@@ -120,4 +121,77 @@ export const DISCOVER_POSTS: Post[] = [
       likes_count: 3200,
       comments_count: 180,
     },
+];
+
+// ── Trending ──────────────────────────────────────────────────────────────
+
+export interface TrendingHashtag {
+  tag: string;
+  posts_count: number;
+}
+
+export const TRENDING_HASHTAGS: TrendingHashtag[] = [
+  { tag: '#GajiTransparan', posts_count: 12400 },
+  { tag: '#StartupBubble', posts_count: 8900 },
+  { tag: '#NasgorVsMigoreng', posts_count: 34200 },
+  { tag: '#KRLSurvivors', posts_count: 15600 },
+  { tag: '#AnakMudaKreatif', posts_count: 6700 },
+  { tag: 'Drama Selebriti', posts_count: 45300 },
+  { tag: 'Jakarta Vibes', posts_count: 22100 },
+  { tag: 'Politik Santai', posts_count: 18700 },
+  { tag: 'Kuliner Lokal', posts_count: 31500 },
+];
+
+export interface TrendingTopic {
+  label: string;
+  posts_count: number;
+  category: string;
+}
+
+export const TRENDING_TOPICS: TrendingTopic[] = [
+  { label: 'Debat Capres', posts_count: 124000, category: 'Politik' },
+  { label: 'QRIS', posts_count: 89000, category: 'Teknologi' },
+  { label: 'Nasi Goreng', posts_count: 67000, category: 'Kuliner' },
+  { label: 'WFH vs WFO', posts_count: 54000, category: 'Karir' },
+  { label: 'Skincare', posts_count: 45000, category: 'Gaya Hidup' },
+  { label: 'AI Takeover', posts_count: 41000, category: 'Teknologi' },
+  { label: 'Harga Kos', posts_count: 38000, category: 'Jakarta' },
+  { label: 'Side Hustle', posts_count: 35000, category: 'Bisnis' },
+  { label: 'Overwork', posts_count: 32000, category: 'Karir' },
+];
+
+export interface TrendingPost {
+  rank: number;
+  user: User;
+  timestamp: string;
+  content: string;
+  likes_count: number;
+  replies_count: number;
+}
+
+export const TRENDING_POSTS: TrendingPost[] = [
+  {
+    rank: 1,
+    user: USERS.marcus,
+    timestamp: '2j',
+    content: 'Update dari tukang nasi goreng depan kos: Beliau sekarang terima QRIS. Ada menu baru: nasi goreng "corporate" — isinya nasi goreng biasa tapi pake plate aesthetic dan harganya 3x lipat.',
+    likes_count: 92100,
+    replies_count: 11200,
+  },
+  {
+    rank: 2,
+    user: USERS.ryan,
+    timestamp: '50m',
+    content: 'Baru aja nonton debat capres. Dua-duanya bilang "kami akan memberantas korupsi." Bro yang satu tim sukses-nya lagi kena kasus korupsi.',
+    likes_count: 89200,
+    replies_count: 12400,
+  },
+  {
+    rank: 3,
+    user: USERS.liam,
+    timestamp: '8j',
+    content: 'Warung makan bu Yati di gang sebelah udah 23 tahun buka. Ga pernah ganti menu. Ga ada instagram. Ga ada influencer review. Tapi tiap jam makan rame banget. Marketing terbaik itu rasa.',
+    likes_count: 89700,
+    replies_count: 10200,
+  },
 ];
