@@ -8,4 +8,6 @@ export interface Space {
   members_count: number;
   posts_count: number;
   created_at: string;
+  is_private?: boolean;
+  rules?: string[];
 }

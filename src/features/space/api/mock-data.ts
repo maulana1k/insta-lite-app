@@ -11,6 +11,12 @@ export const SPACES: Space[] = [
     members_count: 524000,
     posts_count: 18900,
     created_at: '2024-03-15',
+    rules: [
+      'Gosip hanya untuk figur publik, bukan warga biasa',
+      'Dilarang doxxing atau menyebut alamat pribadi',
+      'Beri label opini vs fakta dengan jelas',
+      'Meme dan humor diperbolehkan, tapi jangan bully personal',
+    ],
   },
   {
     id: 'jakartavibes',
@@ -22,6 +28,12 @@ export const SPACES: Space[] = [
     members_count: 312000,
     posts_count: 14200,
     created_at: '2024-01-20',
+    rules: [
+      'Sharing pengalaman nyata, bukan hoax atau isu tidak jelas',
+      'Rekomendasi tempat wajib disertai nama lokasi',
+      'Dilarang spam promosi bisnis',
+      'Saling bantu sesama warga Jakarta',
+    ],
   },
   {
     id: 'politiksantai',
@@ -33,6 +45,13 @@ export const SPACES: Space[] = [
     members_count: 278000,
     posts_count: 9800,
     created_at: '2024-06-10',
+    rules: [
+      'Diskusi berdasarkan data dan fakta, bukan asumsi',
+      'Dilarang fitnah dan berita hoax',
+      'Hormati pendapat berbeda, debat boleh tapi tetap sopan',
+      'Dilarang kampanye partai atau kandidat secara eksplisit',
+      'Tetap santun walau beda pandangan politik',
+    ],
   },
   {
     id: 'kuliner',
@@ -44,6 +63,12 @@ export const SPACES: Space[] = [
     members_count: 445000,
     posts_count: 21000,
     created_at: '2023-11-05',
+    rules: [
+      'Review jujur berdasarkan pengalaman nyata',
+      'Sertakan foto makanan kalau bisa',
+      'Tulis nama tempat dan lokasi lengkap untuk rekomendasi',
+      'Dilarang promosi berbayar tanpa label #sponsored',
+    ],
   },
   {
     id: 'devid',
@@ -55,6 +80,13 @@ export const SPACES: Space[] = [
     members_count: 156000,
     posts_count: 12400,
     created_at: '2024-02-28',
+    rules: [
+      'Pertanyaan teknis wajib disertai kode dan pesan error',
+      'Gunakan code block untuk snippet kode',
+      'Dilarang repost lowongan kerja tanpa izin moderator',
+      'Saling bantu, bukan saling menjatuhkan',
+      'Hargai semua level pengalaman, dari junior sampai senior',
+    ],
   },
   {
     id: 'startupid',
@@ -66,6 +98,12 @@ export const SPACES: Space[] = [
     members_count: 89000,
     posts_count: 6700,
     created_at: '2024-08-12',
+    rules: [
+      'Dilarang cold pitch tanpa izin komunitas',
+      'Sharing pengalaman nyata dan lessons learned',
+      'Kritik boleh, tapi konstruktif dan berbasis fakta',
+      'Dilarang spam link fundraising atau referral',
+    ],
   },
   {
     id: 'curhatzone',
@@ -77,5 +115,13 @@ export const SPACES: Space[] = [
     members_count: 389000,
     posts_count: 32000,
     created_at: '2024-05-01',
+    is_private: true,
+    rules: [
+      'Jaga kerahasiaan cerita orang lain — apa yang di-curhat di sini, tetap di sini',
+      'Dilarang menghakimi atau memberi solusi yang tidak diminta',
+      'Gunakan trigger warning untuk topik sensitif (TW: ...)',
+      'Dukung satu sama lain dengan empati, bukan simpati kosong',
+      'Dilarang screenshot dan menyebarkan curhat orang lain',
+    ],
   },
 ];
