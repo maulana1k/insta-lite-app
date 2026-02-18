@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Lock } from 'lucide-react';
+import { ArrowLeft, Lock } from 'lucide-react';
 import { Calendar } from '@solar-icons/react';
 import { cn } from '@/lib/utils';
 import { Space } from '../types';
+import { useRouter } from 'next/navigation';
 
 function formatCount(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
@@ -23,70 +24,82 @@ interface SpaceProfileHeaderProps {
 }
 
 export function SpaceProfileHeader({ space, isMember, onJoin }: SpaceProfileHeaderProps) {
+  const router = useRouter();
   const [tab, setTab] = useState<'about' | 'rules'>('about');
   const [isFollowing, setIsFollowing] = useState(false);
 
   return (
     <div className="mb-1">
-      {/* ── Banner ── */}
-      <div className="relative h-44 overflow-hidden rounded-2xl">
-        <img
-          src={space.banner_url}
-          alt={space.name}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+      {/* ── Banner + avatar (stacked) ── */}
+      <div className="relative h-44 rounded-2xl overflow-visible">
+        {/* Banner image — clips to rounded corners */}
+        <div className="h-44 rounded-2xl overflow-hidden">
+          <img
+            src={space.banner_url}
+            alt={space.name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-2xl" />
+        </div>
 
+        {/* Back button — top-left of banner */}
+        <button
+          onClick={() => router.back()}
+          className="absolute top-3 left-3 size-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors z-10"
+        >
+          <ArrowLeft className="size-4" />
+        </button>
+
+        {/* Privacy badge — top-right of banner */}
         {space.is_private && (
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm text-white text-[11px] font-semibold px-2.5 py-1 rounded-full">
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm text-white text-[11px] font-semibold px-2.5 py-1 rounded-full z-10">
             <Lock className="size-3" />
             Privat
           </div>
         )}
-      </div>
 
-      {/* ── Avatar + action buttons ── */}
-      <div className="flex items-start justify-between -mt-9 mb-3 px-1">
-        <div className="size-[72px] rounded-2xl overflow-hidden border-4 border-background bg-background shadow-sm shrink-0">
+        {/* Avatar — absolute, bottom-left, half overflowing the banner */}
+        <div className="absolute -bottom-8 left-2 z-10 size-[72px] rounded-2xl overflow-hidden border-4 border-background bg-background shadow-md">
           <img
             src={space.avatar_url}
             alt={space.name}
             className="w-full h-full object-cover"
           />
         </div>
-
-        <div className="flex items-center gap-2 mt-12">
-          <button
-            onClick={() => setIsFollowing((v) => !v)}
-            className={cn(
-              'px-4 py-1.5 rounded-xl text-[13px] font-semibold transition-all',
-              isFollowing
-                ? 'bg-muted text-foreground hover:bg-muted/70'
-                : 'bg-foreground text-background hover:opacity-85',
-            )}
-          >
-            {isFollowing ? 'Mengikuti' : 'Ikuti'}
-          </button>
-
-          {space.is_private && !isMember && (
-            <button
-              onClick={onJoin}
-              className="px-4 py-1.5 rounded-xl text-[13px] font-semibold border border-border bg-background hover:bg-muted/50 transition-all"
-            >
-              Minta Bergabung
-            </button>
-          )}
-
-          {space.is_private && isMember && (
-            <span className="px-3 py-1.5 rounded-xl text-[13px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-              ✓ Anggota
-            </span>
-          )}
-        </div>
       </div>
 
-      {/* ── Name + slug ── */}
-      <div className="px-1 mb-2">
+      {/* ── Action buttons — right-aligned, clears the avatar overflow ── */}
+      <div className="flex justify-end gap-2 pt-2 mb-3 px-1">
+        <button
+          onClick={() => setIsFollowing((v) => !v)}
+          className={cn(
+            'px-4 py-1.5 rounded-xl text-[13px] font-semibold transition-all',
+            isFollowing
+              ? 'bg-muted text-foreground hover:bg-muted/70'
+              : 'bg-foreground text-background hover:opacity-85',
+          )}
+        >
+          {isFollowing ? 'Mengikuti' : 'Ikuti'}
+        </button>
+
+        {space.is_private && !isMember && (
+          <button
+            onClick={onJoin}
+            className="px-4 py-1.5 rounded-xl text-[13px] font-semibold border border-border bg-background hover:bg-muted/50 transition-all"
+          >
+            Minta Bergabung
+          </button>
+        )}
+
+        {space.is_private && isMember && (
+          <span className="px-3 py-1.5 rounded-xl text-[13px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            ✓ Anggota
+          </span>
+        )}
+      </div>
+
+      {/* ── Name + slug — padded to clear the avatar ── */}
+      <div className="px-1 mb-2 mt-6">
         <h1 className="font-bold text-[22px] leading-tight">{space.name}</h1>
         <p className="text-[12px] text-muted-foreground mt-0.5">s/{space.slug}</p>
       </div>

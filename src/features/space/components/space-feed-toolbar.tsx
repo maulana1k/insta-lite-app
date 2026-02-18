@@ -2,10 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ChevronDown, Search, LayoutGrid, LayoutList, X, History } from 'lucide-react';
+import { ChevronDown, Search, LayoutGrid, LayoutList, X, History } from 'lucide-react';
 import { useSpaceStore } from '../store/space-store';
 import { useEventStore } from '@/features/event/store/event-store';
-import { useFeedStore } from '@/features/post/store/feed-store';
 import { EventFilter } from '@/features/event/types';
 import { FireMinimalistic, Like } from '@solar-icons/react';
 
@@ -19,7 +18,6 @@ const EVENT_FILTER_LABELS: Record<EventFilter, string> = {
 };
 
 export function SpaceFeedToolbar() {
-  const { setActiveSpaceId } = useFeedStore();
   const { spaceViewMode, setSpaceViewMode } = useSpaceStore();
   const { eventFilter, setEventFilter } = useEventStore();
   const [sortMode, setSortMode] = useState<SortMode>('trending');
@@ -62,20 +60,8 @@ export function SpaceFeedToolbar() {
     trending: <FireMinimalistic weight='Bold' className="size-5" />,
   };
 
-  const handleBack = () => {
-    setActiveSpaceId('all');
-  };
-
   return (
     <div className="flex items-center gap-2 mb-4">
-      {/* Back button */}
-      <button
-        onClick={handleBack}
-        className="size-10 rounded-full bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors shrink-0"
-      >
-        <ArrowLeft className="size-5" />
-      </button>
-
       {/* Posts / Events segmented control */}
       <div className="flex p-1 rounded-xl bg-muted/60">
         <button
