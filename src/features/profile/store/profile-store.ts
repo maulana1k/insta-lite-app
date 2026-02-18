@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 
-type ViewMode = 'grid' | 'list' | 'tagged';
+type ProfileTab = 'posts' | 'media' | 'repost' | 'bookmark';
 
 interface ProfileState {
-  viewMode: ViewMode;
-  setViewMode: (mode: ViewMode) => void;
+  activeTab: ProfileTab;
+  setActiveTab: (tab: ProfileTab) => void;
 }
 
 export const useProfileStore = create<ProfileState>((set) => ({
-  viewMode: 'grid',
-  setViewMode: (mode) => set({ viewMode: mode }),
+  activeTab: 'posts',
+  setActiveTab: (tab) => set({ activeTab: tab }),
 }));

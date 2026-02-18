@@ -11,7 +11,7 @@ export interface User {
 export interface Post {
   id: string;
   user_id: string;
-  image_url: string;
+  image_url?: string;
   caption?: string;
   location?: string;
   created_at: string;
