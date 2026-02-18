@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Activity } from '../types';
 import { getActivityMessage, getActivityIcon, getActivityIconColor } from '../utils/activity-helpers';
-import { timeAgo } from '../utils/time';
+import { timeAgo } from '@/lib/time';
 import { VerifiedCheck } from '@solar-icons/react';
 
 interface ActivityItemProps {

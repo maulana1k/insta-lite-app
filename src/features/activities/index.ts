@@ -8,5 +8,5 @@ export { EmptyState } from './components/empty-state';
 
 export type { Activity, ActivityTab, ActivityType, EngagementMetric, TabConfig } from './types';
 export { useActivityFilter, useUnreadCount } from './hooks/use-activity-filter';
-export { timeAgo, isToday } from './utils/time';
+export { timeAgo, isToday } from '@/lib/time';
 export { getActivityMessage, getActivityIcon, getActivityIconColor, groupActivitiesByDate } from './utils/activity-helpers';

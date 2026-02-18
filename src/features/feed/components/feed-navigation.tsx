@@ -1,13 +1,13 @@
 'use client';
 
-import { useFeedModeStore } from "@/features/text-feed/store/feed-mode-store";
+import { useFeedStore as usePostFeedStore } from "@/features/post/store/feed-store";
 import { useFeedStore } from "../store/feed-store";
 import { Camera, Notes } from "@solar-icons/react";
 import { Grid2X2, Grid3X3, GalleryVertical, AtSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function FeedModeToggle() {
-  const { mode, setMode } = useFeedModeStore();
+  const { mode, setMode } = usePostFeedStore();
 
   return (
     <div className="fixed h-screen flex flex-col left-8 justify-center z-10 gap-2">
@@ -30,7 +30,7 @@ export function FeedModeToggle() {
 }
 
 export function FeedLayoutToggle() {
-  const { mode } = useFeedModeStore();
+  const { mode } = usePostFeedStore();
   const { layout, setLayout } = useFeedStore();
 
   if (mode !== 'visual') return null;
