@@ -2,17 +2,17 @@
 
 import { useProfilePosts } from '../hooks/use-profile';
 import { useProfileStore } from '../store/profile-store';
-import { Heart, MessageCircle, Loader2 } from 'lucide-react';
+import { Heart, MessageCircle, Loader2, LayoutGrid, Repeat2, Bookmark, Camera } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Post } from '@/types/database';
 
 type ProfileTab = 'posts' | 'media' | 'repost' | 'bookmark';
 
-const TABS: { id: ProfileTab; label: string }[] = [
-  { id: 'posts', label: 'Posts' },
-  { id: 'media', label: 'Media' },
-  { id: 'repost', label: 'Repost' },
-  { id: 'bookmark', label: 'Bookmark' },
+const TABS: { id: ProfileTab; icon: React.ReactNode; label: string }[] = [
+  { id: 'posts',    icon: <LayoutGrid className="size-[18px]" />, label: 'Posts' },
+  { id: 'media',    icon: <Camera     className="size-[18px]" />, label: 'Media' },
+  { id: 'repost',   icon: <Repeat2    className="size-[18px]" />, label: 'Repost' },
+  { id: 'bookmark', icon: <Bookmark   className="size-[18px]" />, label: 'Saved' },
 ];
 
 interface ProfileContentProps {
@@ -38,23 +38,21 @@ export function ProfileContent({ username }: ProfileContentProps) {
 
   return (
     <div className="flex-1 min-w-0">
-      {/* Tabs — top left, underline style */}
-      <div className="flex gap-0 mb-4 border-b border-border">
+      {/* Icon-only tabs */}
+      <div className="flex gap-1 mb-4">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
+            aria-label={tab.label}
             className={cn(
-              'relative px-4 py-2.5 text-[13px] font-semibold transition-colors',
+              'size-10 rounded-xl flex items-center justify-center transition-colors',
               activeTab === tab.id
-                ? 'text-foreground'
-                : 'text-muted-foreground hover:text-foreground/70',
+                ? 'bg-foreground/10 text-foreground'
+                : 'text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/60',
             )}
           >
-            {tab.label}
-            {activeTab === tab.id && (
-              <span className="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-foreground rounded-full" />
-            )}
+            {tab.icon}
           </button>
         ))}
       </div>
@@ -85,25 +83,29 @@ function ImagePostCard({ post }: { post: Post }) {
       <img
         src={post.image_url}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        className="absolute inset-0 w-full h-full object-cover"
       />
-      {/* gradient — always visible at bottom */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-      {/* text content */}
-      <div className="absolute bottom-0 left-0 right-0 p-3">
-        <p className="text-white text-[11px] leading-snug line-clamp-2 group-hover:line-clamp-none transition-all duration-200">
-          {post.caption}
-        </p>
-        <div className="flex items-center gap-3 mt-1.5 text-[10px] text-white/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <span className="flex items-center gap-1">
-            <Heart className="size-3" />
-            {post.likes_count.toLocaleString()}
-          </span>
-          <span className="flex items-center gap-1">
-            <MessageCircle className="size-3" />
-            {post.comments_count.toLocaleString()}
-          </span>
+      {/* Persistent dark gradient at bottom so resting text is readable */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+      {/* Sliding content panel — translate-y hides most of it at rest,
+          leaving only ~46px (1 line) peeking above the card bottom edge. */}
+      <div className="absolute bottom-0 left-0 right-0 translate-y-[calc(100%-46px)] group-hover:translate-y-0 transition-transform duration-300 ease-out">
+        <div className="pt-8 px-3 pb-3">
+          <p className="text-white text-[12px] leading-snug line-clamp-4">
+            {post.caption}
+          </p>
+          <div className="flex items-center gap-3 mt-2 text-[11px] text-white/60">
+            <span className="flex items-center gap-1">
+              <Heart className="size-3" />
+              {post.likes_count.toLocaleString()}
+            </span>
+            <span className="flex items-center gap-1">
+              <MessageCircle className="size-3" />
+              {post.comments_count.toLocaleString()}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -112,11 +114,11 @@ function ImagePostCard({ post }: { post: Post }) {
 
 function TextPostCard({ post }: { post: Post }) {
   return (
-    <div className="relative aspect-square rounded-xl bg-muted/50 border border-border/40 overflow-hidden cursor-pointer group hover:bg-muted transition-colors duration-200 p-3 flex flex-col">
-      <p className="flex-1 text-[11px] leading-snug text-foreground/75 group-hover:text-foreground transition-colors duration-200 overflow-hidden">
+    <div className="relative aspect-square rounded-xl bg-muted/60 border border-border/40 cursor-pointer group hover:bg-muted transition-colors duration-200 p-4 flex flex-col overflow-hidden">
+      <p className="flex-1 text-[13px] leading-relaxed text-foreground/80 group-hover:text-foreground transition-colors duration-200 overflow-hidden">
         {post.caption}
       </p>
-      <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground shrink-0">
+      <div className="flex items-center gap-3 mt-3 text-[11px] text-muted-foreground shrink-0">
         <span className="flex items-center gap-1">
           <Heart className="size-3" />
           {post.likes_count.toLocaleString()}
