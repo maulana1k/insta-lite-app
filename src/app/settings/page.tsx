@@ -27,22 +27,19 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-background font-sans text-foreground">
       <Header />
 
-      <div className="flex w-full justify-center px-6 py-4 pt-15">
-        <div
-          className="flex max-w-5xl w-full"
-          style={{ height: 'calc(100vh - 60px - 32px)' }}
-        >
-          {/* Sidebar */}
-          <div className="w-[220px] shrink-0">
+      <div className="flex w-full justify-center px-6 pt-15">
+        <div className="flex max-w-5xl w-full items-start">
+          {/* Sidebar — sticky */}
+          <div className="w-[220px] shrink-0 sticky top-15 self-start">
             <SettingsSidebar
               activeSection={activeSection}
               onSectionChange={setActiveSection}
             />
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto overscroll-contain pl-10">
-            <div className="max-w-2xl py-8">
+          {/* Content — scrolls with the page */}
+          <div className="flex-1 pl-10">
+            <div className="max-w-2xl pt-8 pb-20">
               {renderSection()}
             </div>
           </div>

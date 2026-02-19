@@ -21,8 +21,19 @@ import { SettingsGroup, SettingsRow, Toggle, EditRow } from './settings-ui';
 import { useSettingsStore } from '../store/settings-store';
 import { CURRENT_USER } from '../api/mock-data';
 
+function FieldView({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="space-y-0.5">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{label}</p>
+      <p className="text-[14px] text-foreground whitespace-pre-line">{value || <span className="text-muted-foreground/50 italic">Belum diisi</span>}</p>
+    </div>
+  );
+}
+
 export function SettingsAccount() {
   const { profile, updateProfile } = useSettingsStore();
+
+  const [isEditing, setIsEditing] = useState(false);
 
   const [nameForm, setNameForm] = useState({
     first: profile.displayName.split(' ')[0] ?? 'Jack',
@@ -41,14 +52,49 @@ export function SettingsAccount() {
     passwords.new.length >= 8 &&
     passwords.new === passwords.confirm;
 
+  function handleEdit() {
+    // sync draft from latest saved profile before opening
+    setNameForm({
+      first: profile.displayName.split(' ')[0] ?? 'Jack',
+      last: profile.displayName.split(' ').slice(1).join(' ') ?? 'Harding',
+    });
+    setUsername(profile.username);
+    setBio(profile.bio);
+    setWebsite(profile.website);
+    setIsEditing(true);
+  }
+
+  function handleSave() {
+    updateProfile({
+      displayName: `${nameForm.first} ${nameForm.last}`.trim(),
+      username,
+      bio,
+      website,
+    });
+    setIsEditing(false);
+  }
+
+  function handleCancel() {
+    setNameForm({
+      first: profile.displayName.split(' ')[0] ?? 'Jack',
+      last: profile.displayName.split(' ').slice(1).join(' ') ?? 'Harding',
+    });
+    setUsername(profile.username);
+    setBio(profile.bio);
+    setWebsite(profile.website);
+    setEmail('jack.harding@example.com');
+    setPhone('+62 812 3456 7890');
+    setIsEditing(false);
+  }
+
   return (
     <div className="space-y-6">
 
       {/* Profile Picture */}
-      <div className="flex flex-col items-center gap-2.5 pt-2 pb-4">
-        <label className="relative cursor-pointer group">
+      <div className="flex items-center gap-5 pb-2">
+        <label className="relative cursor-pointer group shrink-0">
           <input type="file" accept="image/*" className="sr-only" />
-          <Avatar className="size-20">
+          <Avatar className="size-[72px]">
             <AvatarImage src={CURRENT_USER.avatar_url} alt={CURRENT_USER.full_name} />
             <AvatarFallback className="text-2xl font-semibold">
               {CURRENT_USER.full_name.slice(0, 2).toUpperCase()}
@@ -58,145 +104,131 @@ export function SettingsAccount() {
             <Camera className="size-5 text-white" />
           </div>
         </label>
-        <p className="text-[13px] font-medium text-[#007AFF] hover:opacity-70 cursor-pointer transition-opacity">
-          Ubah Foto Profil
-        </p>
-        <p className="text-[18px] font-bold">{profile.displayName}</p>
-        <p className="text-[13px] text-muted-foreground -mt-1">@{profile.username}</p>
+        <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+          <p className="text-[18px] font-bold leading-tight">{profile.displayName}</p>
+          <p className="text-[13px] text-muted-foreground">@{profile.username}</p>
+          <p className="text-[13px] font-medium text-[#007AFF] hover:opacity-70 cursor-pointer transition-opacity mt-2">
+            Ubah Foto Profil
+          </p>
+        </div>
+        {!isEditing && (
+          <Button variant="outline" size="sm" onClick={handleEdit} className="shrink-0">
+            Edit Profil
+          </Button>
+        )}
       </div>
 
       {/* Personal Details */}
       <SettingsGroup header="Detail Personal">
-        <EditRow label="Nama" value={`${nameForm.first} ${nameForm.last}`.trim()}>
-          {(onClose) => (
+        <div className="px-4 py-4 space-y-4">
+          {isEditing ? (
             <>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Nama</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    value={nameForm.first}
+                    onChange={(e) => setNameForm({ ...nameForm, first: e.target.value })}
+                    placeholder="Nama depan"
+                  />
+                  <Input
+                    value={nameForm.last}
+                    onChange={(e) => setNameForm({ ...nameForm, last: e.target.value })}
+                    placeholder="Nama belakang"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Username</p>
+                <div className="flex items-center rounded-lg border border-border overflow-hidden h-9 bg-background">
+                  <span className="px-3 text-[13px] text-muted-foreground bg-muted/50 h-full flex items-center border-r border-border shrink-0">
+                    @
+                  </span>
+                  <input
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="flex-1 px-3 text-[14px] outline-none bg-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Bio</p>
+                <Textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="Ceritakan tentang diri Anda..."
+                  rows={3}
+                  className="resize-none text-[14px]"
+                />
+                <p className="text-[11px] text-muted-foreground text-right">{bio.length}/160</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Website</p>
                 <Input
-                  value={nameForm.first}
-                  onChange={(e) => setNameForm({ ...nameForm, first: e.target.value })}
-                  placeholder="Nama depan"
-                />
-                <Input
-                  value={nameForm.last}
-                  onChange={(e) => setNameForm({ ...nameForm, last: e.target.value })}
-                  placeholder="Nama belakang"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  placeholder="https://website.com"
+                  type="url"
                 />
               </div>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    updateProfile({ displayName: `${nameForm.first} ${nameForm.last}`.trim() });
-                    onClose();
-                  }}
-                >
-                  Simpan
-                </Button>
-                <Button size="sm" variant="ghost" onClick={onClose}>Batal</Button>
-              </div>
             </>
-          )}
-        </EditRow>
-
-        <EditRow label="Username" value={`@${username}`}>
-          {(onClose) => (
+          ) : (
             <>
-              <div className="flex items-center rounded-lg border border-border overflow-hidden h-8">
-                <span className="px-3 text-[13px] text-muted-foreground bg-muted/50 h-full flex items-center border-r border-border shrink-0">
-                  @
-                </span>
-                <input
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="flex-1 px-2.5 text-[14px] outline-none bg-transparent"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" onClick={() => { updateProfile({ username }); onClose(); }}>Simpan</Button>
-                <Button size="sm" variant="ghost" onClick={onClose}>Batal</Button>
-              </div>
+              <FieldView label="Nama" value={`${nameForm.first} ${nameForm.last}`.trim()} />
+              <FieldView label="Username" value={`@${username}`} />
+              <FieldView label="Bio" value={bio} />
+              <FieldView label="Website" value={website} />
             </>
           )}
-        </EditRow>
-
-        <EditRow
-          label="Bio"
-          value={bio ? bio.split('\n')[0].slice(0, 40) + (bio.length > 40 ? '…' : '') : 'Tambahkan bio'}
-        >
-          {(onClose) => (
-            <>
-              <Textarea
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                placeholder="Ceritakan tentang diri Anda..."
-                rows={3}
-                className="resize-none text-[14px]"
-              />
-              <p className="text-[11px] text-muted-foreground text-right">{bio.length}/160</p>
-              <div className="flex gap-2">
-                <Button size="sm" onClick={() => { updateProfile({ bio }); onClose(); }}>Simpan</Button>
-                <Button size="sm" variant="ghost" onClick={onClose}>Batal</Button>
-              </div>
-            </>
-          )}
-        </EditRow>
-
-        <EditRow label="Website" value={website || 'Tambahkan website'}>
-          {(onClose) => (
-            <>
-              <Input
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-                placeholder="https://website.com"
-                type="url"
-              />
-              <div className="flex gap-2">
-                <Button size="sm" onClick={() => { updateProfile({ website }); onClose(); }}>Simpan</Button>
-                <Button size="sm" variant="ghost" onClick={onClose}>Batal</Button>
-              </div>
-            </>
-          )}
-        </EditRow>
+        </div>
       </SettingsGroup>
 
       {/* Contact */}
       <SettingsGroup header="Kontak">
-        <EditRow label="Email" value={email}>
-          {(onClose) => (
+        <div className="px-4 py-4 space-y-4">
+          {isEditing ? (
             <>
-              <Input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                type="email"
-                placeholder="email@contoh.com"
-              />
-              <div className="flex gap-2">
-                <Button size="sm" onClick={onClose}>Simpan</Button>
-                <Button size="sm" variant="ghost" onClick={onClose}>Batal</Button>
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Email</p>
+                <Input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  type="email"
+                  placeholder="email@contoh.com"
+                />
               </div>
-            </>
-          )}
-        </EditRow>
 
-        <EditRow label="Nomor Telepon" value={phone}>
-          {(onClose) => (
-            <>
-              <Input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                type="tel"
-                placeholder="+62 812 xxxx xxxx"
-              />
-              <div className="flex gap-2">
-                <Button size="sm" onClick={onClose}>Simpan</Button>
-                <Button size="sm" variant="ghost" onClick={onClose}>Batal</Button>
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Nomor Telepon</p>
+                <Input
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  type="tel"
+                  placeholder="+62 812 xxxx xxxx"
+                />
               </div>
             </>
+          ) : (
+            <>
+              <FieldView label="Email" value={email} />
+              <FieldView label="Nomor Telepon" value={phone} />
+            </>
           )}
-        </EditRow>
+        </div>
       </SettingsGroup>
 
-      {/* Security */}
+      {/* Save / Cancel — only visible in edit mode */}
+      {isEditing && (
+        <div className="flex gap-2">
+          <Button onClick={handleSave}>Simpan Perubahan</Button>
+          <Button variant="ghost" onClick={handleCancel}>Batal</Button>
+        </div>
+      )}
+
+      {/* Security — always separate */}
       <SettingsGroup header="Keamanan">
         <EditRow label="Password" value="••••••••••">
           {(onClose) => (
