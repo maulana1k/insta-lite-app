@@ -31,7 +31,7 @@ export function DiscoverFeed() {
   })).filter((g) => g.posts.length > 0);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       {/* Hero + Trending Topics + Trending Sekarang row */}
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_2fr_1fr] gap-6 mb-8">
         {/* Left - hero featured post */}
