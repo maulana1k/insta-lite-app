@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { ChatWidget } from "@/features/messages/components/chat-widget";
+import { SplashScreen } from "@/components/layout/splash-screen";
 
 const CHAT_EXCLUDED_PATHS = ['/auth'];
 
@@ -26,6 +27,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <QueryClientProvider client={queryClient}>
+        <SplashScreen />
         {children}
         {!CHAT_EXCLUDED_PATHS.includes(pathname) && <ChatWidget />}
       </QueryClientProvider>

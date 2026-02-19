@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type ProfileTab = 'posts' | 'media' | 'repost' | 'bookmark';
+type ProfileTab = 'posts' | 'media' | 'repost' | 'bookmark' | 'mentions';
 
 interface ProfileState {
   activeTab: ProfileTab;
