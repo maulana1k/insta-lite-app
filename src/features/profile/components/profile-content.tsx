@@ -115,49 +115,45 @@ function PostStats({ post }: { post: Post }) {
 
 function ImagePostCard({ post }: { post: Post }) {
   return (
-    <div className="relative aspect-square rounded-2xl overflow-hidden cursor-pointer group">
-      {/* Full image */}
-      <img
-        src={post.image_url}
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover"
-      />
+    <div className="aspect-square rounded-2xl bg-muted/60 border border-border/40 cursor-pointer group hover:bg-muted transition-colors duration-200 overflow-hidden flex flex-col">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-3 pt-3">
+        {post.user?.avatar_url && (
+          <img
+            src={post.user.avatar_url}
+            alt=""
+            className="size-6 rounded-full object-cover"
+          />
+        )}
+        <span className="text-[11px] font-medium text-foreground/60 truncate">
+          {post.user?.username}
+        </span>
+      </div>
 
-      {/* Hover overlay — fades in */}
-      <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+      {/* Image — fills remaining space */}
+      <div className="flex-1 min-h-0 w-full overflow-hidden mt-2.5">
+        <img
+          src={post.image_url!}
+          alt=""
+          className="w-full h-full object-cover"
+        />
+      </div>
 
-      {/* Content — fades in with overlay */}
-      <div className="absolute inset-0 flex flex-col justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-        {/* Avatar + username */}
-        <div className="flex items-center gap-2">
-          {post.user?.avatar_url && (
-            <img
-              src={post.user.avatar_url}
-              alt=""
-              className="size-7 rounded-full object-cover ring-1 ring-white/30"
-            />
-          )}
-          <span className="text-[12px] font-medium text-white/90 truncate">
-            {post.user?.username}
-          </span>
-        </div>
+      {/* Caption */}
+      <p className="text-[13px] text-foreground/80 group-hover:text-foreground transition-colors duration-200 truncate px-3 pt-2">
+        {post.caption}
+      </p>
 
-        {/* Caption + stats */}
-        <div>
-          <p className="text-[13px] leading-snug line-clamp-3 text-white/90 mb-2.5">
-            {post.caption}
-          </p>
-          <div className="flex items-center gap-3 text-[11px] text-white/60">
-            <span className="flex items-center gap-1">
-              <Heart className="size-3" />
-              {post.likes_count.toLocaleString()}
-            </span>
-            <span className="flex items-center gap-1">
-              <MessageCircle className="size-3" />
-              {post.comments_count.toLocaleString()}
-            </span>
-          </div>
-        </div>
+      {/* Stats */}
+      <div className="flex items-center gap-3 px-3 py-2.5 text-[11px] text-muted-foreground font-semibold">
+        <span className="flex items-center gap-1">
+          <Heart className="size-3" />
+          {post.likes_count.toLocaleString()}
+        </span>
+        <span className="flex items-center gap-1">
+          <MessageCircle className="size-3" />
+          {post.comments_count.toLocaleString()}
+        </span>
       </div>
     </div>
   );

@@ -150,7 +150,7 @@ export function AuthPage() {
   const verb = isSignup ? 'Sign up' : 'Log in';
 
   const handleContinue = () => {
-    if (email.trim()) router.push('/');
+    if (email.trim()) router.push(isSignup ? '/onboarding' : '/');
   };
 
   const allProviders = moreOpen
@@ -259,7 +259,7 @@ export function AuthPage() {
                 <button
                   key={provider.id}
                   type="button"
-                  onClick={() => router.push('/')}
+                  onClick={() => router.push(isSignup ? '/onboarding' : '/')}
                   className="w-full flex items-center gap-3.5 bg-white text-black font-semibold rounded-2xl py-[11px] px-5 hover:bg-gray-50 active:scale-[0.98] transition-all duration-150"
                 >
                   <span className="size-[18px] shrink-0">{provider.icon}</span>
