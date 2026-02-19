@@ -22,26 +22,21 @@ export function SettingsAppearance() {
   const { appearance, updateAppearance } = useSettingsStore();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
 
       <SettingsGroup
         header="Tampilan"
         footer="Pilih tampilan antarmuka aplikasi."
       >
         {THEMES.map((t) => (
-          <button
-            key={t.value}
-            onClick={() => setTheme(t.value)}
-            className="w-full flex items-center justify-between h-11 px-4 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors"
-          >
-            <span className="text-[15px] text-foreground">{t.label}</span>
+          <SettingsRow key={t.value} label={t.label} onClick={() => setTheme(t.value)}>
             <Check
               className={cn(
                 'size-4 transition-opacity',
                 theme === t.value ? 'opacity-100 text-[#007AFF]' : 'opacity-0'
               )}
             />
-          </button>
+          </SettingsRow>
         ))}
       </SettingsGroup>
 
@@ -50,19 +45,18 @@ export function SettingsAppearance() {
         footer="Ubah bahasa yang digunakan di seluruh aplikasi."
       >
         {LANGUAGES.map((lang) => (
-          <button
+          <SettingsRow
             key={lang.value}
+            label={lang.label}
             onClick={() => updateAppearance({ language: lang.value })}
-            className="w-full flex items-center justify-between h-11 px-4 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors"
           >
-            <span className="text-[15px] text-foreground">{lang.label}</span>
             <Check
               className={cn(
                 'size-4 transition-opacity',
                 appearance.language === lang.value ? 'opacity-100 text-[#007AFF]' : 'opacity-0'
               )}
             />
-          </button>
+          </SettingsRow>
         ))}
       </SettingsGroup>
 

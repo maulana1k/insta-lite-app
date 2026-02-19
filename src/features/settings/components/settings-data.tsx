@@ -29,7 +29,7 @@ export function SettingsData() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
 
       <SettingsGroup
         header="Penyimpanan"
@@ -60,7 +60,7 @@ export function SettingsData() {
       >
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <button className="w-full flex items-center h-11 px-4 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors">
+            <button className="w-full flex items-center py-3.5 hover:bg-muted/30 dark:hover:bg-white/[0.03] transition-colors">
               <span className="text-[15px] text-red-500">Hapus Akun</span>
             </button>
           </AlertDialogTrigger>

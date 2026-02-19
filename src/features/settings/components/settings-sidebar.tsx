@@ -23,10 +23,8 @@ interface SettingsSidebarProps {
 
 export function SettingsSidebar({ activeSection, onSectionChange }: SettingsSidebarProps) {
   return (
-    <div className="py-8 pr-2">
-      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.07em] px-4 mb-3">
-        Pengaturan
-      </p>
+    <div className="py-8 pr-4">
+      <h2 className="text-[22px] font-bold px-3 mb-5">Pengaturan</h2>
       <nav className="space-y-0.5">
         {SECTIONS.map((section) => {
           const Icon = section.icon;
@@ -37,19 +35,19 @@ export function SettingsSidebar({ activeSection, onSectionChange }: SettingsSide
               key={section.id}
               onClick={() => onSectionChange(section.id)}
               className={`
-                w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-left
+                w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left
                 ${isActive
-                  ? 'bg-muted/70 dark:bg-white/[0.08] text-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                  ? 'text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
                 }
               `}
             >
               {/* @ts-ignore */}
               <Icon
-                className="size-[18px] shrink-0"
+                className="size-5 shrink-0"
                 weight={isActive ? 'Bold' : 'Linear'}
               />
-              <span className={`text-[14px] ${isActive ? 'font-semibold' : 'font-normal'}`}>
+              <span className={`text-[16px] ${isActive ? 'font-bold' : 'font-normal'}`}>
                 {section.label}
               </span>
             </button>

@@ -31,7 +31,7 @@ export function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) 
   );
 }
 
-// Grouped section container — Apple inset grouped style
+// Flat section container — bold header, dividers between rows, no card background
 export function SettingsGroup({
   children,
   header,
@@ -46,30 +46,26 @@ export function SettingsGroup({
   const items = React.Children.toArray(children).filter(Boolean);
 
   return (
-    <div className={cn('space-y-1', className)}>
+    <div className={cn('space-y-2', className)}>
       {header && (
-        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.07em] px-1 pb-0.5">
-          {header}
-        </p>
+        <h3 className="text-[17px] font-bold">{header}</h3>
       )}
-      <div className="rounded-xl overflow-hidden bg-muted/50 dark:bg-white/[0.06]">
+      <div>
         {items.map((item, index) => (
           <React.Fragment key={index}>
-            {index > 0 && <div className="h-px bg-border/60 ml-4" />}
+            {index > 0 && <div className="h-px bg-border/50" />}
             {item}
           </React.Fragment>
         ))}
       </div>
       {footer && (
-        <p className="text-[12px] text-muted-foreground px-1 pt-1 leading-relaxed">
-          {footer}
-        </p>
+        <p className="text-[13px] text-muted-foreground leading-relaxed">{footer}</p>
       )}
     </div>
   );
 }
 
-// Single row inside a group
+// Single flat row inside a group
 export function SettingsRow({
   label,
   value,
@@ -81,14 +77,14 @@ export function SettingsRow({
   value?: string;
   onClick?: () => void;
   danger?: boolean;
-  children?: React.ReactNode; // override right side
+  children?: React.ReactNode;
 }) {
   const content = (
-    <div className="flex items-center justify-between h-11 px-4 gap-4">
-      <span className={cn('text-[15px] truncate flex-1', danger ? 'text-red-500' : 'text-foreground')}>
+    <div className="flex items-center justify-between py-3.5 gap-4">
+      <span className={cn('text-[15px]', danger ? 'text-red-500' : 'text-foreground')}>
         {label}
       </span>
-      <div className="flex items-center gap-1 shrink-0">
+      <div className="flex items-center gap-1.5 shrink-0">
         {children !== undefined ? (
           children
         ) : (
@@ -109,7 +105,7 @@ export function SettingsRow({
     return (
       <button
         onClick={onClick}
-        className="w-full text-left hover:bg-black/[0.04] dark:hover:bg-white/[0.04] active:bg-black/[0.07] transition-colors"
+        className="w-full text-left hover:bg-muted/30 dark:hover:bg-white/[0.03] transition-colors"
       >
         {content}
       </button>
@@ -134,10 +130,10 @@ export function EditRow({
     <div>
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between h-11 px-4 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors"
+        className="w-full flex items-center justify-between py-3.5 hover:bg-muted/30 dark:hover:bg-white/[0.03] transition-colors text-left"
       >
         <span className="text-[15px] text-foreground">{label}</span>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <span className="text-[15px] text-muted-foreground truncate max-w-[200px]">{value}</span>
           <ChevronRight
             className={cn(
@@ -157,7 +153,7 @@ export function EditRow({
             transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
             className="overflow-hidden"
           >
-            <div className="px-4 pt-2 pb-4 space-y-2.5 border-t border-border/40">
+            <div className="pt-1 pb-4 space-y-2.5 border-t border-border/40">
               {children(() => setOpen(false))}
             </div>
           </motion.div>

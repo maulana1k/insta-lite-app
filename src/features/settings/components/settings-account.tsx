@@ -21,11 +21,14 @@ import { SettingsGroup, SettingsRow, Toggle, EditRow } from './settings-ui';
 import { useSettingsStore } from '../store/settings-store';
 import { CURRENT_USER } from '../api/mock-data';
 
-function FieldView({ label, value }: { label: string; value: string }) {
+// Read-only field row — renders as a direct SettingsGroup child so dividers appear
+function FieldViewRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="space-y-0.5">
-      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{label}</p>
-      <p className="text-[14px] text-foreground whitespace-pre-line">{value || <span className="text-muted-foreground/50 italic">Belum diisi</span>}</p>
+    <div className="py-3.5">
+      <p className="text-[12px] text-muted-foreground mb-0.5">{label}</p>
+      <p className="text-[15px] whitespace-pre-line">
+        {value || <span className="text-muted-foreground/40 italic">Belum diisi</span>}
+      </p>
     </div>
   );
 }
@@ -53,7 +56,6 @@ export function SettingsAccount() {
     passwords.new === passwords.confirm;
 
   function handleEdit() {
-    // sync draft from latest saved profile before opening
     setNameForm({
       first: profile.displayName.split(' ')[0] ?? 'Jack',
       last: profile.displayName.split(' ').slice(1).join(' ') ?? 'Harding',
@@ -88,10 +90,10 @@ export function SettingsAccount() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
 
       {/* Profile Picture */}
-      <div className="flex items-center gap-5 pb-2">
+      <div className="flex items-center gap-5">
         <label className="relative cursor-pointer group shrink-0">
           <input type="file" accept="image/*" className="sr-only" />
           <Avatar className="size-[72px]">
@@ -106,7 +108,7 @@ export function SettingsAccount() {
         </label>
         <div className="flex flex-col gap-0.5 min-w-0 flex-1">
           <p className="text-[18px] font-bold leading-tight">{profile.displayName}</p>
-          <p className="text-[13px] text-muted-foreground">@{profile.username}</p>
+          <p className="text-[14px] text-muted-foreground">@{profile.username}</p>
           <p className="text-[13px] font-medium text-[#007AFF] hover:opacity-70 cursor-pointer transition-opacity mt-2">
             Ubah Foto Profil
           </p>
@@ -119,108 +121,104 @@ export function SettingsAccount() {
       </div>
 
       {/* Personal Details */}
-      <SettingsGroup header="Detail Personal">
-        <div className="px-4 py-4 space-y-4">
-          {isEditing ? (
-            <>
-              <div className="space-y-1.5">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Nama</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <Input
-                    value={nameForm.first}
-                    onChange={(e) => setNameForm({ ...nameForm, first: e.target.value })}
-                    placeholder="Nama depan"
-                  />
-                  <Input
-                    value={nameForm.last}
-                    onChange={(e) => setNameForm({ ...nameForm, last: e.target.value })}
-                    placeholder="Nama belakang"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Username</p>
-                <div className="flex items-center rounded-lg border border-border overflow-hidden h-9 bg-background">
-                  <span className="px-3 text-[13px] text-muted-foreground bg-muted/50 h-full flex items-center border-r border-border shrink-0">
-                    @
-                  </span>
-                  <input
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="flex-1 px-3 text-[14px] outline-none bg-transparent"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Bio</p>
-                <Textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Ceritakan tentang diri Anda..."
-                  rows={3}
-                  className="resize-none text-[14px]"
-                />
-                <p className="text-[11px] text-muted-foreground text-right">{bio.length}/160</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Website</p>
+      {isEditing ? (
+        <SettingsGroup header="Detail Personal">
+          <div className="py-3 space-y-5">
+            <div className="space-y-1.5">
+              <p className="text-[12px] text-muted-foreground">Nama</p>
+              <div className="grid grid-cols-2 gap-2">
                 <Input
-                  value={website}
-                  onChange={(e) => setWebsite(e.target.value)}
-                  placeholder="https://website.com"
-                  type="url"
+                  value={nameForm.first}
+                  onChange={(e) => setNameForm({ ...nameForm, first: e.target.value })}
+                  placeholder="Nama depan"
+                />
+                <Input
+                  value={nameForm.last}
+                  onChange={(e) => setNameForm({ ...nameForm, last: e.target.value })}
+                  placeholder="Nama belakang"
                 />
               </div>
-            </>
-          ) : (
-            <>
-              <FieldView label="Nama" value={`${nameForm.first} ${nameForm.last}`.trim()} />
-              <FieldView label="Username" value={`@${username}`} />
-              <FieldView label="Bio" value={bio} />
-              <FieldView label="Website" value={website} />
-            </>
-          )}
-        </div>
-      </SettingsGroup>
+            </div>
+
+            <div className="space-y-1.5">
+              <p className="text-[12px] text-muted-foreground">Username</p>
+              <div className="flex items-center rounded-lg border border-border overflow-hidden h-9 bg-background">
+                <span className="px-3 text-[13px] text-muted-foreground bg-muted/50 h-full flex items-center border-r border-border shrink-0">
+                  @
+                </span>
+                <input
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="flex-1 px-3 text-[14px] outline-none bg-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <p className="text-[12px] text-muted-foreground">Bio</p>
+              <Textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Ceritakan tentang diri Anda..."
+                rows={3}
+                className="resize-none text-[14px]"
+              />
+              <p className="text-[11px] text-muted-foreground text-right">{bio.length}/160</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <p className="text-[12px] text-muted-foreground">Website</p>
+              <Input
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                placeholder="https://website.com"
+                type="url"
+              />
+            </div>
+          </div>
+        </SettingsGroup>
+      ) : (
+        <SettingsGroup header="Detail Personal">
+          <FieldViewRow label="Nama" value={`${nameForm.first} ${nameForm.last}`.trim()} />
+          <FieldViewRow label="Username" value={`@${username}`} />
+          <FieldViewRow label="Bio" value={bio} />
+          <FieldViewRow label="Website" value={website} />
+        </SettingsGroup>
+      )}
 
       {/* Contact */}
-      <SettingsGroup header="Kontak">
-        <div className="px-4 py-4 space-y-4">
-          {isEditing ? (
-            <>
-              <div className="space-y-1.5">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Email</p>
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  placeholder="email@contoh.com"
-                />
-              </div>
+      {isEditing ? (
+        <SettingsGroup header="Kontak">
+          <div className="py-3 space-y-5">
+            <div className="space-y-1.5">
+              <p className="text-[12px] text-muted-foreground">Email</p>
+              <Input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                placeholder="email@contoh.com"
+              />
+            </div>
 
-              <div className="space-y-1.5">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Nomor Telepon</p>
-                <Input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  type="tel"
-                  placeholder="+62 812 xxxx xxxx"
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <FieldView label="Email" value={email} />
-              <FieldView label="Nomor Telepon" value={phone} />
-            </>
-          )}
-        </div>
-      </SettingsGroup>
+            <div className="space-y-1.5">
+              <p className="text-[12px] text-muted-foreground">Nomor Telepon</p>
+              <Input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                type="tel"
+                placeholder="+62 812 xxxx xxxx"
+              />
+            </div>
+          </div>
+        </SettingsGroup>
+      ) : (
+        <SettingsGroup header="Kontak">
+          <FieldViewRow label="Email" value={email} />
+          <FieldViewRow label="Nomor Telepon" value={phone} />
+        </SettingsGroup>
+      )}
 
-      {/* Save / Cancel — only visible in edit mode */}
+      {/* Save / Cancel — only in edit mode */}
       {isEditing && (
         <div className="flex gap-2">
           <Button onClick={handleSave}>Simpan Perubahan</Button>
@@ -269,10 +267,9 @@ export function SettingsAccount() {
           )}
         </EditRow>
 
-        <div className="flex items-center justify-between h-11 px-4">
-          <span className="text-[15px]">Autentikasi Dua Faktor</span>
+        <SettingsRow label="Autentikasi Dua Faktor">
           <Toggle on={twoFactor} onToggle={() => setTwoFactor(!twoFactor)} />
-        </div>
+        </SettingsRow>
       </SettingsGroup>
 
       {/* Danger Zone */}
@@ -283,7 +280,7 @@ export function SettingsAccount() {
         <SettingsRow label="Nonaktifkan Akun" onClick={() => {}} danger />
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <button className="w-full flex items-center h-11 px-4 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors">
+            <button className="w-full flex items-center py-3.5 hover:bg-muted/30 dark:hover:bg-white/[0.03] transition-colors">
               <span className="text-[15px] text-red-500">Hapus Akun</span>
             </button>
           </AlertDialogTrigger>

@@ -35,7 +35,7 @@ export function SettingsPrivacy() {
   )?.label ?? 'Semua Orang';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
 
       <SettingsGroup
         header="Visibilitas"
