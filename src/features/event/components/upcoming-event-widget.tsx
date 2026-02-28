@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { Calendar } from '@solar-icons/react';
-import { SPACE_EVENTS } from '../api/mock-data';
-import { useFeedStore } from '@/features/post/store/feed-store';
-import { useSpaceStore } from '@/features/space/store/space-store';
+import { Calendar } from "@solar-icons/react";
+import { useFeedStore } from "@/features/post/store/feed-store";
+import { useSpaceStore } from "@/features/space/store/space-store";
+import { SPACE_EVENTS } from "../api/mock-data";
 
 function formatShortDate(date: string, time: string): string {
   const d = new Date(date);
   const day = d.getDate();
-  const month = d.toLocaleDateString('id-ID', { month: 'short' });
+  const month = d.toLocaleDateString("id-ID", { month: "short" });
   return `${day} ${month} \u00B7 ${time} WIB`;
 }
 
@@ -16,9 +16,12 @@ export function UpcomingEventWidget() {
   const { activeSpaceId } = useFeedStore();
   const { setSpaceViewMode } = useSpaceStore();
 
-  const nextEvent = SPACE_EVENTS
-    .filter((e) => e.space_id === activeSpaceId && e.status === 'upcoming')
-    .sort((a, b) => new Date(a.schedule.date).getTime() - new Date(b.schedule.date).getTime())[0];
+  const nextEvent = SPACE_EVENTS.filter(
+    (e) => e.space_id === activeSpaceId && e.status === "upcoming",
+  ).sort(
+    (a, b) =>
+      new Date(a.schedule.date).getTime() - new Date(b.schedule.date).getTime(),
+  )[0];
 
   if (!nextEvent) return null;
 
@@ -43,10 +46,12 @@ export function UpcomingEventWidget() {
         </h4>
         <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
           <Calendar className="size-3.5" />
-          <span>{formatShortDate(nextEvent.schedule.date, nextEvent.schedule.time)}</span>
+          <span>
+            {formatShortDate(nextEvent.schedule.date, nextEvent.schedule.time)}
+          </span>
         </div>
         <button
-          onClick={() => setSpaceViewMode('events')}
+          onClick={() => setSpaceViewMode("events")}
           className="text-[12px] font-semibold text-primary hover:underline"
         >
           Lihat semua event &rarr;

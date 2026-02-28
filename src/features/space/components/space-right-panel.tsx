@@ -1,14 +1,15 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Lock } from 'lucide-react';
-import { VerifiedCheck } from '@solar-icons/react';
-import { SPACES } from '../api/mock-data';
-import { SUGGESTED_USERS } from '@/features/post/api/mock-data';
+import { VerifiedCheck } from "@solar-icons/react";
+import { Lock } from "lucide-react";
+import Link from "next/link";
+import { SUGGESTED_USERS } from "@/features/post/api/mock-data";
+import { SPACES } from "../api/mock-data";
 
 function formatCount(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+  if (n >= 1_000_000)
+    return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
   return n.toString();
 }
 
@@ -22,7 +23,6 @@ export function SpaceRightPanel({ currentSpaceId }: SpaceRightPanelProps) {
 
   return (
     <aside className="hidden xl:flex flex-col w-72 h-fit sticky top-24 shrink-0 gap-4 pt-15">
-
       {/* ── Recommended spaces ── */}
       <div className="rounded-2xl border border-border p-4">
         <h3 className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
@@ -31,7 +31,10 @@ export function SpaceRightPanel({ currentSpaceId }: SpaceRightPanelProps) {
         <div className="space-y-3">
           {recommended.map((space) => (
             <div key={space.id} className="flex items-center gap-3">
-              <Link href={`/space/${space.slug}`} className="flex items-center gap-3 flex-1 min-w-0 group">
+              <Link
+                href={`/space/${space.slug}`}
+                className="flex items-center gap-3 flex-1 min-w-0 group"
+              >
                 <div className="size-9 rounded-xl overflow-hidden shrink-0">
                   <img
                     src={space.avatar_url}
@@ -69,7 +72,10 @@ export function SpaceRightPanel({ currentSpaceId }: SpaceRightPanelProps) {
         <div className="space-y-3">
           {suggested.map((profile) => (
             <div key={profile.user.id} className="flex items-center gap-3">
-              <Link href={`/u/${profile.user.username}`} className="flex items-center gap-3 flex-1 min-w-0 group">
+              <Link
+                href={`/u/${profile.user.username}`}
+                className="flex items-center gap-3 flex-1 min-w-0 group"
+              >
                 <div className="size-9 rounded-full overflow-hidden shrink-0">
                   <img
                     src={profile.user.avatar_url}
@@ -83,10 +89,15 @@ export function SpaceRightPanel({ currentSpaceId }: SpaceRightPanelProps) {
                       {profile.user.full_name}
                     </p>
                     {profile.user.verified && (
-                      <VerifiedCheck className="size-3.5 text-blue-500 shrink-0" weight="Bold" />
+                      <VerifiedCheck
+                        className="size-3.5 text-blue-500 shrink-0"
+                        weight="Bold"
+                      />
                     )}
                   </div>
-                  <p className="text-[11px] text-muted-foreground">@{profile.user.username}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    @{profile.user.username}
+                  </p>
                 </div>
               </Link>
               <button className="text-[12px] font-semibold text-blue-500 hover:text-blue-600 shrink-0 transition-colors">
@@ -96,7 +107,6 @@ export function SpaceRightPanel({ currentSpaceId }: SpaceRightPanelProps) {
           ))}
         </div>
       </div>
-
     </aside>
   );
 }

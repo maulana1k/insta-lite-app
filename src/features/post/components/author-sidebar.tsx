@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import { usePostDetail } from '../hooks/use-post-detail';
-import { USER_PROFILES, MOCK_POSTS } from '../api/mock-data';
-import { VerifiedCheck } from '@solar-icons/react';
-import { Skeleton } from '@/components/ui/skeleton';
-import Link from 'next/link';
-import { Heart, ChatRound } from '@solar-icons/react';
+import { ChatRound, Heart, VerifiedCheck } from "@solar-icons/react";
+import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
+import { MOCK_POSTS, USER_PROFILES } from "../api/mock-data";
+import { usePostDetail } from "../hooks/use-post-detail";
 
 function formatCount(count: number): string {
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
-  if (count >= 1_000) return `${(count / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+  if (count >= 1_000_000)
+    return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (count >= 1_000)
+    return `${(count / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
   return count.toString();
 }
 
@@ -30,9 +31,12 @@ export function AuthorSidebar({ postId }: AuthorSidebarProps) {
   if (!profile) return null;
 
   // Find similar posts: same topic, or same author, excluding current post
-  const similarPosts = MOCK_POSTS
-    .filter((p) => p.id !== post.id)
-    .filter((p) => (post.space && p.space?.id === post.space.id) || p.user_id === post.user_id)
+  const similarPosts = MOCK_POSTS.filter((p) => p.id !== post.id)
+    .filter(
+      (p) =>
+        (post.space && p.space?.id === post.space.id) ||
+        p.user_id === post.user_id,
+    )
     .slice(0, 3);
 
   return (
@@ -49,26 +53,39 @@ export function AuthorSidebar({ postId }: AuthorSidebarProps) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1">
-              <span className="font-bold text-[15px] truncate">{post.user.username}</span>
+              <span className="font-bold text-[15px] truncate">
+                {post.user.username}
+              </span>
               {post.user.verified && (
-                <VerifiedCheck className="size-4 text-blue-500 shrink-0" weight="Bold" />
+                <VerifiedCheck
+                  className="size-4 text-blue-500 shrink-0"
+                  weight="Bold"
+                />
               )}
             </div>
-            <p className="text-[13px] text-muted-foreground">{post.user.full_name}</p>
+            <p className="text-[13px] text-muted-foreground">
+              {post.user.full_name}
+            </p>
           </div>
         </div>
 
         {profile.bio && (
-          <p className="text-[13px] text-foreground/80 leading-relaxed mb-3">{profile.bio}</p>
+          <p className="text-[13px] text-foreground/80 leading-relaxed mb-3">
+            {profile.bio}
+          </p>
         )}
 
         <div className="flex items-center gap-4 mb-4 text-[13px]">
           <span>
-            <span className="font-bold">{formatCount(profile.followers_count)}</span>{' '}
+            <span className="font-bold">
+              {formatCount(profile.followers_count)}
+            </span>{" "}
             <span className="text-muted-foreground">followers</span>
           </span>
           <span>
-            <span className="font-bold">{formatCount(profile.following_count)}</span>{' '}
+            <span className="font-bold">
+              {formatCount(profile.following_count)}
+            </span>{" "}
             <span className="text-muted-foreground">following</span>
           </span>
         </div>
@@ -95,14 +112,20 @@ export function AuthorSidebar({ postId }: AuthorSidebarProps) {
               >
                 <div className="flex items-center gap-2 mb-1.5">
                   <div className="size-5 rounded-full overflow-hidden shrink-0">
-                    <img src={p.user.avatar_url} alt={p.user.username} className="w-full h-full object-cover" />
+                    <img
+                      src={p.user.avatar_url}
+                      alt={p.user.username}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <span className="text-[12px] font-medium text-muted-foreground truncate">
                     {p.user.username}
                   </span>
                   {p.space && (
                     <>
-                      <span className="text-[12px] text-muted-foreground">in</span>
+                      <span className="text-[12px] text-muted-foreground">
+                        in
+                      </span>
                       <span className="text-[12px] font-medium text-muted-foreground truncate">
                         {p.space.name}
                       </span>

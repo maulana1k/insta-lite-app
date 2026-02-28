@@ -1,34 +1,34 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { SettingsGroup, SettingsRow, Toggle, EditRow } from './settings-ui';
-import { cn } from '@/lib/utils';
-import { useSettingsStore } from '../store/settings-store';
-import { BLOCKED_USERS, MUTED_USERS } from '../api/mock-data';
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
+import { BLOCKED_USERS, MUTED_USERS } from "../api/mock-data";
+import { useSettingsStore } from "../store/settings-store";
+import { EditRow, SettingsGroup, SettingsRow, Toggle } from "./settings-ui";
 
 const WHO_CAN_MESSAGE_OPTIONS = [
-  { value: 'everyone', label: 'Semua Orang' },
-  { value: 'followers', label: 'Hanya Pengikut' },
-  { value: 'nobody', label: 'Tidak Ada' },
+  { value: "everyone", label: "Semua Orang" },
+  { value: "followers", label: "Hanya Pengikut" },
+  { value: "nobody", label: "Tidak Ada" },
 ] as const;
 
 const WHO_CAN_TAG_OPTIONS = [
-  { value: 'everyone', label: 'Semua Orang' },
-  { value: 'followers', label: 'Hanya Pengikut' },
-  { value: 'nobody', label: 'Tidak Ada' },
+  { value: "everyone", label: "Semua Orang" },
+  { value: "followers", label: "Hanya Pengikut" },
+  { value: "nobody", label: "Tidak Ada" },
 ] as const;
 
 export function SettingsPrivacy() {
   const { privacy, updatePrivacy } = useSettingsStore();
   const [blockedUsers, setBlockedUsers] = useState(BLOCKED_USERS);
   const [mutedUsers, setMutedUsers] = useState(MUTED_USERS);
-  const [whoCanTag, setWhoCanTag] = useState<'everyone' | 'followers' | 'nobody'>('everyone');
-
+  const [whoCanTag, setWhoCanTag] = useState<
+    "everyone" | "followers" | "nobody"
+  >("everyone");
 
   return (
     <div className="space-y-8">
-
       <SettingsGroup
         header="Visibilitas"
         footer="Saat akun privat, hanya pengikut yang disetujui yang bisa melihat postingan Anda."
@@ -36,11 +36,13 @@ export function SettingsPrivacy() {
         <SettingsRow label="Akun Privat">
           <Toggle
             on={privacy.privateAccount}
-            onToggle={() => updatePrivacy({ privateAccount: !privacy.privateAccount })}
+            onToggle={() =>
+              updatePrivacy({ privateAccount: !privacy.privateAccount })
+            }
           />
         </SettingsRow>
         <SettingsRow label="Tampilkan Status Aktif">
-          <Toggle on={true} onToggle={() => { }} />
+          <Toggle on={true} onToggle={() => {}} />
         </SettingsRow>
       </SettingsGroup>
 
@@ -49,7 +51,9 @@ export function SettingsPrivacy() {
 
         {/* Who can message */}
         <div className="space-y-1.5">
-          <p className="text-[13px] text-muted-foreground px-0.5">Siapa yang Bisa Mengirim Pesan</p>
+          <p className="text-[13px] text-muted-foreground px-0.5">
+            Siapa yang Bisa Mengirim Pesan
+          </p>
           <div className="rounded-2xl border border-border overflow-hidden divide-y divide-border">
             {WHO_CAN_MESSAGE_OPTIONS.map((opt) => (
               <button
@@ -60,10 +64,10 @@ export function SettingsPrivacy() {
                 <span className="text-[15px]">{opt.label}</span>
                 <span
                   className={cn(
-                    'size-4 rounded-full border-2 transition-all flex items-center justify-center shrink-0',
+                    "size-4 rounded-full border-2 transition-all flex items-center justify-center shrink-0",
                     privacy.whoCanMessage === opt.value
-                      ? 'border-foreground bg-foreground'
-                      : 'border-border'
+                      ? "border-foreground bg-foreground"
+                      : "border-border",
                   )}
                 >
                   {privacy.whoCanMessage === opt.value && (
@@ -77,7 +81,9 @@ export function SettingsPrivacy() {
 
         {/* Who can tag */}
         <div className="space-y-1.5 pt-2">
-          <p className="text-[13px] text-muted-foreground px-0.5">Siapa yang Bisa Menandai Anda</p>
+          <p className="text-[13px] text-muted-foreground px-0.5">
+            Siapa yang Bisa Menandai Anda
+          </p>
           <div className="rounded-2xl border border-border overflow-hidden divide-y divide-border">
             {WHO_CAN_TAG_OPTIONS.map((opt) => (
               <button
@@ -88,10 +94,10 @@ export function SettingsPrivacy() {
                 <span className="text-[15px]">{opt.label}</span>
                 <span
                   className={cn(
-                    'size-4 rounded-full border-2 transition-all flex items-center justify-center shrink-0',
+                    "size-4 rounded-full border-2 transition-all flex items-center justify-center shrink-0",
                     whoCanTag === opt.value
-                      ? 'border-foreground bg-foreground'
-                      : 'border-border'
+                      ? "border-foreground bg-foreground"
+                      : "border-border",
                   )}
                 >
                   {whoCanTag === opt.value && (
@@ -105,10 +111,7 @@ export function SettingsPrivacy() {
       </div>
 
       <SettingsGroup header="Orang">
-        <EditRow
-          label="Akun Diblokir"
-          value={`${blockedUsers.length} akun`}
-        >
+        <EditRow label="Akun Diblokir" value={`${blockedUsers.length} akun`}>
           {() => (
             <div className="space-y-1">
               {blockedUsers.length === 0 ? (
@@ -117,21 +120,35 @@ export function SettingsPrivacy() {
                 </p>
               ) : (
                 blockedUsers.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between py-2">
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between py-2"
+                  >
                     <div className="flex items-center gap-2.5">
                       <Avatar className="size-8">
-                        <AvatarImage src={user.avatar_url} alt={user.username} />
+                        <AvatarImage
+                          src={user.avatar_url}
+                          alt={user.username}
+                        />
                         <AvatarFallback className="text-[11px]">
                           {user.full_name.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-[13px] font-medium leading-tight">{user.full_name}</p>
-                        <p className="text-[11px] text-muted-foreground">@{user.username}</p>
+                        <p className="text-[13px] font-medium leading-tight">
+                          {user.full_name}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">
+                          @{user.username}
+                        </p>
                       </div>
                     </div>
                     <button
-                      onClick={() => setBlockedUsers((prev) => prev.filter((u) => u.id !== user.id))}
+                      onClick={() =>
+                        setBlockedUsers((prev) =>
+                          prev.filter((u) => u.id !== user.id),
+                        )
+                      }
                       className="text-[13px] font-medium text-[#007AFF] hover:opacity-70 transition-opacity"
                     >
                       Buka Blokir
@@ -143,10 +160,7 @@ export function SettingsPrivacy() {
           )}
         </EditRow>
 
-        <EditRow
-          label="Akun Dibisukan"
-          value={`${mutedUsers.length} akun`}
-        >
+        <EditRow label="Akun Dibisukan" value={`${mutedUsers.length} akun`}>
           {() => (
             <div className="space-y-1">
               {mutedUsers.length === 0 ? (
@@ -155,21 +169,35 @@ export function SettingsPrivacy() {
                 </p>
               ) : (
                 mutedUsers.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between py-2">
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between py-2"
+                  >
                     <div className="flex items-center gap-2.5">
                       <Avatar className="size-8">
-                        <AvatarImage src={user.avatar_url} alt={user.username} />
+                        <AvatarImage
+                          src={user.avatar_url}
+                          alt={user.username}
+                        />
                         <AvatarFallback className="text-[11px]">
                           {user.full_name.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-[13px] font-medium leading-tight">{user.full_name}</p>
-                        <p className="text-[11px] text-muted-foreground">@{user.username}</p>
+                        <p className="text-[13px] font-medium leading-tight">
+                          {user.full_name}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">
+                          @{user.username}
+                        </p>
                       </div>
                     </div>
                     <button
-                      onClick={() => setMutedUsers((prev) => prev.filter((u) => u.id !== user.id))}
+                      onClick={() =>
+                        setMutedUsers((prev) =>
+                          prev.filter((u) => u.id !== user.id),
+                        )
+                      }
                       className="text-[13px] font-medium text-[#007AFF] hover:opacity-70 transition-opacity"
                     >
                       Bunyikan
@@ -181,7 +209,6 @@ export function SettingsPrivacy() {
           )}
         </EditRow>
       </SettingsGroup>
-
     </div>
   );
 }

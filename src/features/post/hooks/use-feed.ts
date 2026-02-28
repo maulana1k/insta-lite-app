@@ -1,22 +1,22 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from "@tanstack/react-query";
 import {
-  fetchForYouFeed,
   fetchFollowingFeed,
+  fetchForYouFeed,
   fetchSavedFeed,
   fetchSpaceFeed,
-} from '../api';
-import { useFeedStore } from '../store/feed-store';
+} from "../api";
+import { useFeedStore } from "../store/feed-store";
 
 export function useFeed() {
   const { activeSpaceId } = useFeedStore();
 
   const query = useInfiniteQuery({
-    queryKey: ['feed', activeSpaceId],
+    queryKey: ["feed", activeSpaceId],
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam }) => {
-      if (activeSpaceId === 'all') return fetchForYouFeed(pageParam);
-      if (activeSpaceId === 'following') return fetchFollowingFeed(pageParam);
-      if (activeSpaceId === 'saved') return fetchSavedFeed(pageParam);
+      if (activeSpaceId === "all") return fetchForYouFeed(pageParam);
+      if (activeSpaceId === "following") return fetchFollowingFeed(pageParam);
+      if (activeSpaceId === "saved") return fetchSavedFeed(pageParam);
       return fetchSpaceFeed(activeSpaceId, pageParam);
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,

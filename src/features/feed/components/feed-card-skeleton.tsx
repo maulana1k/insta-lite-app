@@ -23,5 +23,5 @@ export function FeedCardSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,27 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useFeedStore } from "@/features/feed/store/feed-store";
-import { usePostDetail } from "../hooks/use-post-query";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  X,
+  Bookmark,
   ChevronLeft,
   ChevronRight,
   Heart,
-  MessageCircle,
-  Send,
-  Bookmark,
-  Smile,
-  MoreHorizontal,
   Loader2,
-  Minimize,
   Maximize,
+  MessageCircle,
+  Minimize,
+  MoreHorizontal,
+  Send,
+  Smile,
+  X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { AnimatePresence, motion } from "framer-motion";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
 import { AppLogo } from "@/components/layout/header";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useFeedStore } from "@/features/feed/store/feed-store";
+import { cn } from "@/lib/utils";
+import { usePostDetail } from "../hooks/use-post-query";
 
 export function PostDetailModal() {
   const { activePostId, setActivePostId } = useFeedStore();
@@ -30,23 +30,22 @@ export function PostDetailModal() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setActivePostId(null);
       }
     };
 
     if (activePostId) {
       document.body.style.overflow = "hidden";
-      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener("keydown", handleKeyDown);
     } else {
       document.body.style.overflow = "unset";
     }
     return () => {
       document.body.style.overflow = "unset";
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [activePostId, setActivePostId]);
-
 
   const handleClose = () => setActivePostId(null);
 
@@ -74,7 +73,6 @@ export function PostDetailModal() {
       >
         <ChevronLeft className="size-6" />
       </button>
-
 
       {/* Modal Content */}
       <div className="flex justify-center w-fit max-w-5xl mx-5 gap-4 h-[85vh] bg-background  overflow-hidden">
@@ -145,7 +143,10 @@ export function PostDetailModal() {
               <img
                 src={currentPost.image_url}
                 alt="Post content"
-                className={cn("max-h-full max-w-full", isCover ? "w-full h-full object-cover" : "object-contain")}
+                className={cn(
+                  "max-h-full max-w-full",
+                  isCover ? "w-full h-full object-cover" : "object-contain",
+                )}
               />
             </div>
 

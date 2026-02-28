@@ -2,18 +2,18 @@
 
 import { useEffect } from "react";
 import { Header } from "@/components/layout/header";
-import { PostDetailModal } from "@/features/posts/components/post-detail-modal";
+import { EventDetailModal } from "@/features/event/components/event-detail-modal";
+import { EventsList } from "@/features/event/components/events-list";
+import { useFeed } from "@/features/post/hooks/use-feed";
 import { useFeedStore } from "@/features/post/store/feed-store";
-import { useSpaceStore } from "@/features/space/store/space-store";
+import { PostDetailModal } from "@/features/posts/components/post-detail-modal";
 import { SPACES } from "@/features/space/api/mock-data";
-import { SpaceSidebar } from "@/features/space/components/space-sidebar";
-import { SpaceSidebarSkeleton } from "@/features/space/components/space-sidebar-skeleton";
+import { SpaceFeedToolbar } from "@/features/space/components/space-feed-toolbar";
 import { SpaceProfile } from "@/features/space/components/space-profile";
 import { SpaceProfileSkeleton } from "@/features/space/components/space-profile-skeleton";
-import { EventsList } from "@/features/event/components/events-list";
-import { SpaceFeedToolbar } from "@/features/space/components/space-feed-toolbar";
-import { EventDetailModal } from "@/features/event/components/event-detail-modal";
-import { useFeed } from "@/features/post/hooks/use-feed";
+import { SpaceSidebar } from "@/features/space/components/space-sidebar";
+import { SpaceSidebarSkeleton } from "@/features/space/components/space-sidebar-skeleton";
+import { useSpaceStore } from "@/features/space/store/space-store";
 
 export function SpaceEventsPageContent({ slug }: { slug: string }) {
   const { setActiveSpaceId } = useFeedStore();

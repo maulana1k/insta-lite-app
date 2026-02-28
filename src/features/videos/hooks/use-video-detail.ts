@@ -12,5 +12,3 @@ export function useVideoDetail(videoId: string | null) {
     enabled: !!videoId,
   });
 }
-
-

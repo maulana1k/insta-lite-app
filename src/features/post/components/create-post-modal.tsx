@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import { SPACES } from '@/features/space/api/mock-data';
 import {
-  GalleryAdd,
-  SmileCircle,
-  MapPoint,
-  ListCheck,
   Camera,
-  Notes,
+  GalleryAdd,
   List,
-} from '@solar-icons/react';
-import { ArrowLeft, ChevronDown, FileText, Trash2, X } from 'lucide-react';
+  ListCheck,
+  MapPoint,
+  Notes,
+  SmileCircle,
+} from "@solar-icons/react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, ChevronDown, FileText, Trash2, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
+import { SPACES } from "@/features/space/api/mock-data";
 
 interface DraftPost {
   id: string;
@@ -29,10 +29,34 @@ interface DraftPost {
 }
 
 const MOCK_DRAFTS: DraftPost[] = [
-  { id: 'd1', content: 'Ada yang pernah coba deploy Next.js ke Cloudflare Workers? Pengen tau performanya dibanding Vercel...', topicId: 'devid', updatedAt: '2025-08-14T10:30:00' },
-  { id: 'd2', content: 'Rekomendasi tempat nongkrong buat kerja remote di area Sudirman dong, yang wifi-nya kenceng dan colokan banyak', topicId: 'jakartavibes', updatedAt: '2025-08-13T15:20:00' },
-  { id: 'd3', content: 'Mau sharing pengalaman pivot startup dari B2C ke B2B, ternyata banyak hal yang harus diubah dari sisi product...', topicId: 'startupid', updatedAt: '2025-08-12T09:00:00' },
-  { id: 'd4', content: 'Resep nasi goreng kampung yang beneran autentik itu sebenernya gimana sih? Tiap warung beda-beda rasanya', topicId: 'kuliner', updatedAt: '2025-08-11T20:45:00' },
+  {
+    id: "d1",
+    content:
+      "Ada yang pernah coba deploy Next.js ke Cloudflare Workers? Pengen tau performanya dibanding Vercel...",
+    topicId: "devid",
+    updatedAt: "2025-08-14T10:30:00",
+  },
+  {
+    id: "d2",
+    content:
+      "Rekomendasi tempat nongkrong buat kerja remote di area Sudirman dong, yang wifi-nya kenceng dan colokan banyak",
+    topicId: "jakartavibes",
+    updatedAt: "2025-08-13T15:20:00",
+  },
+  {
+    id: "d3",
+    content:
+      "Mau sharing pengalaman pivot startup dari B2C ke B2B, ternyata banyak hal yang harus diubah dari sisi product...",
+    topicId: "startupid",
+    updatedAt: "2025-08-12T09:00:00",
+  },
+  {
+    id: "d4",
+    content:
+      "Resep nasi goreng kampung yang beneran autentik itu sebenernya gimana sih? Tiap warung beda-beda rasanya",
+    topicId: "kuliner",
+    updatedAt: "2025-08-11T20:45:00",
+  },
 ];
 
 interface CreatePostModalProps {
@@ -41,16 +65,18 @@ interface CreatePostModalProps {
 }
 
 export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [showDrafts, setShowDrafts] = useState(false);
   const [showDiscardAlert, setShowDiscardAlert] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   // Search state for topic dropdown
-  const [spaceSearch, setSpaceSearch] = useState('');
+  const [spaceSearch, setSpaceSearch] = useState("");
   const filteredSpaces = spaceSearch
-    ? SPACES.filter(t => t.name.toLowerCase().includes(spaceSearch.toLowerCase()))
+    ? SPACES.filter((t) =>
+        t.name.toLowerCase().includes(spaceSearch.toLowerCase()),
+      )
     : SPACES;
 
   useEffect(() => {
@@ -60,17 +86,17 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
   // Lock body scroll + close on Escape
   useEffect(() => {
     if (open) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       const handleKey = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') handleClose();
+        if (e.key === "Escape") handleClose();
       };
-      document.addEventListener('keydown', handleKey);
+      document.addEventListener("keydown", handleKey);
       return () => {
-        document.body.style.overflow = '';
-        document.removeEventListener('keydown', handleKey);
+        document.body.style.overflow = "";
+        document.removeEventListener("keydown", handleKey);
       };
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
       setShowDrafts(false);
       setShowDiscardAlert(false);
     }
@@ -78,8 +104,9 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
 
   const handleTextareaInput = () => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height =
+        textareaRef.current.scrollHeight + "px";
     }
   };
 
@@ -99,7 +126,7 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
   };
 
   const handleDiscard = () => {
-    setContent('');
+    setContent("");
     setSelectedTopic(null);
     setShowDiscardAlert(false);
     onClose();
@@ -143,7 +170,7 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="relative overflow-hidden flex-1 flex flex-col min-h-0">
@@ -151,9 +178,9 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
                   {showDrafts ? (
                     <motion.div
                       key="drafts"
-                      initial={{ x: '100%', opacity: 0 }}
+                      initial={{ x: "100%", opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      exit={{ x: '100%', opacity: 0 }}
+                      exit={{ x: "100%", opacity: 0 }}
                       transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
                       className="flex flex-col h-full min-h-0"
                     >
@@ -178,12 +205,17 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
                         ) : (
                           <div className="space-y-1">
                             {MOCK_DRAFTS.map((draft) => {
-                              const topic = SPACES.find(t => t.id === draft.topicId);
+                              const topic = SPACES.find(
+                                (t) => t.id === draft.topicId,
+                              );
                               const date = new Date(draft.updatedAt);
-                              const timeLabel = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                              const timeLabel = date.toLocaleDateString(
+                                "id-ID",
+                                { day: "numeric", month: "short" },
+                              );
                               return (
                                 <div
-                                  role='button'
+                                  role="button"
                                   key={draft.id}
                                   onClick={() => {
                                     setContent(draft.content);
@@ -196,15 +228,27 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
                                     <div className="flex-1 min-w-0">
                                       {topic && (
                                         <div className="flex items-center gap-1.5 mb-1">
-                                          <img src={topic.avatar_url} alt="" className="size-4 rounded object-cover" />
-                                          <span className="text-[12px] font-medium text-muted-foreground">{topic.name}</span>
+                                          <img
+                                            src={topic.avatar_url}
+                                            alt=""
+                                            className="size-4 rounded object-cover"
+                                          />
+                                          <span className="text-[12px] font-medium text-muted-foreground">
+                                            {topic.name}
+                                          </span>
                                         </div>
                                       )}
-                                      <p className="text-[14px] line-clamp-2 leading-snug">{draft.content}</p>
-                                      <p className="text-[12px] text-muted-foreground mt-1">{timeLabel}</p>
+                                      <p className="text-[14px] line-clamp-2 leading-snug">
+                                        {draft.content}
+                                      </p>
+                                      <p className="text-[12px] text-muted-foreground mt-1">
+                                        {timeLabel}
+                                      </p>
                                     </div>
                                     <button
-                                      onClick={(e) => { e.stopPropagation(); }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                      }}
                                       className="size-8 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 hover:bg-muted transition-all text-muted-foreground hover:text-red-500 shrink-0 mt-0.5"
                                     >
                                       <Trash2 className="size-4" />
@@ -220,9 +264,9 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
                   ) : (
                     <motion.div
                       key="compose"
-                      initial={{ x: '-100%', opacity: 0 }}
+                      initial={{ x: "-100%", opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      exit={{ x: '-100%', opacity: 0 }}
+                      exit={{ x: "-100%", opacity: 0 }}
                       transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
                       className="flex flex-col h-full min-h-0"
                     >
@@ -265,33 +309,52 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
                                   <DropdownMenuTrigger className="flex items-center gap-0.5 text-[14px] text-muted-foreground hover:text-foreground transition-colors outline-none">
                                     <div className="bg-muted rounded-full px-2.5 py-1">
                                       {selectedTopicData ? (
-                                        <div className="flex items-center gap-1 text-foreground font-semibold">{selectedTopicData.name}  <ChevronDown className="size-3.5" /> </div>
+                                        <div className="flex items-center gap-1 text-foreground font-semibold">
+                                          {selectedTopicData.name}{" "}
+                                          <ChevronDown className="size-3.5" />{" "}
+                                        </div>
                                       ) : (
-                                        <div className="flex items-center gap-1">Tambahkan topik  <ChevronDown className="size-3.5" /> </div>
+                                        <div className="flex items-center gap-1">
+                                          Tambahkan topik{" "}
+                                          <ChevronDown className="size-3.5" />{" "}
+                                        </div>
                                       )}
                                     </div>
                                   </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="start" className="w-56 z-[200] rounded-lg bg-background/50 backdrop-blur-lg">
+                                  <DropdownMenuContent
+                                    align="start"
+                                    className="w-56 z-[200] rounded-lg bg-background/50 backdrop-blur-lg"
+                                  >
                                     <div className="px-2 pb-1 mb-2 border-b border-border">
                                       <input
                                         type="text"
                                         placeholder="Cari..."
                                         value={spaceSearch}
-                                        onChange={e => setSpaceSearch(e.target.value)}
-                                        onBlur={e => e.stopPropagation()}
+                                        onChange={(e) =>
+                                          setSpaceSearch(e.target.value)
+                                        }
+                                        onBlur={(e) => e.stopPropagation()}
                                         className="w-full text-[13px] outline-none"
                                       />
                                     </div>
                                     {filteredSpaces.map((topic) => (
                                       <DropdownMenuItem
                                         key={topic.id}
-                                        onClick={() => setSelectedTopic(topic.id)}
+                                        onClick={() =>
+                                          setSelectedTopic(topic.id)
+                                        }
                                         className="flex items-center gap-2.5"
                                       >
                                         <div className="size-5 rounded overflow-hidden shrink-0">
-                                          <img src={topic.avatar_url} alt="" className="w-full h-full object-cover" />
+                                          <img
+                                            src={topic.avatar_url}
+                                            alt=""
+                                            className="w-full h-full object-cover"
+                                          />
                                         </div>
-                                        <span className="text-[14px]">{topic.name}</span>
+                                        <span className="text-[14px]">
+                                          {topic.name}
+                                        </span>
                                       </DropdownMenuItem>
                                     ))}
                                   </DropdownMenuContent>
@@ -320,10 +383,10 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
                       <div className="px-5 py-5 shrink-0">
                         <div className="flex items-center gap-2">
                           {[
-                            { icon: Camera, label: 'Image' },
-                            { icon: SmileCircle, label: 'Emoji' },
-                            { icon: List, label: 'Poll' },
-                            { icon: MapPoint, label: 'Location' },
+                            { icon: Camera, label: "Image" },
+                            { icon: SmileCircle, label: "Emoji" },
+                            { icon: List, label: "Poll" },
+                            { icon: MapPoint, label: "Location" },
                           ].map(({ icon: Icon, label }) => (
                             <button
                               key={label}
@@ -336,10 +399,11 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
                             disabled={!canPost}
                             className={`
                             px-5 py-2 rounded-full text-[14px] font-semibold transition-colors ml-auto
-                            ${canPost
-                                ? 'bg-foreground text-background hover:opacity-90'
-                                : 'bg-muted text-muted-foreground/40 cursor-default'
-                              }
+                            ${
+                              canPost
+                                ? "bg-foreground text-background hover:opacity-90"
+                                : "bg-muted text-muted-foreground/40 cursor-default"
+                            }
                           `}
                           >
                             Kirim
@@ -366,13 +430,17 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.12, ease: 'easeOut' }}
+                      transition={{ duration: 0.12, ease: "easeOut" }}
                       className="bg-background dark:bg-neutral-900 rounded-2xl shadow-lg w-72 overflow-hidden border"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="px-5 pt-5 pb-4 text-center">
-                        <p className="text-[15px] font-semibold">Buang postingan?</p>
-                        <p className="text-[13px] text-muted-foreground mt-1">Konten yang belum diposting akan hilang.</p>
+                        <p className="text-[15px] font-semibold">
+                          Buang postingan?
+                        </p>
+                        <p className="text-[13px] text-muted-foreground mt-1">
+                          Konten yang belum diposting akan hilang.
+                        </p>
                       </div>
                       <div className="border-t">
                         <button
@@ -407,7 +475,7 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
         </>
       )}
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 }
 

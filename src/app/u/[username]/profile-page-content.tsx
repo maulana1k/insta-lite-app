@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { Header } from '@/components/layout/header';
-import { ProfileInfo } from '@/features/profile/components/profile-info';
-import { ProfileContent } from '@/features/profile/components/profile-content';
-import { useProfile } from '@/features/profile/hooks/use-profile';
-import { PostDetailModal } from '@/features/posts/components/post-detail-modal';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "lucide-react";
+import { Header } from "@/components/layout/header";
+import { PostDetailModal } from "@/features/posts/components/post-detail-modal";
+import { ProfileContent } from "@/features/profile/components/profile-content";
+import { ProfileInfo } from "@/features/profile/components/profile-info";
+import { useProfile } from "@/features/profile/hooks/use-profile";
 
 export function ProfilePageContent({ username }: { username: string }) {
   const { data: user, isLoading } = useProfile(username);

@@ -1,6 +1,6 @@
-export type ActivityTab = 'all' | 'follows' | 'mentions' | 'likes' | 'comments';
+export type ActivityTab = "all" | "follows" | "mentions" | "likes" | "comments";
 
-export type ActivityType = 'follow' | 'mention' | 'like' | 'comment' | 'system';
+export type ActivityType = "follow" | "mention" | "like" | "comment" | "system";
 
 export interface Activity {
   id: string;

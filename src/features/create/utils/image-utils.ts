@@ -1,19 +1,19 @@
-import { Area } from 'react-easy-crop';
+import type { Area } from "react-easy-crop";
 
 export const getCroppedImg = async (
   imageSrc: string,
-  pixelCrop: Area
+  pixelCrop: Area,
 ): Promise<string | null> => {
   const image = new Image();
   image.src = imageSrc;
-  
+
   const loadedImage = await new Promise<HTMLImageElement>((resolve, reject) => {
     image.onload = () => resolve(image);
     image.onerror = (e) => reject(e);
   });
 
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
 
   if (!ctx) {
     return null;
@@ -31,7 +31,7 @@ export const getCroppedImg = async (
     0,
     0,
     pixelCrop.width,
-    pixelCrop.height
+    pixelCrop.height,
   );
 
   return new Promise((resolve) => {
@@ -43,6 +43,6 @@ export const getCroppedImg = async (
       }
       const fileUrl = URL.createObjectURL(blob);
       resolve(fileUrl);
-    }, 'image/jpeg');
+    }, "image/jpeg");
   });
 };

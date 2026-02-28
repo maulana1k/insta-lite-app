@@ -1,11 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useStoryPlayerStore } from '../store/story-player-store';
-import { useStories } from '@/features/feed/hooks/use-feed-query';
-import { X, ChevronLeft, ChevronRight, MoreHorizontal, Send } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { AppLogo } from '@/components/layout/header';
+import {
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  Send,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { AppLogo } from "@/components/layout/header";
+import { useStories } from "@/features/feed/hooks/use-feed-query";
+import { cn } from "@/lib/utils";
+import { useStoryPlayerStore } from "../store/story-player-store";
 
 const STORY_DURATION = 30000; // 30 seconds
 
@@ -25,17 +31,19 @@ export function StoryPlayer() {
 
     const interval = setInterval(() => {
       setProgress((prev) => {
-        const newProgress = prev + (100 / (STORY_DURATION / 100));
-        
+        const newProgress = prev + 100 / (STORY_DURATION / 100);
+
         if (newProgress >= 100) {
           if (hasNextStory) {
-            useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex + 1, 0);
+            useStoryPlayerStore
+              .getState()
+              .openStoryPlayer(currentUserIndex + 1, 0);
           } else {
             closeStoryPlayer();
           }
           return 0;
         }
-        
+
         return newProgress;
       });
     }, 100);
@@ -57,33 +65,43 @@ export function StoryPlayer() {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
-        case 'Escape':
+        case "Escape":
           closeStoryPlayer();
           break;
-        case 'ArrowLeft':
+        case "ArrowLeft":
           if (hasPreviousStory) {
-            useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex - 1, 0);
+            useStoryPlayerStore
+              .getState()
+              .openStoryPlayer(currentUserIndex - 1, 0);
           }
           break;
-        case 'ArrowRight':
+        case "ArrowRight":
           if (hasNextStory) {
-            useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex + 1, 0);
+            useStoryPlayerStore
+              .getState()
+              .openStoryPlayer(currentUserIndex + 1, 0);
           }
           break;
-        case ' ':
+        case " ":
           e.preventDefault();
           setIsPaused((prev) => !prev);
           break;
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       document.body.style.overflow = "unset";
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, currentUserIndex, hasNextStory, hasPreviousStory, closeStoryPlayer]);
+  }, [
+    isOpen,
+    currentUserIndex,
+    hasNextStory,
+    hasPreviousStory,
+    closeStoryPlayer,
+  ]);
 
   if (!isOpen || !currentUser) return null;
 
@@ -137,13 +155,17 @@ export function StoryPlayer() {
         {/* Left Preview */}
         {hasPreviousStory && (
           <div className="absolute left-8 top-1/2 -translate-y-1/2 hidden lg:block">
-            <div 
-              onClick={() => useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex - 1, 0)}
+            <div
+              onClick={() =>
+                useStoryPlayerStore
+                  .getState()
+                  .openStoryPlayer(currentUserIndex - 1, 0)
+              }
               className="w-24 h-40 rounded-lg overflow-hidden cursor-pointer opacity-60 hover:opacity-80 transition-opacity shadow-xl"
             >
-              <img 
-                src={stories[currentUserIndex - 1]?.image_url} 
-                alt="Previous" 
+              <img
+                src={stories[currentUserIndex - 1]?.image_url}
+                alt="Previous"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -157,7 +179,7 @@ export function StoryPlayer() {
             {/* Progress bar overlay on top of image */}
             <div className="absolute top-2 left-2 right-2 z-10 flex gap-1">
               <div className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden backdrop-blur-sm">
-                <div 
+                <div
                   className="h-full bg-white transition-all duration-100"
                   style={{ width: `${progress}%` }}
                 />
@@ -171,9 +193,9 @@ export function StoryPlayer() {
 
             {/* Story Image - fixed height */}
             <div className="relative h-[600px] rounded-2xl overflow-hidden bg-muted shadow-2xl">
-              <img 
-                src={currentUser.image_url} 
-                alt="Story" 
+              <img
+                src={currentUser.image_url}
+                alt="Story"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -188,8 +210,8 @@ export function StoryPlayer() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Add a comment..."
               className="flex-1 bg-transparent border-none outline-none text-sm placeholder:text-muted-foreground"
             />
@@ -203,26 +225,44 @@ export function StoryPlayer() {
 
           {/* Emoji Reactions */}
           <div className="flex items-center justify-center gap-3 mt-4 pb-4">
-            <button className="text-3xl hover:scale-110 transition-transform">👍</button>
-            <button className="text-3xl hover:scale-110 transition-transform">🙌</button>
-            <button className="text-3xl hover:scale-110 transition-transform">💯</button>
-            <button className="text-3xl hover:scale-110 transition-transform">🔥</button>
-            <button className="text-3xl hover:scale-110 transition-transform">👏</button>
-            <button className="text-3xl hover:scale-110 transition-transform">😂</button>
-            <button className="text-3xl hover:scale-110 transition-transform">😮</button>
+            <button className="text-3xl hover:scale-110 transition-transform">
+              👍
+            </button>
+            <button className="text-3xl hover:scale-110 transition-transform">
+              🙌
+            </button>
+            <button className="text-3xl hover:scale-110 transition-transform">
+              💯
+            </button>
+            <button className="text-3xl hover:scale-110 transition-transform">
+              🔥
+            </button>
+            <button className="text-3xl hover:scale-110 transition-transform">
+              👏
+            </button>
+            <button className="text-3xl hover:scale-110 transition-transform">
+              😂
+            </button>
+            <button className="text-3xl hover:scale-110 transition-transform">
+              😮
+            </button>
           </div>
         </div>
 
         {/* Right Preview */}
         {hasNextStory && (
           <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:block">
-            <div 
-              onClick={() => useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex + 1, 0)}
+            <div
+              onClick={() =>
+                useStoryPlayerStore
+                  .getState()
+                  .openStoryPlayer(currentUserIndex + 1, 0)
+              }
               className="w-24 h-40 rounded-lg overflow-hidden cursor-pointer opacity-60 hover:opacity-80 transition-opacity shadow-xl"
             >
-              <img 
-                src={stories[currentUserIndex + 1]?.image_url} 
-                alt="Next" 
+              <img
+                src={stories[currentUserIndex + 1]?.image_url}
+                alt="Next"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -232,7 +272,11 @@ export function StoryPlayer() {
         {/* Navigation Arrows */}
         {hasPreviousStory && (
           <button
-            onClick={() => useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex - 1, 0)}
+            onClick={() =>
+              useStoryPlayerStore
+                .getState()
+                .openStoryPlayer(currentUserIndex - 1, 0)
+            }
             className="absolute left-1/2 -translate-x-1/2 md:left-[calc(50%-280px)] top-1/2 -translate-y-1/2 p-2 text-foreground hover:bg-muted rounded-full transition-colors z-10"
           >
             <ChevronLeft size={32} />
@@ -241,7 +285,11 @@ export function StoryPlayer() {
 
         {hasNextStory && (
           <button
-            onClick={() => useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex + 1, 0)}
+            onClick={() =>
+              useStoryPlayerStore
+                .getState()
+                .openStoryPlayer(currentUserIndex + 1, 0)
+            }
             className="absolute right-1/2 translate-x-1/2 md:right-[calc(50%-280px)] top-1/2 -translate-y-1/2 p-2 text-foreground hover:bg-muted rounded-full transition-colors z-10"
           >
             <ChevronRight size={32} />
@@ -251,19 +299,23 @@ export function StoryPlayer() {
 
       {/* Click zones for mobile navigation */}
       <div className="absolute inset-0 top-16 flex md:hidden pointer-events-none">
-        <div 
+        <div
           className="flex-1 cursor-pointer pointer-events-auto"
           onClick={() => {
             if (hasPreviousStory) {
-              useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex - 1, 0);
+              useStoryPlayerStore
+                .getState()
+                .openStoryPlayer(currentUserIndex - 1, 0);
             }
           }}
         />
-        <div 
+        <div
           className="flex-1 cursor-pointer"
           onClick={() => {
             if (hasNextStory) {
-              useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex + 1, 0);
+              useStoryPlayerStore
+                .getState()
+                .openStoryPlayer(currentUserIndex + 1, 0);
             } else {
               closeStoryPlayer();
             }

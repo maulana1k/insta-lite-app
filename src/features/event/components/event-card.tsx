@@ -1,30 +1,37 @@
-'use client';
+"use client";
 
-import { MapPoint, Monitor, UsersGroupTwoRounded, Calendar } from '@solar-icons/react';
-import { SpaceEvent } from '../types';
-import { useEventStore } from '../store/event-store';
+import {
+  Calendar,
+  MapPoint,
+  Monitor,
+  UsersGroupTwoRounded,
+} from "@solar-icons/react";
+import { useEventStore } from "../store/event-store";
+import type { SpaceEvent } from "../types";
 
 function formatTime(time: string, timezone: string): string {
-  const [h, m] = time.split(':');
+  const [h, m] = time.split(":");
   const hour = parseInt(h);
-  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const ampm = hour >= 12 ? "PM" : "AM";
   const h12 = hour % 12 || 12;
-  return m === '00' ? `${h12} ${ampm} ${timezone}` : `${h12}:${m} ${ampm} ${timezone}`;
+  return m === "00"
+    ? `${h12} ${ampm} ${timezone}`
+    : `${h12}:${m} ${ampm} ${timezone}`;
 }
 
 function formatShortDate(date: string): string {
   const d = new Date(date);
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+  return d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
 }
 
-function formatLocationLabel(location: SpaceEvent['location']): string {
-  if (location.type === 'online') return location.platform || 'Virtual';
-  if (location.type === 'hybrid') return `${location.venue}`;
-  return location.venue || location.address || 'Offline';
+function formatLocationLabel(location: SpaceEvent["location"]): string {
+  if (location.type === "online") return location.platform || "Virtual";
+  if (location.type === "hybrid") return `${location.venue}`;
+  return location.venue || location.address || "Offline";
 }
 
 export function EventCard({ event }: { event: SpaceEvent }) {
-  const isOnline = event.location.type === 'online';
+  const isOnline = event.location.type === "online";
   const { setActiveEventId } = useEventStore();
 
   return (
@@ -41,7 +48,9 @@ export function EventCard({ event }: { event: SpaceEvent }) {
         />
         {/* Date overlay badge */}
         <div className="absolute top-1.5 left-1.5 bg-background/80 backdrop-blur-sm rounded-lg px-2 py-0.5">
-          <p className="text-[11px] font-bold leading-tight text-center">{formatShortDate(event.schedule.date)}</p>
+          <p className="text-[11px] font-bold leading-tight text-center">
+            {formatShortDate(event.schedule.date)}
+          </p>
         </div>
       </div>
 
@@ -55,7 +64,9 @@ export function EventCard({ event }: { event: SpaceEvent }) {
         {/* Time */}
         <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
           <Calendar className="size-3.5 shrink-0" />
-          <span>{formatTime(event.schedule.time, event.schedule.timezone)}</span>
+          <span>
+            {formatTime(event.schedule.time, event.schedule.timezone)}
+          </span>
         </div>
 
         {/* Location */}
@@ -65,7 +76,9 @@ export function EventCard({ event }: { event: SpaceEvent }) {
           ) : (
             <MapPoint className="size-3.5 shrink-0" />
           )}
-          <span className="truncate">{isOnline ? 'Virtual' : formatLocationLabel(event.location)}</span>
+          <span className="truncate">
+            {isOnline ? "Virtual" : formatLocationLabel(event.location)}
+          </span>
         </div>
 
         {/* Attendees */}
@@ -73,7 +86,7 @@ export function EventCard({ event }: { event: SpaceEvent }) {
           <UsersGroupTwoRounded className="size-3.5 shrink-0" />
           <span>
             {event.attendees_count} peserta
-            {event.max_attendees ? ` / ${event.max_attendees}` : ''}
+            {event.max_attendees ? ` / ${event.max_attendees}` : ""}
           </span>
         </div>
       </div>

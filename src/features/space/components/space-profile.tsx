@@ -1,24 +1,26 @@
-'use client';
+"use client";
 
-import { Bell, Calendar, Document, Notes, User } from '@solar-icons/react';
-import { Space } from '../types';
-import { useState } from 'react';
-import { MoreHorizontal } from 'lucide-react';
-import { UpcomingEventWidget } from '@/features/event/components/upcoming-event-widget';
+import { Bell, Calendar, Document, Notes, User } from "@solar-icons/react";
+import { MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { UpcomingEventWidget } from "@/features/event/components/upcoming-event-widget";
+import type { Space } from "../types";
 
 function formatCount(count: number): string {
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
-  if (count >= 1_000) return `${(count / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+  if (count >= 1_000_000)
+    return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (count >= 1_000)
+    return `${(count / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
   return count.toString();
 }
 
 function formatCreatedDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+  return date.toLocaleDateString("id-ID", { month: "short", year: "numeric" });
 }
 
 export function SpaceProfile({ topic }: { topic: Space }) {
-  const [activeTab, setActiveTab] = useState<'about' | 'rules'>('about');
+  const [activeTab, setActiveTab] = useState<"about" | "rules">("about");
 
   return (
     <div className="hidden xl:flex flex-col w-80 h-fit sticky top-24 shrink-0 gap-4">
@@ -48,7 +50,9 @@ export function SpaceProfile({ topic }: { topic: Space }) {
                 className="w-full h-full object-cover"
               />
             </div>
-            <h2 className="font-bold text-xl leading-tight truncate mt-2.5">{topic.name}</h2>
+            <h2 className="font-bold text-xl leading-tight truncate mt-2.5">
+              {topic.name}
+            </h2>
             <p className="text-[13px] text-muted-foreground">f/{topic.slug}</p>
           </div>
 
@@ -60,13 +64,28 @@ export function SpaceProfile({ topic }: { topic: Space }) {
           {/* Stats row */}
           <div className="flex items-center gap-4 mb-4 text-[13px]">
             <div className="flex items-center gap-1.5 text-muted-foreground">
-              <span><strong className="text-foreground">{formatCount(topic.members_count)}</strong> followers</span>
+              <span>
+                <strong className="text-foreground">
+                  {formatCount(topic.members_count)}
+                </strong>{" "}
+                followers
+              </span>
             </div>
             <div className="flex items-center gap-1.5 text-muted-foreground">
-              <span><strong className="text-foreground">{formatCount(topic.members_count)}</strong> members</span>
+              <span>
+                <strong className="text-foreground">
+                  {formatCount(topic.members_count)}
+                </strong>{" "}
+                members
+              </span>
             </div>
             <div className="flex items-center gap-1.5 text-muted-foreground">
-              <span><strong className="text-foreground">{formatCount(topic.posts_count)}</strong> posts</span>
+              <span>
+                <strong className="text-foreground">
+                  {formatCount(topic.posts_count)}
+                </strong>{" "}
+                posts
+              </span>
             </div>
           </div>
 
@@ -87,20 +106,22 @@ export function SpaceProfile({ topic }: { topic: Space }) {
         {/* Tabs */}
         <div className="flex p-1 mx-3 mt-3 rounded-xl bg-muted/60">
           <button
-            onClick={() => setActiveTab('about')}
-            className={`flex-1 py-1.5 text-[13px] font-semibold rounded-lg transition-all ${activeTab === 'about'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground/70'
-              }`}
+            onClick={() => setActiveTab("about")}
+            className={`flex-1 py-1.5 text-[13px] font-semibold rounded-lg transition-all ${
+              activeTab === "about"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground/70"
+            }`}
           >
             Tentang
           </button>
           <button
-            onClick={() => setActiveTab('rules')}
-            className={`flex-1 py-1.5 text-[13px] font-semibold rounded-lg transition-all ${activeTab === 'rules'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground/70'
-              }`}
+            onClick={() => setActiveTab("rules")}
+            className={`flex-1 py-1.5 text-[13px] font-semibold rounded-lg transition-all ${
+              activeTab === "rules"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground/70"
+            }`}
           >
             Aturan
           </button>
@@ -108,7 +129,7 @@ export function SpaceProfile({ topic }: { topic: Space }) {
 
         {/* Tab content */}
         <div className="px-5 py-4">
-          {activeTab === 'about' ? (
+          {activeTab === "about" ? (
             <div className="space-y-3">
               <p className="text-[13px] text-foreground/70 leading-relaxed">
                 {topic.description}
@@ -121,19 +142,27 @@ export function SpaceProfile({ topic }: { topic: Space }) {
           ) : (
             <ol className="text-[13px] text-foreground/70 leading-relaxed space-y-2">
               <li className="flex gap-2.5">
-                <span className="text-muted-foreground/50 font-semibold shrink-0">1.</span>
+                <span className="text-muted-foreground/50 font-semibold shrink-0">
+                  1.
+                </span>
                 <span>Jaga sopan santun dan saling menghargai</span>
               </li>
               <li className="flex gap-2.5">
-                <span className="text-muted-foreground/50 font-semibold shrink-0">2.</span>
+                <span className="text-muted-foreground/50 font-semibold shrink-0">
+                  2.
+                </span>
                 <span>Dilarang spam atau self-promo berlebihan</span>
               </li>
               <li className="flex gap-2.5">
-                <span className="text-muted-foreground/50 font-semibold shrink-0">3.</span>
+                <span className="text-muted-foreground/50 font-semibold shrink-0">
+                  3.
+                </span>
                 <span>Gunakan topik yang sesuai</span>
               </li>
               <li className="flex gap-2.5">
-                <span className="text-muted-foreground/50 font-semibold shrink-0">4.</span>
+                <span className="text-muted-foreground/50 font-semibold shrink-0">
+                  4.
+                </span>
                 <span>Dilarang SARA dan ujaran kebencian</span>
               </li>
             </ol>

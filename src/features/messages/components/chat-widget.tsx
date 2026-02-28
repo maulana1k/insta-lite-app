@@ -1,39 +1,46 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
-import { SmileCircle, Microphone, GalleryAdd, PenNewSquare, Plain, Pen } from '@solar-icons/react';
-import { ArrowLeft, Maximize2, X } from 'lucide-react';
-import { CONVERSATIONS, MESSAGES } from '../api/mock-data';
-import type { Message } from '../types';
-import { cn } from '@/lib/utils';
+import {
+  GalleryAdd,
+  Microphone,
+  Pen,
+  PenNewSquare,
+  Plain,
+  SmileCircle,
+} from "@solar-icons/react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, Maximize2, X } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { CONVERSATIONS, MESSAGES } from "../api/mock-data";
+import type { Message } from "../types";
 
-type WidgetView = 'list' | 'chat';
+type WidgetView = "list" | "chat";
 
 export function ChatWidget() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState<WidgetView>('list');
+  const [view, setView] = useState<WidgetView>("list");
   const [activeConvoId, setActiveConvoId] = useState<string | null>(null);
   const [direction, setDirection] = useState(1);
   const widgetRef = useRef<HTMLDivElement>(null);
 
   // Hide on /messages page
-  if (pathname === '/messages') return null;
+  if (pathname === "/messages") return null;
 
   const unreadCount = CONVERSATIONS.filter((c) => c.unread).length;
 
   const handleSelectConvo = (id: string) => {
     setDirection(1);
     setActiveConvoId(id);
-    setView('chat');
+    setView("chat");
   };
 
   const handleBack = () => {
     setDirection(-1);
-    setView('list');
+    setView("list");
     setActiveConvoId(null);
   };
 
@@ -41,7 +48,7 @@ export function ChatWidget() {
     setOpen(false);
     // Reset after animation
     setTimeout(() => {
-      setView('list');
+      setView("list");
       setActiveConvoId(null);
     }, 150);
   };
@@ -74,7 +81,7 @@ export function ChatWidget() {
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ duration: 0.15 }}
           >
-            <Plain weight='Bold' className="size-8" />
+            <Plain weight="Bold" className="size-8" />
             {unreadCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 size-5 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-background">
                 {unreadCount}
@@ -95,7 +102,7 @@ export function ChatWidget() {
             exit={{ opacity: 0, scale: 0.85, y: 30, x: 20 }}
             // transition={{ duration: 0.15 }}
             transition={{
-              type: 'spring',
+              type: "spring",
               stiffness: 620,
               damping: 34,
               mass: 1.5,
@@ -104,7 +111,7 @@ export function ChatWidget() {
             {/* Sliding views — absolute positioned to prevent layout fighting */}
             <div className="relative flex-1 overflow-hidden">
               <AnimatePresence mode="sync" custom={direction} initial={false}>
-                {view === 'list' ? (
+                {view === "list" ? (
                   <motion.div
                     key="list"
                     custom={direction}
@@ -112,7 +119,7 @@ export function ChatWidget() {
                     initial="enter"
                     animate="center"
                     exit="exitToLeft"
-                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
                     className="absolute inset-0 flex flex-col"
                   >
                     <WidgetListView
@@ -129,7 +136,7 @@ export function ChatWidget() {
                     initial="enter"
                     animate="center"
                     exit="exitToRight"
-                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
                     className="absolute inset-0 flex flex-col"
                   >
                     <WidgetChatView
@@ -203,13 +210,20 @@ function WidgetListView({
               />
             </div>
             <div className="flex-1 min-w-0">
-              <span className={cn('text-[14px] block truncate', convo.unread ? 'font-bold' : 'font-medium')}>
+              <span
+                className={cn(
+                  "text-[14px] block truncate",
+                  convo.unread ? "font-bold" : "font-medium",
+                )}
+              >
                 {convo.user.name}
               </span>
               <span
                 className={cn(
-                  'text-[13px] block truncate',
-                  convo.unread ? 'text-foreground font-medium' : 'text-muted-foreground'
+                  "text-[13px] block truncate",
+                  convo.unread
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground",
                 )}
               >
                 {convo.last_message} · {convo.timestamp}
@@ -222,7 +236,7 @@ function WidgetListView({
         ))}
         <div className="shrink-0 absolute bottom-2 right-2 px-4 pb-4 pt-2 flex justify-end">
           <button className="size-14 rounded-full bg-background text-foreground border border-border shadow-lg flex items-center justify-center hover:scale-110 transition-all">
-            <Pen weight='Bold' className="size-5" />
+            <Pen weight="Bold" className="size-5" />
           </button>
         </div>
       </div>
@@ -243,13 +257,13 @@ function WidgetChatView({
   onBack: () => void;
   onClose: () => void;
 }) {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const conversation = CONVERSATIONS.find((c) => c.id === conversationId);
   const messages = MESSAGES[conversationId] || [];
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversationId]);
 
   if (!conversation) return null;
@@ -276,7 +290,9 @@ function WidgetChatView({
               />
             </div>
             <div className="leading-tight">
-              <span className="text-[14px] font-semibold block">{conversation.user.name}</span>
+              <span className="text-[14px] font-semibold block">
+                {conversation.user.name}
+              </span>
             </div>
           </div>
         </div>
@@ -293,11 +309,17 @@ function WidgetChatView({
         {groupedMessages.map((group, gi) => (
           <div key={gi}>
             <div className="flex justify-center my-3">
-              <span className="text-[11px] text-muted-foreground/60">{group.date}</span>
+              <span className="text-[11px] text-muted-foreground/60">
+                {group.date}
+              </span>
             </div>
             <div className="space-y-1">
               {group.messages.map((msg) => (
-                <WidgetBubble key={msg.id} message={msg} avatarUrl={conversation.user.avatar_url} />
+                <WidgetBubble
+                  key={msg.id}
+                  message={msg}
+                  avatarUrl={conversation.user.avatar_url}
+                />
               ))}
             </div>
           </div>
@@ -332,11 +354,22 @@ function WidgetChatView({
   );
 }
 
-function WidgetBubble({ message, avatarUrl }: { message: Message; avatarUrl: string }) {
-  const isMe = message.sender === 'me';
+function WidgetBubble({
+  message,
+  avatarUrl,
+}: {
+  message: Message;
+  avatarUrl: string;
+}) {
+  const isMe = message.sender === "me";
 
   return (
-    <div className={cn('flex items-end gap-1.5', isMe ? 'justify-end' : 'justify-start')}>
+    <div
+      className={cn(
+        "flex items-end gap-1.5",
+        isMe ? "justify-end" : "justify-start",
+      )}
+    >
       {!isMe && (
         <div className="size-6 rounded-full overflow-hidden shrink-0 mb-0.5">
           <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
@@ -344,10 +377,10 @@ function WidgetBubble({ message, avatarUrl }: { message: Message; avatarUrl: str
       )}
       <div
         className={cn(
-          'max-w-[75%] px-3 py-1.5 text-[13px] leading-relaxed',
+          "max-w-[75%] px-3 py-1.5 text-[13px] leading-relaxed",
           isMe
-            ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-sm'
-            : 'bg-muted rounded-2xl rounded-bl-sm'
+            ? "bg-primary text-primary-foreground rounded-2xl rounded-br-sm"
+            : "bg-muted rounded-2xl rounded-bl-sm",
         )}
       >
         {message.content}
@@ -359,7 +392,7 @@ function WidgetBubble({ message, avatarUrl }: { message: Message; avatarUrl: str
 function groupMessagesByDate(messages: Message[]) {
   const groups: { date: string; messages: Message[] }[] = [];
   messages.forEach((msg) => {
-    const date = msg.timestamp.replace(/\s\d{2}\.\d{2}$/, '');
+    const date = msg.timestamp.replace(/\s\d{2}\.\d{2}$/, "");
     const lastGroup = groups[groups.length - 1];
     if (lastGroup && lastGroup.date === date) {
       lastGroup.messages.push(msg);

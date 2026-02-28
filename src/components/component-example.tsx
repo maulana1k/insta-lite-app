@@ -1,7 +1,36 @@
 "use client";
 
+import {
+  Bell,
+  Bluetooth,
+  CreditCard,
+  Download,
+  Eye,
+  File,
+  FileCode,
+  FileText,
+  Folder,
+  FolderOpen,
+  FolderSearch,
+  HelpCircle,
+  Keyboard,
+  Languages,
+  Layout,
+  LogOut,
+  Mail,
+  Monitor,
+  Moon,
+  MoreHorizontal,
+  MoreVertical,
+  Palette,
+  Plus,
+  Save,
+  Settings,
+  Shield,
+  Sun,
+  User,
+} from "lucide-react";
 import * as React from "react";
-
 import { Example, ExampleWrapper } from "@/components/example";
 import {
   AlertDialog,
@@ -62,36 +91,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Plus,
-  Bluetooth,
-  MoreVertical,
-  File,
-  Folder,
-  FolderOpen,
-  FileCode,
-  MoreHorizontal,
-  FolderSearch,
-  Save,
-  Download,
-  Eye,
-  Layout,
-  Palette,
-  Sun,
-  Moon,
-  Monitor,
-  User,
-  CreditCard,
-  Settings,
-  Keyboard,
-  Languages,
-  Bell,
-  Mail,
-  Shield,
-  HelpCircle,
-  FileText,
-  LogOut,
-} from "lucide-react";
 
 export function ComponentExample() {
   return (

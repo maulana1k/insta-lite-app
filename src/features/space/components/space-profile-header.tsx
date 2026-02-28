@@ -1,20 +1,24 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ArrowLeft, Lock } from 'lucide-react';
-import { Calendar } from '@solar-icons/react';
-import { cn } from '@/lib/utils';
-import { Space } from '../types';
-import { useRouter } from 'next/navigation';
+import { Calendar } from "@solar-icons/react";
+import { ArrowLeft, Lock } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import type { Space } from "../types";
 
 function formatCount(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+  if (n >= 1_000_000)
+    return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
   return n.toString();
 }
 
 function formatDate(s: string) {
-  return new Date(s).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+  return new Date(s).toLocaleDateString("id-ID", {
+    month: "long",
+    year: "numeric",
+  });
 }
 
 interface SpaceProfileHeaderProps {
@@ -23,9 +27,13 @@ interface SpaceProfileHeaderProps {
   onJoin: () => void;
 }
 
-export function SpaceProfileHeader({ space, isMember, onJoin }: SpaceProfileHeaderProps) {
+export function SpaceProfileHeader({
+  space,
+  isMember,
+  onJoin,
+}: SpaceProfileHeaderProps) {
   const router = useRouter();
-  const [tab, setTab] = useState<'about' | 'rules'>('about');
+  const [tab, setTab] = useState<"about" | "rules">("about");
   const [isFollowing, setIsFollowing] = useState(false);
 
   return (
@@ -73,13 +81,13 @@ export function SpaceProfileHeader({ space, isMember, onJoin }: SpaceProfileHead
         <button
           onClick={() => setIsFollowing((v) => !v)}
           className={cn(
-            'px-4 py-1.5 rounded-xl text-[13px] font-semibold transition-all',
+            "px-4 py-1.5 rounded-xl text-[13px] font-semibold transition-all",
             isFollowing
-              ? 'bg-muted text-foreground hover:bg-muted/70'
-              : 'bg-foreground text-background hover:opacity-85',
+              ? "bg-muted text-foreground hover:bg-muted/70"
+              : "bg-foreground text-background hover:opacity-85",
           )}
         >
-          {isFollowing ? 'Mengikuti' : 'Ikuti'}
+          {isFollowing ? "Mengikuti" : "Ikuti"}
         </button>
 
         {space.is_private && !isMember && (
@@ -101,7 +109,9 @@ export function SpaceProfileHeader({ space, isMember, onJoin }: SpaceProfileHead
       {/* ── Name + slug — padded to clear the avatar ── */}
       <div className="px-1 mb-2 mt-6">
         <h1 className="font-bold text-[22px] leading-tight">{space.name}</h1>
-        <p className="text-[12px] text-muted-foreground mt-0.5">s/{space.slug}</p>
+        <p className="text-[12px] text-muted-foreground mt-0.5">
+          s/{space.slug}
+        </p>
       </div>
 
       {/* ── Description ── */}
@@ -112,11 +122,15 @@ export function SpaceProfileHeader({ space, isMember, onJoin }: SpaceProfileHead
       {/* ── Stats ── */}
       <div className="px-1 flex items-center gap-5 mb-4 text-[13px]">
         <span>
-          <strong className="font-semibold">{formatCount(space.members_count)}</strong>
+          <strong className="font-semibold">
+            {formatCount(space.members_count)}
+          </strong>
           <span className="text-muted-foreground ml-1">anggota</span>
         </span>
         <span>
-          <strong className="font-semibold">{formatCount(space.posts_count)}</strong>
+          <strong className="font-semibold">
+            {formatCount(space.posts_count)}
+          </strong>
           <span className="text-muted-foreground ml-1">posting</span>
         </span>
       </div>
@@ -124,23 +138,23 @@ export function SpaceProfileHeader({ space, isMember, onJoin }: SpaceProfileHead
       {/* ── About / Rules tabs ── */}
       <div className="border-t border-border pt-3 px-1">
         <div className="flex gap-1 mb-3">
-          {(['about', 'rules'] as const).map((t) => (
+          {(["about", "rules"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={cn(
-                'px-3 py-1.5 text-[13px] font-medium rounded-lg transition-colors',
+                "px-3 py-1.5 text-[13px] font-medium rounded-lg transition-colors",
                 tab === t
-                  ? 'bg-muted text-foreground'
-                  : 'text-muted-foreground hover:text-foreground',
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {t === 'about' ? 'Tentang' : 'Aturan'}
+              {t === "about" ? "Tentang" : "Aturan"}
             </button>
           ))}
         </div>
 
-        {tab === 'about' ? (
+        {tab === "about" ? (
           <div className="space-y-2 pb-4">
             <p className="text-[13px] text-muted-foreground leading-relaxed">
               {space.description}
@@ -153,7 +167,10 @@ export function SpaceProfileHeader({ space, isMember, onJoin }: SpaceProfileHead
         ) : (
           <ol className="pb-4 space-y-2">
             {(space.rules ?? defaultRules).map((rule, i) => (
-              <li key={i} className="flex gap-2.5 text-[13px] text-muted-foreground">
+              <li
+                key={i}
+                className="flex gap-2.5 text-[13px] text-muted-foreground"
+              >
                 <span className="font-semibold text-muted-foreground/40 shrink-0 w-4 text-right">
                   {i + 1}.
                 </span>
@@ -168,8 +185,8 @@ export function SpaceProfileHeader({ space, isMember, onJoin }: SpaceProfileHead
 }
 
 const defaultRules = [
-  'Jaga sopan santun dan saling menghargai',
-  'Dilarang spam atau self-promo berlebihan',
-  'Gunakan topik yang sesuai',
-  'Dilarang SARA dan ujaran kebencian',
+  "Jaga sopan santun dan saling menghargai",
+  "Dilarang spam atau self-promo berlebihan",
+  "Gunakan topik yang sesuai",
+  "Dilarang SARA dan ujaran kebencian",
 ];

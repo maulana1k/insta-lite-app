@@ -1,17 +1,27 @@
-'use client';
+"use client";
 
-import { Suspense, useEffect, useRef, useState } from 'react';
+import {
+  ClapperboardPlay,
+  Home,
+  Logout,
+  PenNewSquare,
+  Plain,
+  PlayStream,
+  Settings,
+  Tv,
+  VideoLibrary,
+} from "@solar-icons/react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Monitor, Moon, Search, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ClapperboardPlay, Home, Plain, Settings, Logout, PenNewSquare, VideoLibrary, PlayStream, Tv } from "@solar-icons/react";
-import { NotificationPopup } from './notification-popup';
-import { SearchOverlay } from './search-overlay';
-import { Search, Moon, Sun, Monitor } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useTheme } from 'next-themes';
-import { CreatePostModal } from '@/features/post/components/create-post-modal';
+import { CreatePostModal } from "@/features/post/components/create-post-modal";
+import { cn } from "@/lib/utils";
+import { NotificationPopup } from "./notification-popup";
+import { SearchOverlay } from "./search-overlay";
 
 export function Header() {
   const pathname = usePathname();
@@ -26,27 +36,51 @@ export function Header() {
         {/* Center Nav */}
         <nav className="hidden md:flex items-center gap-5 absolute left-1/2 -translate-x-1/2">
           <Link href="/">
-            <NavButton icon={Home} label="Home" active={pathname === '/'} iconType="solar" />
+            <NavButton
+              icon={Home}
+              label="Home"
+              active={pathname === "/"}
+              iconType="solar"
+            />
           </Link>
           <Link href="/discover">
-            <NavButton icon={Search} label="Discover" active={pathname === '/discover'} iconType="lucide" />
+            <NavButton
+              icon={Search}
+              label="Discover"
+              active={pathname === "/discover"}
+              iconType="lucide"
+            />
           </Link>
           <Suspense fallback={<div className="w-52 h-10" />}>
             <SearchOverlay />
           </Suspense>
           <Link href="/videos">
             {/* <NavButton icon={ClapperboardPlay} label="Reels" active={pathname === '/videos'} iconType="solar" /> */}
-            <NavButton icon={Tv} label="Reels" active={pathname === '/videos'} iconType="solar" />
+            <NavButton
+              icon={Tv}
+              label="Reels"
+              active={pathname === "/videos"}
+              iconType="solar"
+            />
           </Link>
           <Link href="/messages">
-            <NavButton icon={Plain} label="Messages" active={pathname === '/messages'} iconType="solar" />
+            <NavButton
+              icon={Plain}
+              label="Messages"
+              active={pathname === "/messages"}
+              iconType="solar"
+            />
           </Link>
         </nav>
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
           {/* <Link href="/create"> */}
-          <Button variant="ghost" className="shrink-0 size-12 rounded-xl" onClick={() => setCreateModalOpen(true)}>
+          <Button
+            variant="ghost"
+            className="shrink-0 size-12 rounded-xl"
+            onClick={() => setCreateModalOpen(true)}
+          >
             <PenNewSquare className="size-6" />
             <span className="sr-only">Create Post</span>
           </Button>
@@ -56,7 +90,10 @@ export function Header() {
         </div>
       </div>
 
-      <CreatePostModal open={createModalOpen} onClose={() => setCreateModalOpen(false)} />
+      <CreatePostModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+      />
     </div>
   );
 }
@@ -65,12 +102,12 @@ function NavButton({
   icon: Icon,
   label,
   active,
-  iconType = 'solar',
+  iconType = "solar",
 }: {
   icon: any;
   label: string;
   active?: boolean;
-  iconType?: 'solar' | 'lucide';
+  iconType?: "solar" | "lucide";
 }) {
   return (
     <Button
@@ -78,17 +115,13 @@ function NavButton({
       size="icon"
       className={cn("h-12 w-12 rounded-xl", active && "text-foreground")}
     >
-      {iconType === 'solar' ? (
-        <Icon
-          weight={active ? "Bold" : "Linear"}
-          className={cn("size-6")}
-        />
+      {iconType === "solar" ? (
+        <Icon weight={active ? "Bold" : "Linear"} className={cn("size-6")} />
       ) : (
         <Icon
           fill={active ? "currentColor" : "none"}
           className={cn("size-6", active ? "**:stroke-3" : "")}
         />
-
       )}
       <span className="sr-only">{label}</span>
     </Button>
@@ -97,10 +130,7 @@ function NavButton({
 
 export function AppLogo() {
   return (
-    <Link
-      href="/"
-      className="text-3xl font-bold tracking-tighter shrink-0 "
-    >
+    <Link href="/" className="text-3xl font-bold tracking-tighter shrink-0 ">
       Jends!
     </Link>
   );
@@ -122,26 +152,34 @@ function ProfileMenu() {
     };
 
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false);
+      if (e.key === "Escape") setIsOpen(false);
     };
 
-    document.addEventListener('mousedown', handleClick);
-    document.addEventListener('keydown', handleKey);
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
 
     return () => {
-      document.removeEventListener('mousedown', handleClick);
-      document.removeEventListener('keydown', handleKey);
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
     };
   }, [isOpen]);
 
   const cycleTheme = () => {
-    const order = ['system', 'light', 'dark'] as const;
-    const currentIndex = order.indexOf(theme as typeof order[number]);
+    const order = ["system", "light", "dark"] as const;
+    const currentIndex = order.indexOf(theme as (typeof order)[number]);
     setTheme(order[(currentIndex + 1) % order.length]);
   };
 
-  const themeIcon = theme === 'dark' ? <Moon className="size-5" /> : theme === 'light' ? <Sun className="size-5" /> : <Monitor className="size-5" />;
-  const themeLabel = theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System';
+  const themeIcon =
+    theme === "dark" ? (
+      <Moon className="size-5" />
+    ) : theme === "light" ? (
+      <Sun className="size-5" />
+    ) : (
+      <Monitor className="size-5" />
+    );
+  const themeLabel =
+    theme === "dark" ? "Dark" : theme === "light" ? "Light" : "System";
 
   return (
     <div className="relative" ref={menuRef}>
@@ -164,7 +202,7 @@ function ProfileMenu() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.6, y: -6 }}
             transition={{
-              type: 'spring',
+              type: "spring",
               stiffness: 620,
               damping: 34,
               mass: 1.5,
@@ -186,7 +224,9 @@ function ProfileMenu() {
                 </div>
                 <div className="flex flex-col">
                   <span className="font-semibold">shadcn</span>
-                  <span className="text-sm text-muted-foreground">View your profile</span>
+                  <span className="text-sm text-muted-foreground">
+                    View your profile
+                  </span>
                 </div>
               </Link>
 

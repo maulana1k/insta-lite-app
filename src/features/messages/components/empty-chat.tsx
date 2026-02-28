@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Plain } from '@solar-icons/react';
+import { Plain } from "@solar-icons/react";
 
 export function EmptyChat() {
   return (

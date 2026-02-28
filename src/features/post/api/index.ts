@@ -8,13 +8,13 @@
  *   Authorization: Bearer {token}
  */
 
+import type { Post, PostComment } from "../types";
 import {
-  MOCK_POSTS,
-  MOCK_COMMENTS,
   FOLLOWING_POST_IDS,
+  MOCK_COMMENTS,
+  MOCK_POSTS,
   SAVED_POST_IDS,
-} from './mock-data';
-import { Post, PostComment } from '../types';
+} from "./mock-data";
 
 // ── Pagination ─────────────────────────────────────────────────────────────
 
@@ -35,9 +35,12 @@ function paginateMock<T extends { id: string }>(
   items: T[],
   cursor?: string,
 ): Page<T> {
-  const startIndex = cursor ? items.findIndex((item) => item.id === cursor) + 1 : 0;
+  const startIndex = cursor
+    ? items.findIndex((item) => item.id === cursor) + 1
+    : 0;
   const slice = items.slice(startIndex, startIndex + PAGE_SIZE);
-  const nextCursor = slice.length === PAGE_SIZE ? slice[slice.length - 1].id : null;
+  const nextCursor =
+    slice.length === PAGE_SIZE ? slice[slice.length - 1].id : null;
   return { items: slice, nextCursor };
 }
 
@@ -66,7 +69,9 @@ export async function fetchFollowingFeed(cursor?: string): Promise<Page<Post>> {
   // TODO: replace mock with:
   // return apiClient.get<Page<Post>>('/posts', { params: { feed: 'following', cursor } });
   await simulateLatency();
-  const filtered = MOCK_POSTS.filter((post) => FOLLOWING_POST_IDS.includes(post.id));
+  const filtered = MOCK_POSTS.filter((post) =>
+    FOLLOWING_POST_IDS.includes(post.id),
+  );
   return paginateMock(filtered, cursor);
 }
 
@@ -80,7 +85,9 @@ export async function fetchSavedFeed(cursor?: string): Promise<Page<Post>> {
   // TODO: replace mock with:
   // return apiClient.get<Page<Post>>('/posts', { params: { feed: 'saved', cursor } });
   await simulateLatency();
-  const filtered = MOCK_POSTS.filter((post) => SAVED_POST_IDS.includes(post.id));
+  const filtered = MOCK_POSTS.filter((post) =>
+    SAVED_POST_IDS.includes(post.id),
+  );
   return paginateMock(filtered, cursor);
 }
 
@@ -90,7 +97,10 @@ export async function fetchSavedFeed(cursor?: string): Promise<Page<Post>> {
  *
  * Returns posts belonging to the given space.
  */
-export async function fetchSpaceFeed(spaceId: string, cursor?: string): Promise<Page<Post>> {
+export async function fetchSpaceFeed(
+  spaceId: string,
+  cursor?: string,
+): Promise<Page<Post>> {
   // TODO: replace mock with:
   // return apiClient.get<Page<Post>>(`/spaces/${spaceId}/posts`, { params: { cursor } });
   await simulateLatency();
@@ -115,7 +125,9 @@ export async function fetchPost(postId: string): Promise<Post | null> {
  * GET /api/v1/posts/{postId}/comments
  * Authorization: Bearer {token}
  */
-export async function fetchPostComments(postId: string): Promise<PostComment[]> {
+export async function fetchPostComments(
+  postId: string,
+): Promise<PostComment[]> {
   // TODO: replace mock with:
   // return apiClient.get<PostComment[]>(`/posts/${postId}/comments`);
   await simulateLatency(400);

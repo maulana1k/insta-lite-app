@@ -1,7 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { SettingsGroup, SettingsRow } from './settings-ui';
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,33 +11,33 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
+import { SettingsGroup, SettingsRow } from "./settings-ui";
 
 export function SettingsData() {
-  const [cacheSize, setCacheSize] = useState('487 MB');
+  const [cacheSize, setCacheSize] = useState("487 MB");
   const [clearing, setClearing] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
 
   const handleClearCache = () => {
-    if (clearing || cacheSize === '0 MB') return;
+    if (clearing || cacheSize === "0 MB") return;
     setClearing(true);
     setTimeout(() => {
-      setCacheSize('0 MB');
+      setCacheSize("0 MB");
       setClearing(false);
     }, 1000);
   };
 
   return (
     <div className="space-y-8">
-
       <SettingsGroup
         header="Penyimpanan"
         footer="Cache membantu aplikasi memuat konten lebih cepat."
       >
         <SettingsRow
           label="Cache Aplikasi"
-          value={clearing ? 'Menghapus…' : cacheSize}
-          onClick={cacheSize !== '0 MB' ? handleClearCache : undefined}
+          value={clearing ? "Menghapus…" : cacheSize}
+          onClick={cacheSize !== "0 MB" ? handleClearCache : undefined}
         />
       </SettingsGroup>
 
@@ -48,7 +47,7 @@ export function SettingsData() {
       >
         <SettingsRow
           label="Unduh Data Saya"
-          value={downloaded ? 'Diminta' : undefined}
+          value={downloaded ? "Diminta" : undefined}
           onClick={downloaded ? undefined : () => setDownloaded(true)}
         />
         <SettingsRow label="Log Aktivitas" onClick={() => {}} />
@@ -68,7 +67,8 @@ export function SettingsData() {
             <AlertDialogHeader>
               <AlertDialogTitle>Hapus akun Anda?</AlertDialogTitle>
               <AlertDialogDescription>
-                Tindakan ini tidak dapat dibatalkan. Semua postingan, pengikut, pesan, dan data Anda akan dihapus secara permanen.
+                Tindakan ini tidak dapat dibatalkan. Semua postingan, pengikut,
+                pesan, dan data Anda akan dihapus secara permanen.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -80,7 +80,6 @@ export function SettingsData() {
           </AlertDialogContent>
         </AlertDialog>
       </SettingsGroup>
-
     </div>
   );
 }

@@ -1,12 +1,14 @@
-'use client';
+"use client";
 
-import { TRENDING_POSTS, TRENDING_HASHTAGS } from '../api/mock-data';
-import { TrendingUp } from 'lucide-react';
-import { VerifiedCheck } from '@solar-icons/react';
+import { VerifiedCheck } from "@solar-icons/react";
+import { TrendingUp } from "lucide-react";
+import { TRENDING_HASHTAGS, TRENDING_POSTS } from "../api/mock-data";
 
 function formatCount(count: number): string {
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
-  if (count >= 1_000) return `${(count / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+  if (count >= 1_000_000)
+    return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (count >= 1_000)
+    return `${(count / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
   return count.toString();
 }
 
@@ -44,11 +46,19 @@ export function TrendingList() {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <span className="text-[13px] font-medium truncate">{post.user.username}</span>
+                  <span className="text-[13px] font-medium truncate">
+                    {post.user.username}
+                  </span>
                   {post.user.verified && (
-                    <VerifiedCheck className="size-3.5 text-blue-500 shrink-0" weight="Bold" />
+                    <VerifiedCheck
+                      className="size-3.5 text-blue-500 shrink-0"
+                      weight="Bold"
+                    />
                   )}
-                  <span className="text-[12px] text-muted-foreground"> · {post.timestamp}</span>
+                  <span className="text-[12px] text-muted-foreground">
+                    {" "}
+                    · {post.timestamp}
+                  </span>
                 </div>
 
                 {/* Post text */}

@@ -1,6 +1,6 @@
-import { cn } from '@/lib/utils';
-import { EngagementMetric } from '../types';
-import { AltArrowUp, AltArrowDown } from '@solar-icons/react';
+import { AltArrowDown, AltArrowUp } from "@solar-icons/react";
+import { cn } from "@/lib/utils";
+import type { EngagementMetric } from "../types";
 
 interface MetricCardProps {
   metric: EngagementMetric;
@@ -23,19 +23,22 @@ export function MetricCard({ metric }: MetricCardProps) {
           ) : (
             <AltArrowDown className="size-3 text-red-500" />
           )}
-          <span className={cn(
-            "text-xs font-medium",
-            isPositive ? "text-green-500" : "text-red-500"
-          )}>
-            {isPositive ? '+' : ''}{metric.change}%
+          <span
+            className={cn(
+              "text-xs font-medium",
+              isPositive ? "text-green-500" : "text-red-500",
+            )}
+          >
+            {isPositive ? "+" : ""}
+            {metric.change}%
           </span>
         </div>
       </div>
-      
+
       <div className="mb-3">
         <p className="text-2xl font-bold mb-1">
-          {metric.label === 'Engagement Rate' 
-            ? `${metric.value}%` 
+          {metric.label === "Engagement Rate"
+            ? `${metric.value}%`
             : metric.value.toLocaleString()}
         </p>
         <p className="text-xs text-muted-foreground">{metric.label}</p>
@@ -49,13 +52,13 @@ export function MetricCard({ metric }: MetricCardProps) {
             <div
               key={i}
               className="flex-1 bg-muted/40 rounded-sm relative overflow-hidden"
-              style={{ minHeight: '4px' }}
+              style={{ minHeight: "4px" }}
             >
               <div
                 className={cn(
                   "absolute bottom-0 left-0 right-0 rounded-sm transition-all",
-                  metric.color.replace('text-', 'bg-'),
-                  "opacity-60"
+                  metric.color.replace("text-", "bg-"),
+                  "opacity-60",
                 )}
                 style={{ height: `${height}%` }}
               />

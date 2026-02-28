@@ -1,0 +1,106 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic:
+        - paragraph: Golden hour at 5am in the Scottish Highlands. Worth every cold step. 🏔️
+        - generic:
+          - generic: "@jackharding"
+          - generic:
+            - img
+            - text: 3.2k
+      - generic:
+        - paragraph: "Hot take: the best travel photos are taken at 6am when the world is yours alone."
+        - generic:
+          - generic: "@jackharding"
+          - generic:
+            - img
+            - text: 1.8k
+      - generic:
+        - paragraph: Gear doesn't make the photo. Stop waiting for the perfect camera. Go outside.
+        - generic:
+          - generic: "@jackharding"
+          - generic:
+            - img
+            - text: 4.4k
+      - generic:
+        - paragraph: Keep shooting. Your follower count doesn't determine the quality of your work.
+        - generic:
+          - generic: "@jackharding"
+          - generic:
+            - img
+            - text: 5.5k
+      - generic:
+        - paragraph: Croatia — June 2024. The Adriatic never gets old.
+        - generic:
+          - generic: "@jackharding"
+          - generic:
+            - img
+            - text: 5.6k
+      - generic:
+        - paragraph: "Some observations from 3 weeks in Indonesia: get off the tourist trail by day 3."
+        - generic:
+          - generic: "@jackharding"
+          - generic:
+            - img
+            - text: 2.9k
+      - generic:
+        - paragraph: Madeira from above. Drone nearly didn't make it back 😅
+        - generic:
+          - generic: "@jackharding"
+          - generic:
+            - img
+            - text: 6.9k
+      - generic [ref=e5]:
+        - generic [ref=e6]: Jends!
+        - heading "Where your voice finds its people." [level=2] [ref=e7]:
+          - text: Where your
+          - text: voice finds
+          - text: its people.
+        - paragraph [ref=e8]: Join creators, thinkers, and doers — sharing what actually matters.
+    - generic [ref=e10]:
+      - banner [ref=e11]:
+        - paragraph [ref=e12]:
+          - text: Don't have an account?
+          - button "Sign up" [ref=e13] [cursor=pointer]
+      - main [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - heading "Log in" [level=1] [ref=e17]
+            - paragraph [ref=e18]: Good to see you again.
+          - generic [ref=e19]:
+            - button "Log in with Apple" [ref=e20] [cursor=pointer]:
+              - img [ref=e22]
+              - generic [ref=e25]: Log in with Apple
+            - button "Log in with Google" [ref=e26] [cursor=pointer]:
+              - img [ref=e28]
+              - generic [ref=e33]: Log in with Google
+            - button "Log in with Microsoft" [ref=e34] [cursor=pointer]:
+              - img [ref=e36]
+              - generic [ref=e41]: Log in with Microsoft
+            - button "More options" [ref=e42] [cursor=pointer]:
+              - text: More options
+              - img [ref=e43]
+          - generic [ref=e47]: or continue with email
+          - generic [ref=e49]:
+            - textbox "yourname@email.com" [ref=e50]: user@example.com
+            - textbox "Password" [ref=e51]: password123
+            - paragraph [ref=e52]: Too many attempts. Please wait a moment and try again.
+            - button "Continue" [ref=e53] [cursor=pointer]:
+              - text: Continue
+              - img [ref=e54]
+      - contentinfo [ref=e56]:
+        - paragraph [ref=e57]:
+          - text: By logging in, you agree to our
+          - link "Terms of Service" [ref=e58] [cursor=pointer]:
+            - /url: "#"
+          - text: and
+          - link "Privacy Policy" [ref=e59] [cursor=pointer]:
+            - /url: "#"
+          - text: .
+  - button "Open Next.js Dev Tools" [ref=e65] [cursor=pointer]:
+    - img [ref=e66]
+  - alert [ref=e69]
+```

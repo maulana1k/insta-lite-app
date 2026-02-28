@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface StoryPlayerState {
   isOpen: boolean;
@@ -15,14 +15,19 @@ export const useStoryPlayerStore = create<StoryPlayerState>((set) => ({
   isOpen: false,
   currentStoryIndex: 0,
   currentUserIndex: 0,
-  openStoryPlayer: (userIndex, storyIndex = 0) => 
-    set({ isOpen: true, currentUserIndex: userIndex, currentStoryIndex: storyIndex }),
-  closeStoryPlayer: () => 
+  openStoryPlayer: (userIndex, storyIndex = 0) =>
+    set({
+      isOpen: true,
+      currentUserIndex: userIndex,
+      currentStoryIndex: storyIndex,
+    }),
+  closeStoryPlayer: () =>
     set({ isOpen: false, currentStoryIndex: 0, currentUserIndex: 0 }),
-  nextStory: () => 
+  nextStory: () =>
     set((state) => ({ currentStoryIndex: state.currentStoryIndex + 1 })),
-  previousStory: () => 
-    set((state) => ({ currentStoryIndex: Math.max(0, state.currentStoryIndex - 1) })),
-  setCurrentStoryIndex: (index) => 
-    set({ currentStoryIndex: index }),
+  previousStory: () =>
+    set((state) => ({
+      currentStoryIndex: Math.max(0, state.currentStoryIndex - 1),
+    })),
+  setCurrentStoryIndex: (index) => set({ currentStoryIndex: index }),
 }));

@@ -1,7 +1,7 @@
-import { LucideIcon } from 'lucide-react';
+import type { LucideIcon } from "lucide-react";
 
-export type MediaStep = 'upload' | 'crop' | 'edit' | 'caption';
-export type AspectRatio = 'square' | 'portrait';
+export type MediaStep = "upload" | "crop" | "edit" | "caption";
+export type AspectRatio = "square" | "portrait";
 
 export interface Filter {
   name: string;

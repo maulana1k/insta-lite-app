@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { APP_VERSION } from '../api/mock-data';
-import { ExternalLink, LogOut } from 'lucide-react';
+import { ExternalLink, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { APP_VERSION } from "../api/mock-data";
 
 export function SettingsAbout() {
   const handleLogout = () => {
-    console.log('Logout');
+    console.log("Logout");
     // TODO: Implement logout
   };
 
@@ -74,11 +74,7 @@ export function SettingsAbout() {
 
       {/* Logout */}
       <div className="bg-background border rounded-2xl p-6">
-        <Button
-          variant="destructive"
-          onClick={handleLogout}
-          className="w-full"
-        >
+        <Button variant="destructive" onClick={handleLogout} className="w-full">
           <LogOut className="size-4 mr-2" />
           Keluar
         </Button>

@@ -1,12 +1,12 @@
-import { Post } from "@/types/database";
-import { Heart, MessageCircle, MoreHorizontal } from "lucide-react";
-import { useFeedStore } from "../store/feed-store";
-import Link from "next/link";
 import { MenuDots, Plain } from "@solar-icons/react";
+import { Heart, MessageCircle, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
+import type { Post } from "@/types/database";
+import { useFeedStore } from "../store/feed-store";
 
 interface IFeedCard {
   post: Post;
-  layout: 'grid3' | 'grid2' | 'list';
+  layout: "grid3" | "grid2" | "list";
 }
 
 export function FeedCard({ post, layout }: IFeedCard) {
@@ -15,7 +15,7 @@ export function FeedCard({ post, layout }: IFeedCard) {
   return (
     <div className={"flex flex-col gap-3 group"}>
       {/* Header */}
-      {layout === 'list' && (
+      {layout === "list" && (
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-3">
             <Link href={`/u/${post.user?.username}`}>
@@ -42,7 +42,6 @@ export function FeedCard({ post, layout }: IFeedCard) {
             <MenuDots weight="Bold" className="size-6" />
           </button>
         </div>
-
       )}
       {/* Image Container */}
       <div
@@ -56,10 +55,9 @@ export function FeedCard({ post, layout }: IFeedCard) {
         />
       </div>
 
-
       {/* Post text */}
-      {layout === 'list' && (
-        <div className="flex flex-col gap-3" >
+      {layout === "list" && (
+        <div className="flex flex-col gap-3">
           <div className="flex items-center gap-4 text-sm font-medium">
             <button className="text-foreground hover:text-red-500 transition-colors">
               <Heart className="size-6" />
@@ -72,13 +70,16 @@ export function FeedCard({ post, layout }: IFeedCard) {
             </button>
           </div>
           {/* <span className="text-foreground">{post.likes_count}</span> */}
-          <div className="font-base text-sm line-clamp-2"><span className="font-semibold">{post.user?.username}</span> Trying out a new productivity routine. Let us see if it sticks</div>
+          <div className="font-base text-sm line-clamp-2">
+            <span className="font-semibold">{post.user?.username}</span> Trying
+            out a new productivity routine. Let us see if it sticks
+          </div>
         </div>
       )}
 
       {/* Footer Info */}
 
-      {layout !== 'list' && (
+      {layout !== "list" && (
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-3">
             <Link href={`/u/${post.user?.username}`}>
@@ -112,8 +113,6 @@ export function FeedCard({ post, layout }: IFeedCard) {
           </div>
         </div>
       )}
-
-
     </div>
   );
 }

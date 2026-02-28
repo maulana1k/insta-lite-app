@@ -6,7 +6,7 @@ export interface Conversation {
     avatar_url: string;
   };
   last_message: string;
-  last_message_by: 'me' | 'them';
+  last_message_by: "me" | "them";
   timestamp: string;
   unread: boolean;
 }
@@ -14,9 +14,9 @@ export interface Conversation {
 export interface Message {
   id: string;
   conversation_id: string;
-  sender: 'me' | 'them';
+  sender: "me" | "them";
   content: string;
   timestamp: string;
-  type: 'text' | 'image';
+  type: "text" | "image";
   image_url?: string;
 }

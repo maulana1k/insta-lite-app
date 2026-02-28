@@ -1,5 +1,5 @@
-import { Activity } from '../types';
-import { ActivityItem } from './activity-item';
+import type { Activity } from "../types";
+import { ActivityItem } from "./activity-item";
 
 interface ActivityListProps {
   activities: Activity[];
@@ -11,7 +11,9 @@ export function ActivityList({ activities, title }: ActivityListProps) {
 
   return (
     <div className="space-y-0">
-      <h2 className="text-sm font-semibold text-muted-foreground px-4 mb-2">{title}</h2>
+      <h2 className="text-sm font-semibold text-muted-foreground px-4 mb-2">
+        {title}
+      </h2>
       <div className="space-y-0">
         {activities.map((activity) => (
           <ActivityItem key={activity.id} activity={activity} />

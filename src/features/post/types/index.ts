@@ -1,5 +1,5 @@
-import { User } from '@/types/database';
-import { Space } from '@/features/space/types';
+import type { Space } from "@/features/space/types";
+import type { User } from "@/types/database";
 
 export interface Post {
   id: string;

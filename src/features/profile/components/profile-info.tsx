@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ArrowLeft, EllipsisVertical, X } from 'lucide-react';
-import { ProfileHighlights } from './profile-highlights';
-import { ProfileUser } from '../types';
-import { useRouter } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, EllipsisVertical, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import type { ProfileUser } from "../types";
+import { ProfileHighlights } from "./profile-highlights";
 
 interface ProfileInfoProps {
   user: ProfileUser;
@@ -33,7 +33,11 @@ export function ProfileInfo({ user }: ProfileInfoProps) {
           aria-label="View avatar"
         >
           <div className="size-42 rounded-full border-4 border-background overflow-hidden relative">
-            <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+            <img
+              src={user.avatar_url}
+              alt={user.username}
+              className="w-full h-full object-cover"
+            />
           </div>
         </button>
         <EllipsisVertical className="size-7 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -42,7 +46,9 @@ export function ProfileInfo({ user }: ProfileInfoProps) {
       {/* Bio */}
       <div className="space-y-1 text-sm">
         <h1 className="font-bold text-xl">{user.full_name}</h1>
-        {user.username && <p className="text-muted-foreground">@{user.username}</p>}
+        {user.username && (
+          <p className="text-muted-foreground">@{user.username}</p>
+        )}
         <p className="whitespace-pre-line">{user.bio}</p>
         {user.website && (
           <a
@@ -104,11 +110,15 @@ export function ProfileInfo({ user }: ProfileInfoProps) {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="relative size-72 rounded-full overflow-hidden ring-4 ring-white/20 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+              <img
+                src={user.avatar_url}
+                alt={user.username}
+                className="w-full h-full object-cover"
+              />
             </motion.div>
             <button
               onClick={() => setAvatarOpen(false)}

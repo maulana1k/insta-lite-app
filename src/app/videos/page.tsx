@@ -1,10 +1,10 @@
 "use client";
 
-import { Header } from "@/components/layout/header";
-import { VideosHeader } from "@/features/videos/components/videos-header";
-import { VideosGrid } from "@/features/videos/components/videos-grid";
 // import { VideoDetailModal } from "@/features/videos/components/video-detail-modal";
 import { ClapperboardPlay } from "@solar-icons/react";
+import { Header } from "@/components/layout/header";
+import { VideosGrid } from "@/features/videos/components/videos-grid";
+import { VideosHeader } from "@/features/videos/components/videos-header";
 
 export default function VideosPage() {
   return (
@@ -31,8 +31,9 @@ export default function VideosPage() {
             Sesuatu yang seru sedang disiapkan
           </h1>
           <p className="text-[16px] text-muted-foreground leading-relaxed mb-4">
-            Kami sedang merancang pengalaman video yang baru — dibuat untuk menginspirasi, menghibur, dan menghubungkan.
-            Tunggu sebentar lagi, pasti worth it.
+            Kami sedang merancang pengalaman video yang baru — dibuat untuk
+            menginspirasi, menghibur, dan menghubungkan. Tunggu sebentar lagi,
+            pasti worth it.
           </p>
           <span className="text-[13px] font-medium text-muted-foreground/60 uppercase tracking-widest">
             Segera Hadir

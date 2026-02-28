@@ -1,30 +1,35 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import React from 'react';
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronRight } from "lucide-react";
+import React, { useState } from "react";
+import { cn } from "@/lib/utils";
 
 // iOS-style toggle — green when on
-export function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+export function Toggle({
+  on,
+  onToggle,
+}: {
+  on: boolean;
+  onToggle: () => void;
+}) {
   return (
     <button
       onClick={onToggle}
       role="switch"
       aria-checked={on}
       className={cn(
-        'relative shrink-0 w-[51px] h-[31px] rounded-full transition-colors duration-200',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        on ? 'bg-[#34C759] dark:bg-[#30D158]' : 'bg-black/20 dark:bg-white/25'
+        "relative shrink-0 w-[51px] h-[31px] rounded-full transition-colors duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        on ? "bg-[#34C759] dark:bg-[#30D158]" : "bg-black/20 dark:bg-white/25",
       )}
     >
       <span
         className={cn(
-          'absolute top-[2px] left-[2px] size-[27px] rounded-full bg-white',
-          'shadow-[0_2px_6px_rgba(0,0,0,0.20)]',
-          'transition-transform duration-200',
-          on ? 'translate-x-5' : 'translate-x-0'
+          "absolute top-[2px] left-[2px] size-[27px] rounded-full bg-white",
+          "shadow-[0_2px_6px_rgba(0,0,0,0.20)]",
+          "transition-transform duration-200",
+          on ? "translate-x-5" : "translate-x-0",
         )}
       />
     </button>
@@ -46,19 +51,17 @@ export function SettingsGroup({
   const items = React.Children.toArray(children).filter(Boolean);
 
   return (
-    <div className={cn('space-y-2', className)}>
-      {header && (
-        <h3 className="text-[17px] font-bold">{header}</h3>
-      )}
+    <div className={cn("space-y-2", className)}>
+      {header && <h3 className="text-[17px] font-bold">{header}</h3>}
       <div className="rounded-2xl border border-border overflow-hidden divide-y divide-border">
         {items.map((item, index) => (
-          <React.Fragment key={index}>
-            {item}
-          </React.Fragment>
+          <React.Fragment key={index}>{item}</React.Fragment>
         ))}
       </div>
       {footer && (
-        <p className="text-[13px] text-muted-foreground leading-relaxed">{footer}</p>
+        <p className="text-[13px] text-muted-foreground leading-relaxed">
+          {footer}
+        </p>
       )}
     </div>
   );
@@ -80,7 +83,12 @@ export function SettingsRow({
 }) {
   const content = (
     <div className="flex items-center justify-between px-4 py-3.5 gap-4">
-      <span className={cn('text-[15px]', danger ? 'text-red-500' : 'text-foreground')}>
+      <span
+        className={cn(
+          "text-[15px]",
+          danger ? "text-red-500" : "text-foreground",
+        )}
+      >
         {label}
       </span>
       <div className="flex items-center gap-1.5 shrink-0">
@@ -133,11 +141,13 @@ export function EditRow({
       >
         <span className="text-[15px] text-foreground">{label}</span>
         <div className="flex items-center gap-1.5">
-          <span className="text-[15px] text-muted-foreground truncate max-w-[200px]">{value}</span>
+          <span className="text-[15px] text-muted-foreground truncate max-w-[200px]">
+            {value}
+          </span>
           <ChevronRight
             className={cn(
-              'size-[17px] text-muted-foreground/40 transition-transform duration-200',
-              open && 'rotate-90'
+              "size-[17px] text-muted-foreground/40 transition-transform duration-200",
+              open && "rotate-90",
             )}
           />
         </div>
@@ -147,7 +157,7 @@ export function EditRow({
         {open && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
             className="overflow-hidden"

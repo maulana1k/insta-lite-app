@@ -1,4 +1,4 @@
-import { User } from '@/types/database';
+import type { User } from "@/types/database";
 
 export interface Video {
   id: string;
@@ -11,5 +11,12 @@ export interface Video {
   user_id: string;
   user: User;
   created_at: string;
-  category: 'For You' | 'Following' | 'Popular' | 'Featured' | 'Live' | 'Continue Watching' | 'Watch Later';
+  category:
+    | "For You"
+    | "Following"
+    | "Popular"
+    | "Featured"
+    | "Live"
+    | "Continue Watching"
+    | "Watch Later";
 }

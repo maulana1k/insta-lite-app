@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Lock } from 'lucide-react';
-import { Header } from '@/components/layout/header';
-import { PostDetailModal } from '@/features/posts/components/post-detail-modal';
-import { EventDetailModal } from '@/features/event/components/event-detail-modal';
-import { useFeedStore } from '@/features/post/store/feed-store';
-import { useSpaceStore } from '@/features/space/store/space-store';
-import { SPACES } from '@/features/space/api/mock-data';
-import { FeedList } from '@/features/post/components/feed-list';
-import { SpaceSidebar } from '@/features/space/components/space-sidebar';
-import { SpaceSidebarSkeleton } from '@/features/space/components/space-sidebar-skeleton';
-import { SpaceFeedToolbar } from '@/features/space/components/space-feed-toolbar';
-import { SpaceProfileHeader } from '@/features/space/components/space-profile-header';
-import { SuggestedUsers } from '@/components/layout/suggested-users';
-import { useFeed } from '@/features/post/hooks/use-feed';
+import { Lock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Header } from "@/components/layout/header";
+import { SuggestedUsers } from "@/components/layout/suggested-users";
+import { EventDetailModal } from "@/features/event/components/event-detail-modal";
+import { FeedList } from "@/features/post/components/feed-list";
+import { useFeed } from "@/features/post/hooks/use-feed";
+import { useFeedStore } from "@/features/post/store/feed-store";
+import { PostDetailModal } from "@/features/posts/components/post-detail-modal";
+import { SPACES } from "@/features/space/api/mock-data";
+import { SpaceFeedToolbar } from "@/features/space/components/space-feed-toolbar";
+import { SpaceProfileHeader } from "@/features/space/components/space-profile-header";
+import { SpaceSidebar } from "@/features/space/components/space-sidebar";
+import { SpaceSidebarSkeleton } from "@/features/space/components/space-sidebar-skeleton";
+import { useSpaceStore } from "@/features/space/store/space-store";
 
 export function SpacePageContent({ slug }: { slug: string }) {
   const { setActiveSpaceId } = useFeedStore();
@@ -28,7 +28,7 @@ export function SpacePageContent({ slug }: { slug: string }) {
   useEffect(() => {
     if (space) {
       setActiveSpaceId(space.id);
-      setSpaceViewMode('posts');
+      setSpaceViewMode("posts");
     }
   }, [space, setActiveSpaceId, setSpaceViewMode]);
 
@@ -42,7 +42,6 @@ export function SpacePageContent({ slug }: { slug: string }) {
       <div className="mx-auto px-4 py-8 space-y-6">
         <div className="flex w-full justify-center relative min-h-screen px-4">
           <div className="grid grid-cols-[auto_1fr_auto] max-w-7xl w-full gap-6">
-
             {/* ── Left sidebar ── */}
             <aside className="hidden lg:block">
               {isLoading ? <SpaceSidebarSkeleton /> : <SpaceSidebar />}
@@ -87,7 +86,8 @@ function PrivateSpaceLock({ onJoin }: { onJoin: () => void }) {
       </div>
       <h3 className="font-semibold text-lg mb-2">Space ini privat</h3>
       <p className="text-[14px] text-muted-foreground max-w-xs leading-relaxed mb-6">
-        Hanya anggota yang bisa melihat konten di sini. Minta bergabung untuk mulai membaca dan berdiskusi.
+        Hanya anggota yang bisa melihat konten di sini. Minta bergabung untuk
+        mulai membaca dan berdiskusi.
       </p>
       <button
         onClick={onJoin}

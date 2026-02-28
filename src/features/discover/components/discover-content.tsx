@@ -1,13 +1,12 @@
-'use client';
+"use client";
 
-import { DISCOVER_CATEGORIES, DISCOVER_POSTS } from '../api/mock-data';
-import { cn } from '@/lib/utils';
-import { Play, Copy, Video as VideoIcon } from 'lucide-react';
+import { Copy, Play, Video as VideoIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { DISCOVER_CATEGORIES, DISCOVER_POSTS } from "../api/mock-data";
 
 export function DiscoverCategories() {
   return (
     <div className="flex items-center justify-center gap-4 overflow-x-auto py-6 no-scrollbar">
-
       <div className="flex flex-col items-center gap-2 cursor-pointer group min-w-[80px]">
         <div className="w-20 h-14 rounded-lg overflow-hidden border-2 border-foreground relative">
           <img
@@ -17,11 +16,16 @@ export function DiscoverCategories() {
           />
           <div className="absolute inset-0 bg-black/20" />
         </div>
-        <span className="text-xs font-semibold  border-foreground pb-0.5">For you</span>
+        <span className="text-xs font-semibold  border-foreground pb-0.5">
+          For you
+        </span>
       </div>
 
       {DISCOVER_CATEGORIES.map((category) => (
-        <div key={category.id} className="flex flex-col items-center gap-2 cursor-pointer group min-w-[80px]">
+        <div
+          key={category.id}
+          className="flex flex-col items-center gap-2 cursor-pointer group min-w-[80px]"
+        >
           <div className="w-20 h-14 rounded-lg overflow-hidden border border-transparent group-hover:border-foreground/20 transition-all relative">
             <img
               src={category.thumbnail_url}
@@ -30,15 +34,21 @@ export function DiscoverCategories() {
             />
             <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
           </div>
-          <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">{category.name}</span>
+          <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+            {category.name}
+          </span>
         </div>
       ))}
 
       <div className="flex flex-col items-center gap-2 cursor-pointer group min-w-[80px]">
         <div className="w-20 h-14 rounded-lg border border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted/20 hover:bg-muted/40 transition-colors">
-          <span className="text-[10px] font-semibold text-muted-foreground">See More</span>
+          <span className="text-[10px] font-semibold text-muted-foreground">
+            See More
+          </span>
         </div>
-        <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">See More</span>
+        <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+          See More
+        </span>
       </div>
     </div>
   );
@@ -63,7 +73,7 @@ export function DiscoverGrid() {
             className={cn(
               "relative group cursor-pointer",
               // First item spans 2 columns and 2 rows
-              isFeatured ? "col-span-2 row-span-2" : "col-span-1 row-span-1"
+              isFeatured ? "col-span-2 row-span-2" : "col-span-1 row-span-1",
             )}
           >
             {/* Ambient Glow Backend */}
@@ -77,15 +87,17 @@ export function DiscoverGrid() {
             <div className="relative w-full h-full overflow-hidden bg-muted">
               <img
                 src={post.image_url}
-                alt={post.caption || 'Post'}
+                alt={post.caption || "Post"}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
 
               {/* Overlay for hover or featured text */}
-              <div className={cn(
-                "absolute inset-0 bg-black/0 transition-colors",
-                isFeatured ? "bg-black/10" : "group-hover:bg-black/20"
-              )} />
+              <div
+                className={cn(
+                  "absolute inset-0 bg-black/0 transition-colors",
+                  isFeatured ? "bg-black/10" : "group-hover:bg-black/20",
+                )}
+              />
 
               {/* Featured Item Content */}
               {isFeatured && (
@@ -104,14 +116,16 @@ export function DiscoverGrid() {
 
                   {/* content */}
                   <div className="relative">
-                    <div className="
+                    <div
+                      className="
             w-12 h-12 rounded-full
             border-2 border-white/80
             flex items-center justify-center
             mb-3
             backdrop-blur-sm bg-white/10
             group-hover:scale-105 transition-transform
-          ">
+          "
+                    >
                       <Play fill="white" className="ml-1" size={20} />
                     </div>
 
@@ -129,14 +143,20 @@ export function DiscoverGrid() {
               {/* Generic Icon overlays for non-featured items */}
               {!isFeatured && (
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md">
-                  {index % 3 === 0 ? <Copy color="white" size={18} /> : index % 2 === 0 ? <VideoIcon color="white" size={18} /> : null}
+                  {index % 3 === 0 ? (
+                    <Copy color="white" size={18} />
+                  ) : index % 2 === 0 ? (
+                    <VideoIcon color="white" size={18} />
+                  ) : null}
                 </div>
               )}
 
               {/* Hover stats for non-featured */}
               {!isFeatured && (
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 text-white font-bold gap-4 pointer-events-none">
-                  <span className='drop-shadow-md'>{formatNumber(post.likes_count)}</span>
+                  <span className="drop-shadow-md">
+                    {formatNumber(post.likes_count)}
+                  </span>
                 </div>
               )}
             </div>
@@ -148,6 +168,6 @@ export function DiscoverGrid() {
 }
 
 function formatNumber(num: number) {
-  if (num > 999) return (num / 1000).toFixed(1) + 'k';
+  if (num > 999) return (num / 1000).toFixed(1) + "k";
   return num;
 }

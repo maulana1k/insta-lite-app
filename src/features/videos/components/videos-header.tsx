@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useVideosStore } from '../store/videos-store';
-import { cn } from '@/lib/utils';
-import { Search, Settings } from 'lucide-react';
+import { Search, Settings } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useVideosStore } from "../store/videos-store";
 
 const CATEGORIES = [
-  'For You',
-  'Following',
-  'Popular',
-  'Featured',
-  'Live',
-  'Continue Watching',
-  'Watch Later'
+  "For You",
+  "Following",
+  "Popular",
+  "Featured",
+  "Live",
+  "Continue Watching",
+  "Watch Later",
 ];
 
 export function VideosHeader() {
@@ -27,9 +27,9 @@ export function VideosHeader() {
             onClick={() => setActiveCategory(category)}
             className={cn(
               "py-3 text-sm font-medium whitespace-nowrap transition-colors relative",
-              activeCategory === category 
-                ? "text-foreground font-bold" 
-                : "text-muted-foreground hover:text-foreground"
+              activeCategory === category
+                ? "text-foreground font-bold"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             {category}
@@ -42,21 +42,21 @@ export function VideosHeader() {
 
       {/* Search Bar - Specific for Videos as per design */}
       <div className="flex items-center gap-4 w-full md:w-auto shrink-0">
-          <button className="md:hidden">
-              <Search className="w-5 h-5" />
-          </button>
-          
-          <div className="hidden md:flex items-center bg-muted rounded-lg px-3 py-2 w-[250px]">
-              <Search className="w-4 h-4 text-muted-foreground mr-2" />
-              <input 
-                 type="text" 
-                 placeholder="Search" 
-                 className="bg-transparent border-none outline-none text-sm w-full placeholder:text-muted-foreground"
-              />
-          </div>
-          <button className="text-muted-foreground hover:text-foreground">
-              <Settings className="w-5 h-5" />
-          </button>
+        <button className="md:hidden">
+          <Search className="w-5 h-5" />
+        </button>
+
+        <div className="hidden md:flex items-center bg-muted rounded-lg px-3 py-2 w-[250px]">
+          <Search className="w-4 h-4 text-muted-foreground mr-2" />
+          <input
+            type="text"
+            placeholder="Search"
+            className="bg-transparent border-none outline-none text-sm w-full placeholder:text-muted-foreground"
+          />
+        </div>
+        <button className="text-muted-foreground hover:text-foreground">
+          <Settings className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );

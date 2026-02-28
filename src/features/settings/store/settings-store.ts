@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface ProfileSettings {
   displayName: string;
@@ -14,7 +14,7 @@ interface ProfileSettings {
 
 interface PrivacySettings {
   privateAccount: boolean;
-  whoCanMessage: 'everyone' | 'followers' | 'nobody';
+  whoCanMessage: "everyone" | "followers" | "nobody";
   twoFactorEnabled: boolean;
 }
 
@@ -36,7 +36,7 @@ interface NotificationSettings {
 }
 
 interface AppearanceSettings {
-  language: 'id' | 'en';
+  language: "id" | "en";
 }
 
 interface SettingsState {
@@ -53,19 +53,19 @@ interface SettingsState {
 
 export const useSettingsStore = create<SettingsState>((set) => ({
   profile: {
-    displayName: 'Jack Harding',
-    username: 'jackharding',
-    bio: 'Travel, Adventure & Lifestyle Photographer\nSony Imaging Ambassador',
-    website: 'jackharding.photo',
-    instagram: 'jackharding',
-    twitter: 'jackharding',
-    youtube: '',
-    tiktok: '',
-    linkedin: 'jackharding',
+    displayName: "Jack Harding",
+    username: "jackharding",
+    bio: "Travel, Adventure & Lifestyle Photographer\nSony Imaging Ambassador",
+    website: "jackharding.photo",
+    instagram: "jackharding",
+    twitter: "jackharding",
+    youtube: "",
+    tiktok: "",
+    linkedin: "jackharding",
   },
   privacy: {
     privateAccount: false,
-    whoCanMessage: 'everyone',
+    whoCanMessage: "everyone",
     twoFactorEnabled: false,
   },
   notifications: {
@@ -85,19 +85,23 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     },
   },
   appearance: {
-    language: 'id',
+    language: "id",
   },
 
-  updateProfile: (settings) => set((state) => ({
-    profile: { ...state.profile, ...settings }
-  })),
-  updatePrivacy: (settings) => set((state) => ({
-    privacy: { ...state.privacy, ...settings }
-  })),
-  updateNotifications: (settings) => set((state) => ({
-    notifications: { ...state.notifications, ...settings }
-  })),
-  updateAppearance: (settings) => set((state) => ({
-    appearance: { ...state.appearance, ...settings }
-  })),
+  updateProfile: (settings) =>
+    set((state) => ({
+      profile: { ...state.profile, ...settings },
+    })),
+  updatePrivacy: (settings) =>
+    set((state) => ({
+      privacy: { ...state.privacy, ...settings },
+    })),
+  updateNotifications: (settings) =>
+    set((state) => ({
+      notifications: { ...state.notifications, ...settings },
+    })),
+  updateAppearance: (settings) =>
+    set((state) => ({
+      appearance: { ...state.appearance, ...settings },
+    })),
 }));

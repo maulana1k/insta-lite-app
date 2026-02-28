@@ -2,16 +2,16 @@
 
 import { useEffect } from "react";
 import { Header } from "@/components/layout/header";
-import { PostDetailModal } from "@/features/posts/components/post-detail-modal";
+import { SuggestedUsers } from "@/components/layout/suggested-users";
+import { SuggestedUsersSkeleton } from "@/components/layout/suggested-users-skeleton";
+import { EventDetailModal } from "@/features/event/components/event-detail-modal";
+import { FeedList } from "@/features/post/components/feed-list";
+import { FeedSkeleton } from "@/features/post/components/feed-skeleton";
+import { useFeed } from "@/features/post/hooks/use-feed";
 import { useFeedStore } from "@/features/post/store/feed-store";
-import { FeedList } from '@/features/post/components/feed-list';
-import { SpaceSidebar } from '@/features/space/components/space-sidebar';
+import { PostDetailModal } from "@/features/posts/components/post-detail-modal";
+import { SpaceSidebar } from "@/features/space/components/space-sidebar";
 import { SpaceSidebarSkeleton } from "@/features/space/components/space-sidebar-skeleton";
-import { FeedSkeleton } from '@/features/post/components/feed-skeleton';
-import { SuggestedUsers } from '@/components/layout/suggested-users';
-import { SuggestedUsersSkeleton } from '@/components/layout/suggested-users-skeleton';
-import { useFeed } from '@/features/post/hooks/use-feed';
-import { EventDetailModal } from '@/features/event/components/event-detail-modal';
 
 export default function FollowingPage() {
   const { setActiveSpaceId } = useFeedStore();

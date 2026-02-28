@@ -1,4 +1,4 @@
-import { NotificationUnread } from '@solar-icons/react';
+import { NotificationUnread } from "@solar-icons/react";
 
 export function EmptyState() {
   return (

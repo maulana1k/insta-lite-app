@@ -1,15 +1,17 @@
-'use client';
+"use client";
 
-import { SUGGESTED_USERS } from '@/features/post/api/mock-data';
-import { SPACES } from '@/features/space/api/mock-data';
 // import { TRENDING_POSTS, TRENDING_HASHTAGS } from '../api/mock-data'; // used in discover page
-import { VerifiedCheck } from '@solar-icons/react';
-import { ChevronRight } from 'lucide-react';
-import Link from 'next/link';
+import { VerifiedCheck } from "@solar-icons/react";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { SUGGESTED_USERS } from "@/features/post/api/mock-data";
+import { SPACES } from "@/features/space/api/mock-data";
 
 function formatCount(count: number): string {
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
-  if (count >= 1_000) return `${(count / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+  if (count >= 1_000_000)
+    return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (count >= 1_000)
+    return `${(count / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
   return count.toString();
 }
 
@@ -29,12 +31,19 @@ export function SuggestedUsers() {
               className="flex items-center gap-3 py-2.5 group hover:opacity-70 transition-opacity"
             >
               <div className="w-9 h-9 rounded-lg shrink-0 overflow-hidden bg-muted border border-border">
-                <img src={space.avatar_url} alt={space.name} className="w-full h-full object-cover" />
+                <img
+                  src={space.avatar_url}
+                  alt={space.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex-1 min-w-0 text-left">
-                <p className="font-semibold text-[14px] truncate">{space.name}</p>
+                <p className="font-semibold text-[14px] truncate">
+                  {space.name}
+                </p>
                 <p className="text-[11px] text-muted-foreground">
-                  {formatCount(space.members_count)} joined &middot; {formatCount(space.posts_count)} posts
+                  {formatCount(space.members_count)} joined &middot;{" "}
+                  {formatCount(space.posts_count)} posts
                 </p>
               </div>
               <ChevronRight className="size-4 text-muted-foreground shrink-0" />
@@ -77,9 +86,14 @@ export function SuggestedUsers() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1">
-                  <span className="font-semibold text-[13px] truncate">{profile.user.username}</span>
+                  <span className="font-semibold text-[13px] truncate">
+                    {profile.user.username}
+                  </span>
                   {profile.user.verified && (
-                    <VerifiedCheck className="size-3.5 text-blue-500 shrink-0" weight="Bold" />
+                    <VerifiedCheck
+                      className="size-3.5 text-blue-500 shrink-0"
+                      weight="Bold"
+                    />
                   )}
                 </div>
                 <p className="text-[11px] text-muted-foreground truncate">

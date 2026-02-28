@@ -1,24 +1,47 @@
-'use client';
+"use client";
 
-import { useTheme } from 'next-themes';
-import { CheckCircle2 } from 'lucide-react';
-import { useSettingsStore } from '../store/settings-store';
-import { cn } from '@/lib/utils';
+import { CheckCircle2 } from "lucide-react";
+import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
+import { useSettingsStore } from "../store/settings-store";
 
 // ── Mini browser chrome mockup ─────────────────────────────────────────────
 
 function TrafficLights({ colored }: { colored?: boolean }) {
   return (
     <div className="flex items-center gap-1.5 mb-3">
-      <span className={cn('size-2.5 rounded-full', colored ? 'bg-[#FF5F57]' : 'bg-white/20')} />
-      <span className={cn('size-2.5 rounded-full', colored ? 'bg-[#FEBC2E]' : 'bg-white/20')} />
-      <span className={cn('size-2.5 rounded-full', colored ? 'bg-[#28C840]' : 'bg-white/20')} />
+      <span
+        className={cn(
+          "size-2.5 rounded-full",
+          colored ? "bg-[#FF5F57]" : "bg-white/20",
+        )}
+      />
+      <span
+        className={cn(
+          "size-2.5 rounded-full",
+          colored ? "bg-[#FEBC2E]" : "bg-white/20",
+        )}
+      />
+      <span
+        className={cn(
+          "size-2.5 rounded-full",
+          colored ? "bg-[#28C840]" : "bg-white/20",
+        )}
+      />
     </div>
   );
 }
 
-function SkeletonLine({ width, height = 'h-1.5', opacity = 'opacity-100' }: { width: string; height?: string; opacity?: string }) {
-  return <div className={cn('rounded-full', height, width, opacity)} />;
+function SkeletonLine({
+  width,
+  height = "h-1.5",
+  opacity = "opacity-100",
+}: {
+  width: string;
+  height?: string;
+  opacity?: string;
+}) {
+  return <div className={cn("rounded-full", height, width, opacity)} />;
 }
 
 // Light theme preview
@@ -156,11 +179,11 @@ function ThemeCard({
     <button
       onClick={onSelect}
       className={cn(
-        'relative rounded-2xl overflow-hidden text-left transition-all duration-200',
-        'border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        "relative rounded-2xl overflow-hidden text-left transition-all duration-200",
+        "border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         selected
-          ? 'border-foreground shadow-[0_0_0_1px_hsl(var(--foreground)/0.08)] shadow-lg'
-          : 'border-border hover:border-foreground/30'
+          ? "border-foreground shadow-[0_0_0_1px_hsl(var(--foreground)/0.08)] shadow-lg"
+          : "border-border hover:border-foreground/30",
       )}
     >
       {/* Preview area */}
@@ -169,22 +192,22 @@ function ThemeCard({
       {/* Label bar */}
       <div
         className={cn(
-          'flex items-center justify-between px-3.5 py-3 transition-colors',
-          selected ? 'bg-foreground' : 'bg-muted/60'
+          "flex items-center justify-between px-3.5 py-3 transition-colors",
+          selected ? "bg-foreground" : "bg-muted/60",
         )}
       >
         <span
           className={cn(
-            'text-[14px] font-semibold',
-            selected ? 'text-background' : 'text-foreground'
+            "text-[14px] font-semibold",
+            selected ? "text-background" : "text-foreground",
           )}
         >
           {label}
         </span>
         <CheckCircle2
           className={cn(
-            'size-[18px] transition-all duration-200',
-            selected ? 'opacity-100 text-background' : 'opacity-0'
+            "size-[18px] transition-all duration-200",
+            selected ? "opacity-100 text-background" : "opacity-0",
           )}
         />
       </div>
@@ -195,14 +218,14 @@ function ThemeCard({
 // ── Main component ─────────────────────────────────────────────────────────
 
 const THEMES = [
-  { value: 'system', label: 'Sistem' },
-  { value: 'light', label: 'Terang' },
-  { value: 'dark', label: 'Gelap' },
+  { value: "system", label: "Sistem" },
+  { value: "light", label: "Terang" },
+  { value: "dark", label: "Gelap" },
 ] as const;
 
 const LANGUAGES = [
-  { value: 'id', label: 'Indonesia (ID)' },
-  { value: 'en', label: 'English (US)' },
+  { value: "id", label: "Indonesia (ID)" },
+  { value: "en", label: "English (US)" },
 ] as const;
 
 export function SettingsAppearance() {
@@ -211,7 +234,6 @@ export function SettingsAppearance() {
 
   return (
     <div className="space-y-10">
-
       {/* ── Theme ──────────────────────────────────────── */}
       <section>
         <div className="mb-4">
@@ -224,22 +246,22 @@ export function SettingsAppearance() {
           <ThemeCard
             value="system"
             label="Sistem"
-            selected={theme === 'system'}
-            onSelect={() => setTheme('system')}
+            selected={theme === "system"}
+            onSelect={() => setTheme("system")}
             preview={<SystemPreview />}
           />
           <ThemeCard
             value="light"
             label="Terang"
-            selected={theme === 'light'}
-            onSelect={() => setTheme('light')}
+            selected={theme === "light"}
+            onSelect={() => setTheme("light")}
             preview={<LightPreview />}
           />
           <ThemeCard
             value="dark"
             label="Gelap"
-            selected={theme === 'dark'}
-            onSelect={() => setTheme('dark')}
+            selected={theme === "dark"}
+            onSelect={() => setTheme("dark")}
             preview={<DarkPreview />}
           />
         </div>
@@ -261,17 +283,17 @@ export function SettingsAppearance() {
               key={lang.value}
               onClick={() => updateAppearance({ language: lang.value })}
               className={cn(
-                'w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/30 dark:hover:bg-white/[0.03] transition-colors text-left',
-                i > 0 && 'border-t border-border'
+                "w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/30 dark:hover:bg-white/[0.03] transition-colors text-left",
+                i > 0 && "border-t border-border",
               )}
             >
               <span className="text-[15px]">{lang.label}</span>
               <span
                 className={cn(
-                  'size-4 rounded-full border-2 transition-all flex items-center justify-center',
+                  "size-4 rounded-full border-2 transition-all flex items-center justify-center",
                   appearance.language === lang.value
-                    ? 'border-foreground bg-foreground'
-                    : 'border-border'
+                    ? "border-foreground bg-foreground"
+                    : "border-border",
                 )}
               >
                 {appearance.language === lang.value && (
@@ -282,7 +304,6 @@ export function SettingsAppearance() {
           ))}
         </div>
       </section>
-
     </div>
   );
 }

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { SettingsGroup, SettingsRow, Toggle } from './settings-ui';
-import { useSettingsStore } from '../store/settings-store';
+import { useSettingsStore } from "../store/settings-store";
+import { SettingsGroup, SettingsRow, Toggle } from "./settings-ui";
 
 export function SettingsNotifications() {
   const { notifications, updateNotifications } = useSettingsStore();
@@ -14,28 +14,42 @@ export function SettingsNotifications() {
 
   return (
     <div className="space-y-8">
-
       <SettingsGroup
         header="Aktivitas"
         footer="Notifikasi untuk interaksi pada postingan Anda."
       >
         <SettingsRow label="Suka">
-          <Toggle on={notifications.push.likes} onToggle={() => toggle('likes')} />
+          <Toggle
+            on={notifications.push.likes}
+            onToggle={() => toggle("likes")}
+          />
         </SettingsRow>
         <SettingsRow label="Komentar">
-          <Toggle on={notifications.push.comments} onToggle={() => toggle('comments')} />
+          <Toggle
+            on={notifications.push.comments}
+            onToggle={() => toggle("comments")}
+          />
         </SettingsRow>
         <SettingsRow label="Mention">
-          <Toggle on={notifications.push.mentions} onToggle={() => toggle('mentions')} />
+          <Toggle
+            on={notifications.push.mentions}
+            onToggle={() => toggle("mentions")}
+          />
         </SettingsRow>
       </SettingsGroup>
 
       <SettingsGroup header="Sosial">
         <SettingsRow label="Pengikut Baru">
-          <Toggle on={notifications.push.followers} onToggle={() => toggle('followers')} />
+          <Toggle
+            on={notifications.push.followers}
+            onToggle={() => toggle("followers")}
+          />
         </SettingsRow>
         <SettingsRow label="Pesan Langsung">
-          <Toggle on={notifications.push.messages} onToggle={() => toggle('messages')} />
+          <Toggle
+            on={notifications.push.messages}
+            onToggle={() => toggle("messages")}
+          />
         </SettingsRow>
       </SettingsGroup>
 
@@ -50,7 +64,6 @@ export function SettingsNotifications() {
           <Toggle on={notifications.email.comments} onToggle={() => {}} />
         </SettingsRow>
       </SettingsGroup>
-
     </div>
   );
 }

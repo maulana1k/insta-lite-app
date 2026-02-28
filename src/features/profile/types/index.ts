@@ -1,4 +1,4 @@
-import { Post, User } from '@/types/database';
+import { Post, type User } from "@/types/database";
 
 export interface UserStats {
   posts: number;

@@ -1,8 +1,12 @@
-import { cn } from '@/lib/utils';
-import { Activity } from '../types';
-import { getActivityMessage, getActivityIcon, getActivityIconColor } from '../utils/activity-helpers';
-import { timeAgo } from '@/lib/time';
-import { VerifiedCheck } from '@solar-icons/react';
+import { VerifiedCheck } from "@solar-icons/react";
+import { timeAgo } from "@/lib/time";
+import { cn } from "@/lib/utils";
+import type { Activity } from "../types";
+import {
+  getActivityIcon,
+  getActivityIconColor,
+  getActivityMessage,
+} from "../utils/activity-helpers";
 
 interface ActivityItemProps {
   activity: Activity;
@@ -14,26 +18,26 @@ export function ActivityItem({ activity }: ActivityItemProps) {
   const message = getActivityMessage(activity.type);
 
   return (
-    <div 
+    <div
       className={cn(
         "relative py-4 px-4 -mx-4 hover:bg-muted/5 transition-colors cursor-pointer",
-        !activity.read && "bg-muted/10"
+        !activity.read && "bg-muted/10",
       )}
     >
       <div className="flex gap-3">
         {/* Avatar with icon badge */}
         <div className="relative shrink-0">
           <div className="size-11 rounded-full overflow-hidden">
-            <img 
-              src={activity.user.avatar_url} 
+            <img
+              src={activity.user.avatar_url}
               alt={activity.user.username}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="absolute -bottom-0.5 -right-0.5 size-5 bg-background rounded-full flex items-center justify-center">
-            <Icon 
-              className={cn("size-4", iconColor)} 
-              weight={activity.type === 'like' ? 'Bold' : 'Linear'}
+            <Icon
+              className={cn("size-4", iconColor)}
+              weight={activity.type === "like" ? "Bold" : "Linear"}
             />
           </div>
         </div>
@@ -45,18 +49,20 @@ export function ActivityItem({ activity }: ActivityItemProps) {
               <p className="text-[15px] leading-snug">
                 <span className="font-semibold">{activity.user.username}</span>
                 {activity.user.verified && (
-                  <VerifiedCheck className="inline-block w-4 h-4 ml-1 text-blue-500" weight="Bold" />
-                )}
-                {' '}
+                  <VerifiedCheck
+                    className="inline-block w-4 h-4 ml-1 text-blue-500"
+                    weight="Bold"
+                  />
+                )}{" "}
                 <span className="text-muted-foreground">{message}</span>
               </p>
-              
+
               {activity.content && (
                 <p className="text-[14px] text-foreground/80 mt-1 line-clamp-2">
                   {activity.content}
                 </p>
               )}
-              
+
               <p className="text-[13px] text-muted-foreground mt-1">
                 {timeAgo(activity.timestamp)}
               </p>
@@ -65,8 +71,8 @@ export function ActivityItem({ activity }: ActivityItemProps) {
             {/* Post preview thumbnail */}
             {activity.post?.image_url && (
               <div className="shrink-0 size-12 rounded-lg overflow-hidden bg-muted">
-                <img 
-                  src={activity.post.image_url} 
+                <img
+                  src={activity.post.image_url}
                   alt="Post preview"
                   className="w-full h-full object-cover"
                 />
@@ -74,7 +80,7 @@ export function ActivityItem({ activity }: ActivityItemProps) {
             )}
 
             {/* Follow button for follow notifications */}
-            {activity.type === 'follow' && (
+            {activity.type === "follow" && (
               <button className="shrink-0 px-4 py-1.5 bg-foreground text-background text-sm font-medium rounded-full hover:bg-foreground/90 transition-colors">
                 Follow
               </button>
@@ -82,13 +88,15 @@ export function ActivityItem({ activity }: ActivityItemProps) {
           </div>
 
           {/* Post content preview (for non-image posts) */}
-          {activity.post && !activity.post.image_url && activity.post.content && (
-            <div className="mt-2 p-3 bg-muted/30 rounded-xl">
-              <p className="text-[13px] text-muted-foreground line-clamp-2">
-                {activity.post.content}
-              </p>
-            </div>
-          )}
+          {activity.post &&
+            !activity.post.image_url &&
+            activity.post.content && (
+              <div className="mt-2 p-3 bg-muted/30 rounded-xl">
+                <p className="text-[13px] text-muted-foreground line-clamp-2">
+                  {activity.post.content}
+                </p>
+              </div>
+            )}
         </div>
       </div>
 

@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { Point, Area } from 'react-easy-crop';
-import { MediaStep, AspectRatio, Filter } from '../types';
-import { FILTERS, DEFAULT_ADJUSTMENTS } from '../constants';
+import type { Area, Point } from "react-easy-crop";
+import { create } from "zustand";
+import { DEFAULT_ADJUSTMENTS, FILTERS } from "../constants";
+import type { AspectRatio, Filter, MediaStep } from "../types";
 
 interface CreatePostState {
   // Navigation
@@ -29,12 +29,12 @@ interface CreatePostState {
   // Edit
   currentFilter: Filter;
   adjustments: typeof DEFAULT_ADJUSTMENTS;
-  activeTab: 'filter' | 'edit';
+  activeTab: "filter" | "edit";
   activeTool: string | null;
   setCurrentFilter: (filter: Filter) => void;
   setAdjustments: (adjustments: typeof DEFAULT_ADJUSTMENTS) => void;
   setAdjustment: (key: string, value: number) => void;
-  setActiveTab: (tab: 'filter' | 'edit') => void;
+  setActiveTab: (tab: "filter" | "edit") => void;
   setActiveTool: (tool: string | null) => void;
 
   // Caption
@@ -42,8 +42,8 @@ interface CreatePostState {
   setCaption: (caption: string) => void;
 
   // Post Type
-  postType: 'media' | 'text';
-  setPostType: (type: 'media' | 'text') => void;
+  postType: "media" | "text";
+  setPostType: (type: "media" | "text") => void;
 
   // Text Post
   textCaption: string;
@@ -58,7 +58,7 @@ interface CreatePostState {
 
 export const useCreatePostStore = create<CreatePostState>((set) => ({
   // Navigation
-  mediaStep: 'upload',
+  mediaStep: "upload",
   setMediaStep: (mediaStep) => set({ mediaStep }),
 
   // Media
@@ -68,11 +68,11 @@ export const useCreatePostStore = create<CreatePostState>((set) => ({
   setPreviewUrl: (previewUrl) => set({ previewUrl }),
 
   // Post Type
-  postType: 'media',
+  postType: "media",
   setPostType: (postType) => set({ postType }),
 
   // Text Post
-  textCaption: '',
+  textCaption: "",
   setTextCaption: (textCaption) => set({ textCaption }),
   textAttachments: [],
   addTextAttachment: (file) =>
@@ -83,7 +83,7 @@ export const useCreatePostStore = create<CreatePostState>((set) => ({
     })),
 
   // Crop
-  aspectRatio: 'square',
+  aspectRatio: "square",
   crop: { x: 0, y: 0 },
   zoom: 1,
   croppedAreaPixels: undefined,
@@ -97,7 +97,7 @@ export const useCreatePostStore = create<CreatePostState>((set) => ({
   // Edit
   currentFilter: FILTERS[0],
   adjustments: DEFAULT_ADJUSTMENTS,
-  activeTab: 'edit',
+  activeTab: "edit",
   activeTool: null,
   setCurrentFilter: (currentFilter) => set({ currentFilter }),
   setAdjustments: (adjustments) => set({ adjustments }),
@@ -109,27 +109,27 @@ export const useCreatePostStore = create<CreatePostState>((set) => ({
   setActiveTool: (activeTool) => set({ activeTool }),
 
   // Caption
-  caption: '',
+  caption: "",
   setCaption: (caption) => set({ caption }),
 
   // Actions
   reset: () =>
     set({
-      mediaStep: 'upload',
+      mediaStep: "upload",
       selectedFile: null,
       previewUrl: undefined,
-      postType: 'media',
-      textCaption: '',
+      postType: "media",
+      textCaption: "",
       textAttachments: [],
-      aspectRatio: 'square',
+      aspectRatio: "square",
       crop: { x: 0, y: 0 },
       zoom: 1,
       croppedAreaPixels: undefined,
       croppedImage: undefined,
       currentFilter: FILTERS[0],
       adjustments: DEFAULT_ADJUSTMENTS,
-      activeTab: 'edit',
+      activeTab: "edit",
       activeTool: null,
-      caption: '',
+      caption: "",
     }),
 }));

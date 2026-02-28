@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useVideos } from '../hooks/use-videos';
-import { useVideosStore } from '../store/videos-store';
-import { VideoCard } from './video-card';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "lucide-react";
+import { useVideos } from "../hooks/use-videos";
+import { useVideosStore } from "../store/videos-store";
+import { VideoCard } from "./video-card";
 
 export function VideosGrid() {
   const { data: videos, isLoading } = useVideos();
@@ -11,11 +11,11 @@ export function VideosGrid() {
 
   // Filter based on category (mock logic)
   const filteredVideos = videos?.filter((video) => {
-      // For 'For You', show all mock videos for demo density
-      if (activeCategory === 'For You') return true;
-      // Otherwise filter by strict category match (mock data primarily 'For You')
-      // return video.category === activeCategory;
-      return true; // Simplified for demo to show content on all tabs
+    // For 'For You', show all mock videos for demo density
+    if (activeCategory === "For You") return true;
+    // Otherwise filter by strict category match (mock data primarily 'For You')
+    // return video.category === activeCategory;
+    return true; // Simplified for demo to show content on all tabs
   });
 
   if (isLoading) {
@@ -31,10 +31,13 @@ export function VideosGrid() {
       {filteredVideos?.map((video) => (
         <VideoCard key={video.id} video={video} />
       ))}
-      
+
       {/* Duplicate for visual fullness in demo */}
-       {filteredVideos?.map((video) => (
-        <VideoCard key={`${video.id}-duplicate`} video={{...video, id: `${video.id}-dup`}} />
+      {filteredVideos?.map((video) => (
+        <VideoCard
+          key={`${video.id}-duplicate`}
+          video={{ ...video, id: `${video.id}-dup` }}
+        />
       ))}
     </div>
   );

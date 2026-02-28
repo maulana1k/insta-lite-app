@@ -1,6 +1,6 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-type ProfileTab = 'posts' | 'media' | 'repost' | 'bookmark' | 'mentions';
+type ProfileTab = "posts" | "media" | "repost" | "bookmark" | "mentions";
 
 interface ProfileState {
   activeTab: ProfileTab;
@@ -8,6 +8,6 @@ interface ProfileState {
 }
 
 export const useProfileStore = create<ProfileState>((set) => ({
-  activeTab: 'posts',
+  activeTab: "posts",
   setActiveTab: (tab) => set({ activeTab: tab }),
 }));

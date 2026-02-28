@@ -1,37 +1,33 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AppLogo } from "@/components/layout/header";
-import { Button } from "@/components/ui/button";
+import { Plain } from "@solar-icons/react";
 import {
-  X,
+  Bookmark,
   ChevronLeft,
   ChevronRight,
   Heart,
   MessageCircle,
-  Send,
-  Bookmark,
-  Volume2,
-  VolumeX,
-  Smile,
   Play,
   Plus,
+  Send,
+  Smile,
+  Volume2,
+  VolumeX,
+  X,
 } from "lucide-react";
-import { useVideosStore } from "../store/videos-store";
-import { useVideos } from "../hooks/use-videos";
-import { useVideoDetail } from "../hooks/use-video-detail";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AppLogo } from "@/components/layout/header";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Plain } from "@solar-icons/react";
+import { useVideoDetail } from "../hooks/use-video-detail";
+import { useVideos } from "../hooks/use-videos";
+import { useVideosStore } from "../store/videos-store";
 
 export function VideoDetailModal() {
-  const {
-    activeVideoId,
-    setActiveVideoId,
-  } = useVideosStore();
-
+  const { activeVideoId, setActiveVideoId } = useVideosStore();
 
   const { data: videos, isLoading } = useVideos();
-  const { data: currentVideo, } = useVideoDetail(activeVideoId);
+  const { data: currentVideo } = useVideoDetail(activeVideoId);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -62,19 +58,17 @@ export function VideoDetailModal() {
     };
   }, [currentVideo?.id, currentVideo?.video_url]);
 
-
-
   const currentIndex = useMemo(() => {
     if (!videos || !activeVideoId) return -1;
     return videos.findIndex((video) => video.id === activeVideoId);
   }, [videos, activeVideoId]);
 
-  const prevVideo = currentIndex > 0 && videos ? videos[currentIndex - 1] : null;
+  const prevVideo =
+    currentIndex > 0 && videos ? videos[currentIndex - 1] : null;
   const nextVideo =
     videos && currentIndex >= 0 && currentIndex < videos.length - 1
       ? videos[currentIndex + 1]
       : null;
-
 
   const handleClose = () => {
     setActiveVideoId(null);
@@ -208,11 +202,19 @@ export function VideoDetailModal() {
       <div className="relative flex items-center justify-center w-full h-[calc(100vh-40px)] overflow-hidden">
         {/* Video player + actions container - centered initially, shifts left when comments open */}
         <div
-          className={`relative flex items-end gap-3 transition-transform duration-300 ease-out z-30 ${showComments ? "-translate-x-[13dvw]" : "translate-x-0"
-            }`}
+          className={`relative flex items-end gap-3 transition-transform duration-300 ease-out z-30 ${
+            showComments ? "-translate-x-[13dvw]" : "translate-x-0"
+          }`}
         >
           {/* Video player */}
-          <div className={cn("relative flex items-center justify-center rounded-xl bg-muted shadow-2xl overflow-hidden aspect-9/15 h-[calc(100vh-40px)]", currentVideo && currentVideo.video_url ? "animate-none" : "animate-pulse")}>
+          <div
+            className={cn(
+              "relative flex items-center justify-center rounded-xl bg-muted shadow-2xl overflow-hidden aspect-9/15 h-[calc(100vh-40px)]",
+              currentVideo && currentVideo.video_url
+                ? "animate-none"
+                : "animate-pulse",
+            )}
+          >
             {isLoading ? (
               <VideoSkeleton />
             ) : currentVideo && currentVideo.video_url ? (
@@ -309,7 +311,9 @@ export function VideoDetailModal() {
               className="flex flex-col items-center gap-1"
               onClick={handleToggleComments}
             >
-              <div className={`flex h-11 w-11 items-center justify-center rounded-full bg-black/50 hover:bg-black/70 transition-colors`}>
+              <div
+                className={`flex h-11 w-11 items-center justify-center rounded-full bg-black/50 hover:bg-black/70 transition-colors`}
+              >
                 <MessageCircle className="size-7" />
               </div>
               <span className="text-xs font-medium">121</span>
@@ -342,10 +346,11 @@ export function VideoDetailModal() {
         {/* Comments section - starts behind video player, slides to right when opened */}
         {currentVideo && (
           <div
-            className={`hidden md:block absolute left-2/5 top-1/2 -translate-y-1/2 w-[400px] h-full max-h-[calc(100vh-40px)] transition-all duration-300 ease-out ${showComments
-              ? "translate-x-[13dvw] opacity-100 z-20 pointer-events-auto"
-              : "translate-x-[-50%] opacity-0 pointer-events-none z-0"
-              }`}
+            className={`hidden md:block absolute left-2/5 top-1/2 -translate-y-1/2 w-[400px] h-full max-h-[calc(100vh-40px)] transition-all duration-300 ease-out ${
+              showComments
+                ? "translate-x-[13dvw] opacity-100 z-20 pointer-events-auto"
+                : "translate-x-[-50%] opacity-0 pointer-events-none z-0"
+            }`}
           >
             <div className="flex flex-col h-full max-h-[calc(100vh-40px)] bg-background rounded-xl border border-border">
               {/* Header */}
@@ -492,7 +497,6 @@ export function VideoDetailModal() {
     </div>
   );
 }
-
 
 function VideoSkeleton() {
   return (

@@ -2,22 +2,22 @@
 
 import { useEffect } from "react";
 import { Header } from "@/components/layout/header";
+// import { FeedModeToggle, FeedLayoutToggle } from "@/features/feed/components/feed-navigation";
+import { SuggestedUsers } from "@/components/layout/suggested-users";
+import { SuggestedUsersSkeleton } from "@/components/layout/suggested-users-skeleton";
+import { EventDetailModal } from "@/features/event/components/event-detail-modal";
+import { FeedList } from "@/features/post/components/feed-list";
+import { FeedSkeleton } from "@/features/post/components/feed-skeleton";
+import { useFeed } from "@/features/post/hooks/use-feed";
+import { useFeedStore } from "@/features/post/store/feed-store";
 // import { FeedGrid } from "@/features/feed/components/feed-grid";
 // import { UserStories } from "@/features/feed/components/user-stories";
 import { PostDetailModal } from "@/features/posts/components/post-detail-modal";
-import { useFeedStore } from "@/features/post/store/feed-store";
-import { SPACES } from '@/features/space/api/mock-data';
-import { FeedList } from '@/features/post/components/feed-list';
-import { SpaceSidebar } from '@/features/space/components/space-sidebar';
+import { SPACES } from "@/features/space/api/mock-data";
+import { SpaceProfile } from "@/features/space/components/space-profile";
+import { SpaceProfileSkeleton } from "@/features/space/components/space-profile-skeleton";
+import { SpaceSidebar } from "@/features/space/components/space-sidebar";
 import { SpaceSidebarSkeleton } from "@/features/space/components/space-sidebar-skeleton";
-import { FeedSkeleton } from '@/features/post/components/feed-skeleton';
-// import { FeedModeToggle, FeedLayoutToggle } from "@/features/feed/components/feed-navigation";
-import { SuggestedUsers } from '@/components/layout/suggested-users';
-import { SuggestedUsersSkeleton } from '@/components/layout/suggested-users-skeleton';
-import { SpaceProfile } from '@/features/space/components/space-profile';
-import { SpaceProfileSkeleton } from '@/features/space/components/space-profile-skeleton';
-import { useFeed } from '@/features/post/hooks/use-feed';
-import { EventDetailModal } from '@/features/event/components/event-detail-modal';
 // import { StoryPlayerUI } from "@/features/stories/components/story-player-ui";
 
 export default function Home() {
@@ -30,8 +30,12 @@ export default function Home() {
   }, [setActiveSpaceId]);
 
   // Check if a space is selected vs a feed mode (all/following/saved)
-  const isSpaceSelected = !['all', 'following', 'saved'].includes(activeSpaceId);
-  const activeSpace = isSpaceSelected ? SPACES.find((s) => s.id === activeSpaceId) : null;
+  const isSpaceSelected = !["all", "following", "saved"].includes(
+    activeSpaceId,
+  );
+  const activeSpace = isSpaceSelected
+    ? SPACES.find((s) => s.id === activeSpaceId)
+    : null;
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
@@ -69,15 +73,20 @@ export default function Home() {
               {isTextFeedLoading ? <FeedSkeleton /> : <FeedList />}
             </div>
             {isTextFeedLoading ? (
-              isSpaceSelected ? <SpaceProfileSkeleton /> : <SuggestedUsersSkeleton />
+              isSpaceSelected ? (
+                <SpaceProfileSkeleton />
+              ) : (
+                <SuggestedUsersSkeleton />
+              )
+            ) : activeSpace ? (
+              <SpaceProfile topic={activeSpace} />
             ) : (
-              activeSpace ? <SpaceProfile topic={activeSpace} /> : <SuggestedUsers />
+              <SuggestedUsers />
             )}
           </div>
         </div>
         {/* )} */}
       </div>
-
     </div>
   );
 }

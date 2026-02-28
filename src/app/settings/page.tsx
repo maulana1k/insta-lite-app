@@ -1,27 +1,34 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Header } from '@/components/layout/header';
-import { SettingsSidebar } from '@/features/settings/components/settings-sidebar';
-import { SettingsAccount } from '@/features/settings/components/settings-account';
-import { SettingsPrivacy } from '@/features/settings/components/settings-privacy';
-import { SettingsNotifications } from '@/features/settings/components/settings-notifications';
-import { SettingsAppearance } from '@/features/settings/components/settings-appearance';
-import { SettingsData } from '@/features/settings/components/settings-data';
-import { SettingsInsight } from '@/features/settings/components/settings-insight';
+import { useState } from "react";
+import { Header } from "@/components/layout/header";
+import { SettingsAccount } from "@/features/settings/components/settings-account";
+import { SettingsAppearance } from "@/features/settings/components/settings-appearance";
+import { SettingsData } from "@/features/settings/components/settings-data";
+import { SettingsInsight } from "@/features/settings/components/settings-insight";
+import { SettingsNotifications } from "@/features/settings/components/settings-notifications";
+import { SettingsPrivacy } from "@/features/settings/components/settings-privacy";
+import { SettingsSidebar } from "@/features/settings/components/settings-sidebar";
 
 export default function SettingsPage() {
-  const [activeSection, setActiveSection] = useState('account');
+  const [activeSection, setActiveSection] = useState("account");
 
   const renderSection = () => {
     switch (activeSection) {
-      case 'account': return <SettingsAccount />;
-      case 'privacy': return <SettingsPrivacy />;
-      case 'notifications': return <SettingsNotifications />;
-      case 'appearance': return <SettingsAppearance />;
-      case 'data': return <SettingsData />;
-      case 'insight': return <SettingsInsight />;
-      default: return <SettingsAccount />;
+      case "account":
+        return <SettingsAccount />;
+      case "privacy":
+        return <SettingsPrivacy />;
+      case "notifications":
+        return <SettingsNotifications />;
+      case "appearance":
+        return <SettingsAppearance />;
+      case "data":
+        return <SettingsData />;
+      case "insight":
+        return <SettingsInsight />;
+      default:
+        return <SettingsAccount />;
     }
   };
 
@@ -41,9 +48,7 @@ export default function SettingsPage() {
 
           {/* Content — scrolls with the page */}
           <div className="flex-1 pl-10">
-            <div className="max-w-2xl pt-8 pb-20">
-              {renderSection()}
-            </div>
+            <div className="max-w-2xl pt-8 pb-20">{renderSection()}</div>
           </div>
         </div>
       </div>

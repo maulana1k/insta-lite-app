@@ -5,8 +5,8 @@
  * Replace the mock implementations with real API calls when the backend is ready.
  */
 
-import { SPACES } from './mock-data';
-import { Space } from '../types';
+import type { Space } from "../types";
+import { SPACES } from "./mock-data";
 
 /** Simulate network latency in development */
 async function simulateLatency(ms = 400) {

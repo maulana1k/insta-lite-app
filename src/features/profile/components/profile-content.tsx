@@ -1,21 +1,32 @@
-'use client';
+"use client";
 
-import { useProfilePosts } from '../hooks/use-profile';
-import { useProfileStore } from '../store/profile-store';
-import { Heart, MessageCircle, Loader2, RefreshCcw, AtSign } from 'lucide-react';
-import { Bookmark, GalleryMinimalistic, Widget } from '@solar-icons/react';
-import { cn } from '@/lib/utils';
-import { Post } from '@/types/database';
+import { Bookmark, GalleryMinimalistic, Widget } from "@solar-icons/react";
+import {
+  AtSign,
+  Heart,
+  Loader2,
+  MessageCircle,
+  RefreshCcw,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Post } from "@/types/database";
+import { useProfilePosts } from "../hooks/use-profile";
+import { useProfileStore } from "../store/profile-store";
 
-type ProfileTab = 'posts' | 'media' | 'repost' | 'bookmark' | 'mentions';
+type ProfileTab = "posts" | "media" | "repost" | "bookmark" | "mentions";
 
 // Solar icons support weight="Bold"; RefreshCcw (Lucide) uses strokeWidth instead
-const TABS: { id: ProfileTab; Icon: React.ElementType; solar: boolean; label: string }[] = [
-  { id: 'posts', Icon: Widget, solar: true, label: 'Posts' },
-  { id: 'media', Icon: GalleryMinimalistic, solar: true, label: 'Media' },
-  { id: 'repost', Icon: RefreshCcw, solar: false, label: 'Repost' },
-  { id: 'bookmark', Icon: Bookmark, solar: true, label: 'Saved' },
-  { id: 'mentions', Icon: AtSign, solar: true, label: 'Mentions' },
+const TABS: {
+  id: ProfileTab;
+  Icon: React.ElementType;
+  solar: boolean;
+  label: string;
+}[] = [
+  { id: "posts", Icon: Widget, solar: true, label: "Posts" },
+  { id: "media", Icon: GalleryMinimalistic, solar: true, label: "Media" },
+  { id: "repost", Icon: RefreshCcw, solar: false, label: "Repost" },
+  { id: "bookmark", Icon: Bookmark, solar: true, label: "Saved" },
+  { id: "mentions", Icon: AtSign, solar: true, label: "Mentions" },
 ];
 
 interface ProfileContentProps {
@@ -35,7 +46,7 @@ export function ProfileContent({ username }: ProfileContentProps) {
   }
 
   const filtered = (posts ?? []).filter((post) => {
-    if (activeTab === 'media') return !!post.image_url;
+    if (activeTab === "media") return !!post.image_url;
     return true;
   });
 
@@ -51,11 +62,13 @@ export function ProfileContent({ username }: ProfileContentProps) {
               onClick={() => setActiveTab(tab.id)}
               aria-label={tab.label}
               className={cn(
-                'size-12 rounded-xl flex items-center justify-center transition-colors',
-                isActive ? 'text-foreground' : 'text-muted-foreground/50 hover:text-muted-foreground',
+                "size-12 rounded-xl flex items-center justify-center transition-colors",
+                isActive
+                  ? "text-foreground"
+                  : "text-muted-foreground/50 hover:text-muted-foreground",
               )}
             >
-              <tab.Icon size={24} weight={isActive ? 'Bold' : 'Linear'} />
+              <tab.Icon size={24} weight={isActive ? "Bold" : "Linear"} />
             </button>
           );
         })}

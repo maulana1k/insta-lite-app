@@ -10,7 +10,7 @@ export function timeAgo(dateString: string): string {
   if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d`;
-  return Math.floor(days / 7) + 'w';
+  return Math.floor(days / 7) + "w";
 }
 
 export function isToday(dateString: string): boolean {

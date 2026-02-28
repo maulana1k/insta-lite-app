@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { SmileCircle, Microphone, GalleryAdd } from '@solar-icons/react';
-import { Phone, Video, Info } from 'lucide-react';
-import { CONVERSATIONS, MESSAGES } from '../api/mock-data';
-import type { Message } from '../types';
-import { cn } from '@/lib/utils';
+import { GalleryAdd, Microphone, SmileCircle } from "@solar-icons/react";
+import { Info, Phone, Video } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { CONVERSATIONS, MESSAGES } from "../api/mock-data";
+import type { Message } from "../types";
 
 interface ChatViewProps {
   conversationId: string;
 }
 
 export function ChatView({ conversationId }: ChatViewProps) {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const conversation = CONVERSATIONS.find((c) => c.id === conversationId);
   const messages = MESSAGES[conversationId] || [];
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   if (!conversation) return null;
@@ -39,8 +39,12 @@ export function ChatView({ conversationId }: ChatViewProps) {
             />
           </div>
           <div>
-            <span className="text-[15px] font-semibold block">{conversation.user.name}</span>
-            <span className="text-[13px] text-muted-foreground">{conversation.user.username}</span>
+            <span className="text-[15px] font-semibold block">
+              {conversation.user.name}
+            </span>
+            <span className="text-[13px] text-muted-foreground">
+              {conversation.user.username}
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -62,12 +66,18 @@ export function ChatView({ conversationId }: ChatViewProps) {
           <div key={gi}>
             {/* Date separator */}
             <div className="flex justify-center my-4">
-              <span className="text-[12px] text-muted-foreground/60">{group.date}</span>
+              <span className="text-[12px] text-muted-foreground/60">
+                {group.date}
+              </span>
             </div>
             {/* Messages in group */}
             <div className="space-y-1.5">
               {group.messages.map((msg) => (
-                <MessageBubble key={msg.id} message={msg} avatarUrl={conversation.user.avatar_url} />
+                <MessageBubble
+                  key={msg.id}
+                  message={msg}
+                  avatarUrl={conversation.user.avatar_url}
+                />
               ))}
             </div>
           </div>
@@ -102,11 +112,22 @@ export function ChatView({ conversationId }: ChatViewProps) {
   );
 }
 
-function MessageBubble({ message, avatarUrl }: { message: Message; avatarUrl: string }) {
-  const isMe = message.sender === 'me';
+function MessageBubble({
+  message,
+  avatarUrl,
+}: {
+  message: Message;
+  avatarUrl: string;
+}) {
+  const isMe = message.sender === "me";
 
   return (
-    <div className={cn('flex items-end gap-2', isMe ? 'justify-end' : 'justify-start')}>
+    <div
+      className={cn(
+        "flex items-end gap-2",
+        isMe ? "justify-end" : "justify-start",
+      )}
+    >
       {!isMe && (
         <div className="size-7 rounded-full overflow-hidden shrink-0 mb-0.5">
           <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
@@ -114,10 +135,10 @@ function MessageBubble({ message, avatarUrl }: { message: Message; avatarUrl: st
       )}
       <div
         className={cn(
-          'max-w-[70%] px-3.5 py-2 text-[14px] leading-relaxed',
+          "max-w-[70%] px-3.5 py-2 text-[14px] leading-relaxed",
           isMe
-            ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md'
-            : 'bg-neutral-100 dark:bg-neutral-800 rounded-2xl rounded-bl-md'
+            ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md"
+            : "bg-neutral-100 dark:bg-neutral-800 rounded-2xl rounded-bl-md",
         )}
       >
         {message.content}
@@ -130,7 +151,7 @@ function groupMessagesByDate(messages: Message[]) {
   const groups: { date: string; messages: Message[] }[] = [];
 
   messages.forEach((msg) => {
-    const date = msg.timestamp.replace(/\s\d{2}\.\d{2}$/, ''); // strip time
+    const date = msg.timestamp.replace(/\s\d{2}\.\d{2}$/, ""); // strip time
     const lastGroup = groups[groups.length - 1];
     if (lastGroup && lastGroup.date === date) {
       lastGroup.messages.push(msg);

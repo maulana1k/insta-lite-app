@@ -1,25 +1,19 @@
-import {
-  Sun,
-  Contrast,
-  Droplet,
-  Thermometer,
-  Triangle,
-} from 'lucide-react';
-import { Filter, EditTool } from '../types';
+import { Contrast, Droplet, Sun, Thermometer, Triangle } from "lucide-react";
+import type { EditTool, Filter } from "../types";
 
 // Instagram Filters
 export const FILTERS: Filter[] = [
-  { name: 'Normal', class: '' },
-  { name: 'Moon', class: 'grayscale brightness-110 contrast-110' },
-];  
+  { name: "Normal", class: "" },
+  { name: "Moon", class: "grayscale brightness-110 contrast-110" },
+];
 
 // Edit Tools
 export const EDIT_TOOLS: EditTool[] = [
-  { id: 'brightness', label: 'Brightness', icon: Sun, min: 50, max: 150 },
-  { id: 'contrast', label: 'Contrast', icon: Contrast, min: 50, max: 150 },
-  { id: 'structure', label: 'Structure', icon: Triangle, min: 0, max: 100 },
-  { id: 'warmth', label: 'Warmth', icon: Thermometer, min: 0, max: 200 },
-  { id: 'saturation', label: 'Saturation', icon: Droplet, min: 0, max: 200 },
+  { id: "brightness", label: "Brightness", icon: Sun, min: 50, max: 150 },
+  { id: "contrast", label: "Contrast", icon: Contrast, min: 50, max: 150 },
+  { id: "structure", label: "Structure", icon: Triangle, min: 0, max: 100 },
+  { id: "warmth", label: "Warmth", icon: Thermometer, min: 0, max: 200 },
+  { id: "saturation", label: "Saturation", icon: Droplet, min: 0, max: 200 },
 ];
 
 export const DEFAULT_ADJUSTMENTS = {

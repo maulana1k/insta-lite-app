@@ -1,6 +1,6 @@
-import { EngagementMetric } from '../types';
-import { MetricCard } from './metric-card';
-import { AltArrowUp } from '@solar-icons/react';
+import { AltArrowUp } from "@solar-icons/react";
+import type { EngagementMetric } from "../types";
+import { MetricCard } from "./metric-card";
 
 interface EngagementInsightsProps {
   metrics: EngagementMetric[];
@@ -27,7 +27,8 @@ export function EngagementInsights({ metrics }: EngagementInsightsProps) {
           <p className="text-sm font-semibold">Growing Engagement</p>
         </div>
         <p className="text-xs text-muted-foreground leading-relaxed">
-          Your engagement is up 8.5% this week. Keep posting quality content to maintain this growth!
+          Your engagement is up 8.5% this week. Keep posting quality content to
+          maintain this growth!
         </p>
       </div>
     </div>

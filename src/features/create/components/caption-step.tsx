@@ -1,31 +1,31 @@
-import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { ChevronLeft, ChevronDown } from 'lucide-react';
-import { useCreatePostStore } from '../store/create-post-store';
-import { useImageStyle } from '../hooks/use-image-style';
+import { motion } from "framer-motion";
+import { ChevronDown, ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { useImageStyle } from "../hooks/use-image-style";
+import { useCreatePostStore } from "../store/create-post-store";
 
 export function CaptionStep() {
   const router = useRouter();
   const {
-      previewUrl,
-      croppedImage,
-      aspectRatio,
-      currentFilter,
-      caption,
-      adjustments,
-      selectedFile,
-      setMediaStep,
-      setCaption
+    previewUrl,
+    croppedImage,
+    aspectRatio,
+    currentFilter,
+    caption,
+    adjustments,
+    selectedFile,
+    setMediaStep,
+    setCaption,
   } = useCreatePostStore();
-  
+
   const imageStyle = useImageStyle();
 
   const handlePost = () => {
-    console.log('Posting...', { caption, file: selectedFile, adjustments });
-    router.push('/');
+    console.log("Posting...", { caption, file: selectedFile, adjustments });
+    router.push("/");
   };
 
   const imageSrc = croppedImage || previewUrl;
@@ -39,7 +39,7 @@ export function CaptionStep() {
     >
       {/* Navigation Arrows - Fixed Side Button */}
       <button
-        onClick={() => setMediaStep('edit')}
+        onClick={() => setMediaStep("edit")}
         className="fixed left-10 top-1/2 -translate-y-1/2 p-4 bg-white hover:bg-gray-50 text-gray-800 rounded-full  transition-all z-50 "
       >
         <ChevronLeft className="w-6 h-6 stroke-2" />
@@ -47,17 +47,21 @@ export function CaptionStep() {
 
       <div className="w-full max-w-5xl h-[600px] bg-white flex overflow-hidden ">
         {/* Image Preview */}
-        <div className={cn(
-          "bg-black flex items-center justify-center",
-          aspectRatio === 'square' ? "w-[60%]" : "w-[48%]"
-        )}>
+        <div
+          className={cn(
+            "bg-black flex items-center justify-center",
+            aspectRatio === "square" ? "w-[60%]" : "w-[48%]",
+          )}
+        >
           {imageSrc && (
             <img
               src={imageSrc}
               className={cn(
                 "object-cover",
-                aspectRatio === 'square' ? "w-full aspect-square" : "w-full aspect-[4/5]",
-                currentFilter.class
+                aspectRatio === "square"
+                  ? "w-full aspect-square"
+                  : "w-full aspect-[4/5]",
+                currentFilter.class,
               )}
               style={imageStyle}
               alt="Post preview"
@@ -66,10 +70,12 @@ export function CaptionStep() {
         </div>
 
         {/* Caption Area */}
-        <div className={cn(
-          "flex flex-col",
-          aspectRatio === 'square' ? "w-[40%]" : "w-[52%]"
-        )}>
+        <div
+          className={cn(
+            "flex flex-col",
+            aspectRatio === "square" ? "w-[40%]" : "w-[52%]",
+          )}
+        >
           <div className="p-4 border-b border-gray-200 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500"></div>

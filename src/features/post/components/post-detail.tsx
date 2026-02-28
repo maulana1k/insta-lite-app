@@ -1,18 +1,14 @@
 "use client";
 
-import { usePostDetail } from "../hooks/use-post-detail";
-import { timeAgo } from "@/lib/time";
 import {
   AltArrowRight,
   ChatRound,
   Plain,
-  VerifiedCheck
+  VerifiedCheck,
 } from "@solar-icons/react";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { PostComment } from "../types";
-import { useRef, useState } from "react";
 import { ArrowLeft, Heart, RefreshCcw, Send } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +16,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { timeAgo } from "@/lib/time";
+import { cn } from "@/lib/utils";
+import { usePostDetail } from "../hooks/use-post-detail";
+import type { PostComment } from "../types";
 
 interface PostDetailProps {
   postId: string;
@@ -28,8 +28,8 @@ interface PostDetailProps {
 export function PostDetail({ postId }: PostDetailProps) {
   const router = useRouter();
   const { post, comments, isLoading } = usePostDetail(postId);
-  const [sortBy, setSortBy] = useState<'top' | 'recent'>('top');
-  const [replyText, setReplyText] = useState('');
+  const [sortBy, setSortBy] = useState<"top" | "recent">("top");
+  const [replyText, setReplyText] = useState("");
   const [replyFocused, setReplyFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -41,7 +41,10 @@ export function PostDetail({ postId }: PostDetailProps) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center">
         <h2 className="text-xl font-semibold mb-2">Post not found</h2>
-        <p className="text-muted-foreground mb-4">The post you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+        <p className="text-muted-foreground mb-4">
+          The post you&apos;re looking for doesn&apos;t exist or has been
+          removed.
+        </p>
         <button
           onClick={() => router.back()}
           className="px-6 py-2 bg-foreground text-background rounded-full font-medium"
@@ -53,14 +56,15 @@ export function PostDetail({ postId }: PostDetailProps) {
   }
 
   const sortedComments = [...comments].sort((a, b) => {
-    if (sortBy === 'top') return b.likes_count - a.likes_count;
+    if (sortBy === "top") return b.likes_count - a.likes_count;
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
   const handleTextareaInput = () => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height =
+        textareaRef.current.scrollHeight + "px";
     }
   };
 
@@ -82,14 +86,24 @@ export function PostDetail({ postId }: PostDetailProps) {
         {/* Avatar + User Info */}
         <div className="flex items-center gap-3 mb-4">
           <div className="size-10 rounded-full overflow-hidden border border-border/50 shrink-0">
-            <img src={post.user.avatar_url} alt={post.user.username} className="w-full h-full object-cover" />
+            <img
+              src={post.user.avatar_url}
+              alt={post.user.username}
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-[15px]">{post.user.username}</span>
-              {post.user.verified && <VerifiedCheck className="size-4 text-blue-500" weight="Bold" />}
+              <span className="font-bold text-[15px]">
+                {post.user.username}
+              </span>
+              {post.user.verified && (
+                <VerifiedCheck className="size-4 text-blue-500" weight="Bold" />
+              )}
             </div>
-            <p className="text-muted-foreground text-[13px]">{timeAgo(post.created_at)}</p>
+            <p className="text-muted-foreground text-[13px]">
+              {timeAgo(post.created_at)}
+            </p>
           </div>
         </div>
 
@@ -101,7 +115,10 @@ export function PostDetail({ postId }: PostDetailProps) {
         {post.image_urls && post.image_urls.length > 0 && (
           <div className="grid gap-2 mb-4">
             {post.image_urls.map((url, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden border border-border/50">
+              <div
+                key={i}
+                className="rounded-2xl overflow-hidden border border-border/50"
+              >
                 <img src={url} alt="" className="w-full object-cover" />
               </div>
             ))}
@@ -138,16 +155,23 @@ export function PostDetail({ postId }: PostDetailProps) {
 
         {/* Reply Input */}
         <div className="mb-5">
-          <div className={cn(
-            "border border-border rounded-3xl px-4 pt-3 pb-2 transition-colors bg-secondary/50",
-            replyFocused && "border-foreground/30"
-          )}>
+          <div
+            className={cn(
+              "border border-border rounded-3xl px-4 pt-3 pb-2 transition-colors bg-secondary/50",
+              replyFocused && "border-foreground/30",
+            )}
+          >
             <textarea
               ref={textareaRef}
               value={replyText}
-              onChange={(e) => { setReplyText(e.target.value); handleTextareaInput(); }}
+              onChange={(e) => {
+                setReplyText(e.target.value);
+                handleTextareaInput();
+              }}
               onFocus={() => setReplyFocused(true)}
-              onBlur={() => { if (!replyText) setReplyFocused(false); }}
+              onBlur={() => {
+                if (!replyText) setReplyFocused(false);
+              }}
               placeholder={`Add a reply to ${post.user.username}`}
               rows={1}
               className="w-full text-[14px] bg-transparent placeholder:text-muted-foreground outline-none resize-none leading-none"
@@ -170,18 +194,20 @@ export function PostDetail({ postId }: PostDetailProps) {
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-1 text-[14px] text-muted-foreground hover:text-foreground transition-colors outline-none">
               <span>Sort by:</span>
-              <span className="font-semibold text-foreground">{sortBy === 'top' ? 'Top' : 'Recent'}</span>
+              <span className="font-semibold text-foreground">
+                {sortBy === "top" ? "Top" : "Recent"}
+              </span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               <DropdownMenuItem
-                onClick={() => setSortBy('top')}
-                className={cn(sortBy === 'top' && "font-semibold")}
+                onClick={() => setSortBy("top")}
+                className={cn(sortBy === "top" && "font-semibold")}
               >
                 Top
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setSortBy('recent')}
-                className={cn(sortBy === 'recent' && "font-semibold")}
+                onClick={() => setSortBy("recent")}
+                className={cn(sortBy === "recent" && "font-semibold")}
               >
                 Recent
               </DropdownMenuItem>
@@ -209,8 +235,10 @@ function ActionButton({ icon: Icon }: { icon: any }) {
 }
 
 function formatCount(count: number): string {
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
-  if (count >= 1_000) return `${(count / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+  if (count >= 1_000_000)
+    return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (count >= 1_000)
+    return `${(count / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
   return count.toString();
 }
 
@@ -285,7 +313,13 @@ function PostDetailSkeleton() {
   );
 }
 
-function CommentItem({ comment, isReply = false }: { comment: PostComment; isReply?: boolean }) {
+function CommentItem({
+  comment,
+  isReply = false,
+}: {
+  comment: PostComment;
+  isReply?: boolean;
+}) {
   const [showReplies, setShowReplies] = useState(false);
 
   return (
@@ -293,26 +327,45 @@ function CommentItem({ comment, isReply = false }: { comment: PostComment; isRep
       <div className="flex gap-3">
         {/* Avatar */}
         <div className={cn("rounded-full overflow-hidden shrink-0 size-8")}>
-          <img src={comment.user.avatar_url} alt={comment.user.username} className="w-full h-full object-cover" />
+          <img
+            src={comment.user.avatar_url}
+            alt={comment.user.username}
+            className="w-full h-full object-cover"
+          />
         </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="text-[14px]">
-            <div className="font-semibold leading-none">{comment.user.username}
-              {comment.user.verified && <VerifiedCheck className="size-3.5 text-blue-500 inline ml-1 -mt-0.5" weight="Bold" />}
-              <AltArrowRight weight="Bold" className="size-3.5 text-muted-foreground inline ml-1 -mt-0.5" />
+            <div className="font-semibold leading-none">
+              {comment.user.username}
+              {comment.user.verified && (
+                <VerifiedCheck
+                  className="size-3.5 text-blue-500 inline ml-1 -mt-0.5"
+                  weight="Bold"
+                />
+              )}
+              <AltArrowRight
+                weight="Bold"
+                className="size-3.5 text-muted-foreground inline ml-1 -mt-0.5"
+              />
             </div>
-            <div className="text-foreground/90 font-normal">{comment.content}</div>
+            <div className="text-foreground/90 font-normal">
+              {comment.content}
+            </div>
           </div>
 
           {/* Meta */}
           <div className="flex items-center gap-3 mt-1.5 text-[12px] text-muted-foreground">
             <span>{timeAgo(comment.created_at)}</span>
             {comment.likes_count > 0 && (
-              <span className="font-semibold">{formatCount(comment.likes_count)} likes</span>
+              <span className="font-semibold">
+                {formatCount(comment.likes_count)} likes
+              </span>
             )}
-            <button className="font-semibold hover:text-foreground transition-colors">Reply</button>
+            <button className="font-semibold hover:text-foreground transition-colors">
+              Reply
+            </button>
           </div>
 
           {/* View replies toggle */}
@@ -322,7 +375,9 @@ function CommentItem({ comment, isReply = false }: { comment: PostComment; isRep
               className="flex items-center gap-2 mt-2 text-[13px] text-muted-foreground font-semibold hover:text-foreground transition-colors"
             >
               <div className="w-6 h-px bg-muted-foreground/50" />
-              {showReplies ? 'Hide replies' : `View replies (${comment.replies.length})`}
+              {showReplies
+                ? "Hide replies"
+                : `View replies (${comment.replies.length})`}
             </button>
           )}
 

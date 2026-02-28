@@ -1,20 +1,26 @@
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import { useEvents } from '../hooks/use-events';
-import { useEventStore } from '../store/event-store';
-import { EventCard } from './event-card';
-import { SpaceEvent } from '../types';
+import { useMemo } from "react";
+import { useEvents } from "../hooks/use-events";
+import { useEventStore } from "../store/event-store";
+import type { SpaceEvent } from "../types";
+import { EventCard } from "./event-card";
 
 function formatSectionHeader(dateStr: string) {
   const d = new Date(dateStr);
   const day = d.getDate();
-  const month = d.toLocaleDateString('id-ID', { month: 'long' }).toUpperCase();
-  const weekday = d.toLocaleDateString('id-ID', { weekday: 'long' });
-  return <div className="text-sm my-2 font-semibold">{day} {month} <span className="text-muted-foreground">{weekday}</span></div>
+  const month = d.toLocaleDateString("id-ID", { month: "long" }).toUpperCase();
+  const weekday = d.toLocaleDateString("id-ID", { weekday: "long" });
+  return (
+    <div className="text-sm my-2 font-semibold">
+      {day} {month} <span className="text-muted-foreground">{weekday}</span>
+    </div>
+  );
 }
 
-function groupByDate(events: SpaceEvent[]): { date: string; events: SpaceEvent[] }[] {
+function groupByDate(
+  events: SpaceEvent[],
+): { date: string; events: SpaceEvent[] }[] {
   const groups: Record<string, SpaceEvent[]> = {};
   for (const event of events) {
     const key = event.schedule.date;

@@ -1,18 +1,18 @@
-import { useQuery } from '@tanstack/react-query';
-import { fetchSpace, fetchSpaces } from '../api';
-import { useSpaceStore } from '../store/space-store';
-import { useFeedStore } from '@/features/post/store/feed-store';
+import { useQuery } from "@tanstack/react-query";
+import { useFeedStore } from "@/features/post/store/feed-store";
+import { fetchSpace, fetchSpaces } from "../api";
+import { useSpaceStore } from "../store/space-store";
 
 export function useSpaces() {
   return useQuery({
-    queryKey: ['spaces'],
+    queryKey: ["spaces"],
     queryFn: fetchSpaces,
   });
 }
 
 export function useSpace(slug: string | undefined) {
   return useQuery({
-    queryKey: ['space', slug],
+    queryKey: ["space", slug],
     queryFn: () => fetchSpace(slug!),
     enabled: !!slug,
   });

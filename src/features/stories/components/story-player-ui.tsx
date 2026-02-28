@@ -1,16 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useStoryPlayerStore } from "../store/story-player-store";
-import { useStories } from "@/features/feed/hooks/use-feed-query";
-import {
-  MoreHorizontal,
-  Send,
-  X,
-} from "lucide-react";
-import { AppLogo } from "@/components/layout/header";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Wallpaper } from "@solar-icons/react";
+import { MoreHorizontal, Send, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AppLogo } from "@/components/layout/header";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useStories } from "@/features/feed/hooks/use-feed-query";
+import { useStoryPlayerStore } from "../store/story-player-store";
 
 const STORY_DURATION = 15000;
 
@@ -29,9 +25,7 @@ export function StoryPlayerUI() {
     if (progress < 100) return;
 
     if (hasNextStory) {
-      useStoryPlayerStore
-        .getState()
-        .openStoryPlayer(currentUserIndex + 1, 0);
+      useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex + 1, 0);
     } else {
       closeStoryPlayer();
     }
@@ -39,17 +33,15 @@ export function StoryPlayerUI() {
     setProgress(0);
   }, [progress, hasNextStory, currentUserIndex, closeStoryPlayer]);
 
-
   useEffect(() => {
     if (!isOpen || isPaused) return;
 
     const interval = setInterval(() => {
-      setProgress((prev) => Math.min(prev + (100 / (STORY_DURATION / 100)), 100));
+      setProgress((prev) => Math.min(prev + 100 / (STORY_DURATION / 100), 100));
     }, 100);
 
     return () => clearInterval(interval);
   }, [isOpen, isPaused]);
-
 
   // Reset progress when story changes
   useEffect(() => {
@@ -59,13 +51,13 @@ export function StoryPlayerUI() {
   // Keyboard navigation and body scroll lock
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         closeStoryPlayer();
-      } else if (e.key === 'ArrowLeft' && hasPreviousStory) {
+      } else if (e.key === "ArrowLeft" && hasPreviousStory) {
         useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex - 1, 0);
-      } else if (e.key === 'ArrowRight' && hasNextStory) {
+      } else if (e.key === "ArrowRight" && hasNextStory) {
         useStoryPlayerStore.getState().openStoryPlayer(currentUserIndex + 1, 0);
-      } else if (e.key === ' ') {
+      } else if (e.key === " ") {
         e.preventDefault();
         setIsPaused((prev) => !prev);
       }
@@ -73,16 +65,22 @@ export function StoryPlayerUI() {
 
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener("keydown", handleKeyDown);
     } else {
       document.body.style.overflow = "unset";
     }
 
     return () => {
       document.body.style.overflow = "unset";
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, currentUserIndex, hasNextStory, hasPreviousStory, closeStoryPlayer]);
+  }, [
+    isOpen,
+    currentUserIndex,
+    hasNextStory,
+    hasPreviousStory,
+    closeStoryPlayer,
+  ]);
 
   if (!isOpen) return null;
 
@@ -117,12 +115,10 @@ export function StoryPlayerUI() {
 
       {/* Modal Content */}
       <div className="overflow-y-auto no-scrollbar">
-
         {/* Center Story */}
         <div className="relative h-screen w-full max-w-md mx-auto px-4 overflow-hidden">
           {/* Story Image Container */}
           <div className="relative flex-1 py-2 aspect-9/16">
-
             {/* Progress bar overlay on top of image */}
             <div className="absolute top-5 left-3 right-3 z-10 flex gap-1">
               <div className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden backdrop-blur-sm">
@@ -133,13 +129,15 @@ export function StoryPlayerUI() {
               </div>
             </div>
 
-
             {/* Story Image - fixed height */}
             <div className="h-full rounded-2xl overflow-hidden bg-muted relative group">
               {/* User Profile Info - Top Left */}
               <div className="absolute top-6 left-3 z-10 flex items-center gap-2">
                 <Avatar className="w-10 h-10 border-2 border-white">
-                  <AvatarImage src={currentUser?.user?.avatar_url} alt={currentUser?.user?.username} />
+                  <AvatarImage
+                    src={currentUser?.user?.avatar_url}
+                    alt={currentUser?.user?.username}
+                  />
                   <AvatarFallback className="bg-muted text-foreground">
                     {currentUser?.user?.username?.charAt(0).toUpperCase()}
                   </AvatarFallback>
@@ -148,7 +146,9 @@ export function StoryPlayerUI() {
                   <span className="text-sm font-semibold text-white drop-shadow-lg">
                     {currentUser?.user?.username}
                   </span>
-                  <span className="text-xs text-white/80 drop-shadow-lg">18 hrs ago</span>
+                  <span className="text-xs text-white/80 drop-shadow-lg">
+                    18 hrs ago
+                  </span>
                 </div>
               </div>
               <img
@@ -173,10 +173,7 @@ export function StoryPlayerUI() {
               </div>
             </div>
           </div>
-
         </div>
-
-
       </div>
 
       {/* Previous Story Thumbnail - Left Side */}
@@ -194,9 +191,14 @@ export function StoryPlayerUI() {
             {/* Avatar and Username Overlay */}
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
               <Avatar className="w-12 h-12 border-2 border-white">
-                <AvatarImage src={stories[currentUserIndex - 1]?.user?.avatar_url} alt={stories[currentUserIndex - 1]?.user?.username} />
+                <AvatarImage
+                  src={stories[currentUserIndex - 1]?.user?.avatar_url}
+                  alt={stories[currentUserIndex - 1]?.user?.username}
+                />
                 <AvatarFallback className="bg-muted text-foreground">
-                  {stories[currentUserIndex - 1]?.user?.username?.charAt(0).toUpperCase()}
+                  {stories[currentUserIndex - 1]?.user?.username
+                    ?.charAt(0)
+                    .toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <span className="text-xs font-semibold text-white drop-shadow-lg">
@@ -225,9 +227,14 @@ export function StoryPlayerUI() {
             {/* Avatar and Username Overlay */}
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
               <Avatar className="w-12 h-12 border-2 border-white">
-                <AvatarImage src={stories[currentUserIndex + 1]?.user?.avatar_url} alt={stories[currentUserIndex + 1]?.user?.username} />
+                <AvatarImage
+                  src={stories[currentUserIndex + 1]?.user?.avatar_url}
+                  alt={stories[currentUserIndex + 1]?.user?.username}
+                />
                 <AvatarFallback className="bg-muted text-foreground">
-                  {stories[currentUserIndex + 1]?.user?.username?.charAt(0).toUpperCase()}
+                  {stories[currentUserIndex + 1]?.user?.username
+                    ?.charAt(0)
+                    .toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <span className="text-xs font-semibold text-white drop-shadow-lg">

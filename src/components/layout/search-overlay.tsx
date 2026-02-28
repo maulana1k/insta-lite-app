@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { Search, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ClockCircle } from '@solar-icons/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { ClockCircle } from "@solar-icons/react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Search, X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 interface SearchOverlayProps {
   isOpen: boolean;
@@ -12,20 +12,20 @@ interface SearchOverlayProps {
 }
 
 const RECENT_SEARCHES = [
-  'nike air force 1',
-  'sunset photography',
-  'minimal design',
-  'street style',
-  'architecture',
-  'food photography',
+  "nike air force 1",
+  "sunset photography",
+  "minimal design",
+  "street style",
+  "architecture",
+  "food photography",
 ];
 
 export function SearchOverlay() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentQuery = searchParams.get('q');
+  const currentQuery = searchParams.get("q");
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const overlayRef = useRef<HTMLDivElement | null>(null);
@@ -50,15 +50,15 @@ export function SearchOverlay() {
     };
 
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsSearchOpen(false);
+      if (e.key === "Escape") setIsSearchOpen(false);
     };
 
-    document.addEventListener('mousedown', handleClick);
-    document.addEventListener('keydown', handleKey);
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
 
     return () => {
-      document.removeEventListener('mousedown', handleClick);
-      document.removeEventListener('keydown', handleKey);
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
     };
   }, [isSearchOpen]);
 
@@ -66,11 +66,11 @@ export function SearchOverlay() {
     if (!query.trim()) return;
     router.push(`/search?q=${encodeURIComponent(query)}`);
     setIsSearchOpen(false);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch(searchQuery);
     }
   };
@@ -132,14 +132,13 @@ export function SearchOverlay() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: -6 }}
               transition={{
-                type: 'spring',
+                type: "spring",
                 stiffness: 620,
                 damping: 34,
                 mass: 1.5,
               }}
               onClick={(e) => e.stopPropagation()}
             >
-
               <div
                 ref={overlayRef}
                 className="
@@ -158,23 +157,25 @@ export function SearchOverlay() {
                     <input
                       ref={inputRef}
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value.trimStart())}
+                      onChange={(e) =>
+                        setSearchQuery(e.target.value.trimStart())
+                      }
                       onKeyDown={handleKeyDown}
                       placeholder="Search users, posts or videos"
-                      className='w-full border-none focus:outline-none pl-9'
-                    // className="
-                    //   w-full pl-11 pr-10 py-2.5
-                    //   bg-muted/40
-                    //   border border-border
-                    //   rounded-xl text-sm
-                    //   transition-all duration-200
-                    //   focus:outline-none
-                    // "
+                      className="w-full border-none focus:outline-none pl-9"
+                      // className="
+                      //   w-full pl-11 pr-10 py-2.5
+                      //   bg-muted/40
+                      //   border border-border
+                      //   rounded-xl text-sm
+                      //   transition-all duration-200
+                      //   focus:outline-none
+                      // "
                     />
 
                     {searchQuery && (
                       <button
-                        onClick={() => setSearchQuery('')}
+                        onClick={() => setSearchQuery("")}
                         className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground bg-muted rounded-full p-1"
                       >
                         <X className="size-5" />
@@ -188,7 +189,7 @@ export function SearchOverlay() {
                   <div
                     className={`
       transition-all duration-300 ease-out
-      ${searchQuery ? 'opacity-0 max-h-0 pointer-events-none' : 'opacity-100 max-h-[360px]'}
+      ${searchQuery ? "opacity-0 max-h-0 pointer-events-none" : "opacity-100 max-h-[360px]"}
     `}
                   >
                     <div className="p-3 space-y-1">
@@ -199,7 +200,10 @@ export function SearchOverlay() {
                           onClick={() => handleSearch(item)}
                           className="w-full flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-muted"
                         >
-                          <ClockCircle weight="Bold" className="size-5 text-muted-foreground/70" />
+                          <ClockCircle
+                            weight="Bold"
+                            className="size-5 text-muted-foreground/70"
+                          />
                           <span className="text-[15px]">{item}</span>
                         </button>
                       ))}
@@ -209,14 +213,13 @@ export function SearchOverlay() {
                   <div
                     className={`
       transition-all duration-300 ease-out
-      ${searchQuery ? 'opacity-100 min-h-[50px] pointer-events-none' : 'opacity-0 max-h-0'}
+      ${searchQuery ? "opacity-100 min-h-[50px] pointer-events-none" : "opacity-0 max-h-0"}
     `}
                   >
-
                     <div
                       className={`
                       transition-all duration-200 ease-out
-                      ${searchQuery ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+                      ${searchQuery ? "opacity-100" : "opacity-0 pointer-events-none"}
                       `}
                     >
                       <div
@@ -234,8 +237,5 @@ export function SearchOverlay() {
         )}
       </AnimatePresence>
     </div>
-
   );
 }
-
-

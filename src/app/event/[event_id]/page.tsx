@@ -1,11 +1,24 @@
 import { Header } from "@/components/layout/header";
-import { EventDetail } from '@/features/event/components/event-detail';
+import { EventDetail } from "@/features/event/components/event-detail";
 
 export function generateStaticParams() {
   // TODO: replace with API call: GET /api/v1/events?fields=id to get all event IDs
   const eventIds = [
-    'ev1','ev2','ev3','ev4','ev5','ev6','ev7','ev8','ev9','ev10',
-    'ev11','ev12','ev13','ev14','ev15',
+    "ev1",
+    "ev2",
+    "ev3",
+    "ev4",
+    "ev5",
+    "ev6",
+    "ev7",
+    "ev8",
+    "ev9",
+    "ev10",
+    "ev11",
+    "ev12",
+    "ev13",
+    "ev14",
+    "ev15",
   ];
   return eventIds.map((event_id) => ({ event_id }));
 }

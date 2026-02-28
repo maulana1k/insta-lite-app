@@ -1,6 +1,13 @@
-'use client';
+"use client";
 
-import { User, ShieldKeyhole, Bell, Palette, Database, ChartSquare } from '@solar-icons/react';
+import {
+  Bell,
+  ChartSquare,
+  Database,
+  Palette,
+  ShieldKeyhole,
+  User,
+} from "@solar-icons/react";
 
 interface SettingSection {
   id: string;
@@ -9,12 +16,12 @@ interface SettingSection {
 }
 
 const SECTIONS: SettingSection[] = [
-  { id: 'account', label: 'Akun', icon: User },
-  { id: 'privacy', label: 'Privasi', icon: ShieldKeyhole },
-  { id: 'notifications', label: 'Notifikasi', icon: Bell },
-  { id: 'appearance', label: 'Tampilan', icon: Palette },
-  { id: 'data', label: 'Data', icon: Database },
-  { id: 'insight', label: 'Insight', icon: ChartSquare },
+  { id: "account", label: "Akun", icon: User },
+  { id: "privacy", label: "Privasi", icon: ShieldKeyhole },
+  { id: "notifications", label: "Notifikasi", icon: Bell },
+  { id: "appearance", label: "Tampilan", icon: Palette },
+  { id: "data", label: "Data", icon: Database },
+  { id: "insight", label: "Insight", icon: ChartSquare },
 ];
 
 interface SettingsSidebarProps {
@@ -22,7 +29,10 @@ interface SettingsSidebarProps {
   onSectionChange: (section: string) => void;
 }
 
-export function SettingsSidebar({ activeSection, onSectionChange }: SettingsSidebarProps) {
+export function SettingsSidebar({
+  activeSection,
+  onSectionChange,
+}: SettingsSidebarProps) {
   return (
     <div className="py-8 pr-4">
       <h2 className="text-[22px] font-bold px-3 mb-5">Pengaturan</h2>
@@ -37,18 +47,21 @@ export function SettingsSidebar({ activeSection, onSectionChange }: SettingsSide
               onClick={() => onSectionChange(section.id)}
               className={`
                 w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left
-                ${isActive
-                  ? 'text-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
+                ${
+                  isActive
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }
               `}
             >
               {/* @ts-ignore */}
               <Icon
                 className="size-5 shrink-0"
-                weight={isActive ? 'Bold' : 'Linear'}
+                weight={isActive ? "Bold" : "Linear"}
               />
-              <span className={`text-[16px] ${isActive ? 'font-bold' : 'font-normal'}`}>
+              <span
+                className={`text-[16px] ${isActive ? "font-bold" : "font-normal"}`}
+              >
                 {section.label}
               </span>
             </button>

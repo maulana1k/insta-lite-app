@@ -1,4 +1,4 @@
-import { Post, Story, User } from "@/types/database";
+import { type Post, Story, type User } from "@/types/database";
 
 export const MOCK_USERS: User[] = [
   {
@@ -52,9 +52,11 @@ export const MOCK_STORIES = [
     user: {
       id: "user-1",
       username: "Sienna",
-      avatar_url: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=64&w=64"
+      avatar_url:
+        "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=64&w=64",
     },
-    image_url: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNjY4NjR8MHwxfHNlYXJjaHwyfHxwb3J0cmFpdCUyMHBvcnRyYWl0fGVufDB8fHx8MTY5NzEwNzMzMA&ixlib=rb-1.2.1&q=80&w=1080",
+    image_url:
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNjY4NjR8MHwxfHNlYXJjaHwyfHxwb3J0cmFpdCUyMHBvcnRyYWl0fGVufDB8fHx8MTY5NzEwNzMzMA&ixlib=rb-1.2.1&q=80&w=1080",
     created_at: new Date().toISOString(),
     expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
   },
@@ -64,9 +66,11 @@ export const MOCK_STORIES = [
     user: {
       id: "user-2",
       username: "Mila",
-      avatar_url: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=64&w=64"
+      avatar_url:
+        "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=64&w=64",
     },
-    image_url: "https://images.unsplash.com/photo-1598970434795-0c54fe7c0642?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNjY4NjR8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMHBvcnRyYWl0fGVufDB8fHx8MTY5NzEwNzQxMQ&ixlib=rb-1.2.1&q=80&w=1080",
+    image_url:
+      "https://images.unsplash.com/photo-1598970434795-0c54fe7c0642?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNjY4NjR8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMHBvcnRyYWl0fGVufDB8fHx8MTY5NzEwNzQxMQ&ixlib=rb-1.2.1&q=80&w=1080",
     created_at: new Date().toISOString(),
     expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
   },
@@ -76,12 +80,14 @@ export const MOCK_STORIES = [
     user: {
       id: "user-3",
       username: "Leo",
-      avatar_url: "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=64&w=64"
+      avatar_url:
+        "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=64&w=64",
     },
-    image_url: "https://images.unsplash.com/photo-1504198453319-5ce911bafcde?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNjY4NjR8MHwxfHNlYXJjaHwyfHxwZW9wbGUlMjBwb3J0cmFpdCUyMHBvcnRyYWl0fGVufDB8fHx8MTY5NzEwNzQ5Mg&ixlib=rb-1.2.1&q=80&w=1080",
+    image_url:
+      "https://images.unsplash.com/photo-1504198453319-5ce911bafcde?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNjY4NjR8MHwxfHNlYXJjaHwyfHxwZW9wbGUlMjBwb3J0cmFpdCUyMHBvcnRyYWl0fGVufDB8fHx8MTY5NzEwNzQ5Mg&ixlib=rb-1.2.1&q=80&w=1080",
     created_at: new Date().toISOString(),
     expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-  }
+  },
 ];
 
 // export const MOCK_STORIES: Story[] = MOCK_USERS.slice(1).map((user, i) => ({

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { create } from 'zustand';
-import { EventFilter } from '../types';
+import { create } from "zustand";
+import type { EventFilter } from "../types";
 
 interface EventState {
   eventFilter: EventFilter;
@@ -12,9 +12,9 @@ interface EventState {
 }
 
 export const useEventStore = create<EventState>((set) => ({
-  eventFilter: 'all',
+  eventFilter: "all",
   activeEventId: null,
   setEventFilter: (filter) => set({ eventFilter: filter }),
   setActiveEventId: (id) => set({ activeEventId: id }),
-  reset: () => set({ eventFilter: 'all', activeEventId: null }),
+  reset: () => set({ eventFilter: "all", activeEventId: null }),
 }));
