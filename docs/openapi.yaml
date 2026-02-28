@@ -5,42 +5,65 @@ info:
   description: |
     REST API for **Jends** — a social platform for communities and conversations.
 
+    ## General Conventions
     - All request/response bodies are `application/json`
-    - Timestamps are ISO 8601 strings in UTC (`2025-04-20T12:00:00Z`)
+    - Timestamps are ISO 8601 strings in UTC (e.g. `2025-04-20T12:00:00Z`)
+    - UUIDs are lowercase hyphenated strings (e.g. `550e8400-e29b-41d4-a716-446655440000`)
     - Authentication uses JWT Bearer tokens in the `Authorization` header
-    - Feeds use **cursor-based pagination** (see `nextCursor` in response)
+
+    ## Response Envelope
+    Every response (success or error) is wrapped in an envelope:
+
+    **Success:**
+    ```json
+    { "data": { ... } }
+    ```
+
+    **Error:**
+    ```json
+    { "error": { "code": "not_found", "message": "user not found" } }
+    ```
+
+    ## Pagination
+    List endpoints use **cursor-based pagination**. Pass `next_cursor` from a
+    response as `cursor` in the next request. When `next_cursor` is `null`,
+    there are no more pages.
+
+    ## Authentication
+    Obtain tokens via `/v1/auth/login` or `/v1/auth/google/callback`.
+    - **Access token** — short-lived (15 min), pass as `Authorization: Bearer <token>`
+    - **Refresh token** — long-lived, use to rotate the access token via `/v1/auth/refresh`
+
+    Email confirmation is required for creating posts and uploading media.
+    Endpoints that require it return `403 email_not_confirmed` otherwise.
+
+    ## Non-versioned endpoints
+    These endpoints exist outside the `/v1` prefix and are not part of this spec:
+    - `GET /health` — returns `{"data":{"status":"ok","db":"ok","redis":"ok"}}`
+    - `GET /metrics` — Prometheus metrics (text format)
+    - `GET /swagger/*` — Swagger UI
   version: 1.0.0
   contact:
     name: Jends Engineering
 
 servers:
+  - url: http://localhost:8080/v1
+    description: Local development
   - url: https://api.jends.id/v1
     description: Production
-  - url: http://localhost:3001/v1
-    description: Local development
 
 security:
   - bearerAuth: []
 
 tags:
-  - name: Feed
-    description: Post feeds — For You, Following, Saved, and Space feeds
-  - name: Posts
-    description: Individual post and comment operations
-  - name: Spaces
-    description: Community spaces (browse and join)
-  - name: Events
-    description: Events hosted within spaces
+  - name: Auth
+    description: Registration, login, token management, and Google OAuth
   - name: Users
-    description: User profiles and user discovery
-  - name: Activities
-    description: Notification and activity feed
-  - name: Videos
-    description: Short-form video feed
-  - name: Messages
-    description: Direct message conversations (REST — see asyncapi.yaml for WebSocket)
-  - name: Discover
-    description: Trending content and discovery feed
+    description: User profile management, social graph (follow/block), and search
+  - name: Posts
+    description: Post creation and management
+  - name: Media
+    description: GCS media upload flow (request signed URL → upload → confirm)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PATHS
@@ -48,43 +71,701 @@ tags:
 
 paths:
 
-  # ── Feed ──────────────────────────────────────────────────────────────────
+  # ── Auth ───────────────────────────────────────────────────────────────────
 
-  /posts:
-    get:
-      tags: [Feed]
-      summary: Get post feed
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new account
       description: |
-        Returns a paginated list of posts for the specified feed type.
-        Pass `nextCursor` from the previous response as `cursor` to get the next page.
-      operationId: getFeed
+        Creates a new user account and sends a verification email.
+        The account cannot create posts or upload media until the email is confirmed.
+
+        Rate limited to **10 requests per minute** per IP.
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              username: alice
+              email: alice@example.com
+              password: hunter22!
+      responses:
+        '201':
+          description: Account created — verification email sent
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RegisterResponse'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /auth/verify-email:
+    get:
+      tags: [Auth]
+      summary: Verify email address
+      description: |
+        Validates the one-time token sent by email and marks the account as confirmed.
+        Returns a token pair on success — same as a login response.
+      operationId: verifyEmail
+      security: []
       parameters:
-        - name: feed
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+          description: One-time verification token from the email link
+      responses:
+        '200':
+          description: Email verified — token pair returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPairEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '410':
+          description: Verification token has expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              example:
+                error:
+                  code: gone
+                  message: verification token has expired
+
+  /auth/resend-verification:
+    post:
+      tags: [Auth]
+      summary: Resend verification email
+      description: |
+        Sends a new verification email. Always returns 200 regardless of whether
+        the email exists — to prevent account enumeration.
+
+        Rate limited to **10 requests per minute** per IP.
+      operationId: resendVerification
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+            example:
+              email: alice@example.com
+      responses:
+        '200':
+          description: Request processed (email sent if account exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataEnvelope'
+              example:
+                data:
+                  message: verification email sent if account exists
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email and password
+      description: |
+        Authenticates the user and returns a JWT access token + refresh token.
+
+        After too many failed attempts the account is temporarily locked
+        (returns `429 rate_limited`).
+
+        Rate limited to **10 requests per minute** per IP.
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: alice@example.com
+              password: hunter22!
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPairEnvelope'
+        '401':
+          description: Invalid email or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              example:
+                error:
+                  code: unauthorized
+                  message: invalid email or password
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Rotate tokens
+      description: |
+        Exchanges a valid refresh token for a new access token + refresh token pair.
+        The old refresh token is revoked (single-use rotation).
+
+        Rate limited to **30 requests per minute** per IP.
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+                  description: A valid, non-revoked refresh token
+      responses:
+        '200':
+          description: New token pair issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPairEnvelope'
+        '401':
+          description: Refresh token is invalid or has been revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout (revoke refresh token)
+      description: |
+        Revokes the given refresh token so it can no longer be used.
+        The access token continues to work until it expires (15 min).
+        The client should discard both tokens locally.
+      operationId: logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '204':
+          description: Logged out — refresh token revoked
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/google:
+    get:
+      tags: [Auth]
+      summary: Initiate Google OAuth
+      description: |
+        Redirects the browser to the Google consent screen.
+        After the user grants consent, Google redirects back to `/v1/auth/google/callback`.
+      operationId: googleOAuthRedirect
+      security: []
+      responses:
+        '302':
+          description: Redirect to Google consent screen
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /auth/google/callback:
+    get:
+      tags: [Auth]
+      summary: Google OAuth callback
+      description: |
+        Called by Google after the user grants consent. Validates the `state`
+        parameter (CSRF), exchanges the `code` for a Google token, and returns
+        a Jends token pair. Creates a new account if the Google email is not
+        already registered.
+      operationId: googleOAuthCallback
+      security: []
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Authorization code from Google
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+          description: CSRF state — must match the value set in the redirect step
+      responses:
+        '200':
+          description: OAuth successful — token pair returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPairEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Users ──────────────────────────────────────────────────────────────────
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get own profile
+      description: Returns the full profile of the authenticated user including counts.
+      operationId: getMe
+      responses:
+        '200':
+          description: Own profile
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/MyProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    patch:
+      tags: [Users]
+      summary: Update own profile
+      description: |
+        Updates writable profile fields. All fields are optional — send only
+        what you want to change.
+
+        To update avatar or cover photo, first upload the image via the media
+        flow (`POST /v1/media/upload-url` → upload → `POST /v1/media/confirm`)
+        and pass the resulting `media_id` here.
+      operationId: updateMe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+            example:
+              display_name: Alice Wonderland
+              bio: Software engineer based in Jakarta
+              website_url: https://alice.dev
+      responses:
+        '200':
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/MyProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags: [Users]
+      summary: Delete own account
+      description: |
+        Soft-deletes the account and revokes all tokens. The user will be logged out
+        immediately. Password confirmation is required.
+      operationId: deleteMe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+                  description: Current password for confirmation
+      responses:
+        '204':
+          description: Account deleted
+        '401':
+          description: Wrong password or not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /users/me/blocked:
+    get:
+      tags: [Users]
+      summary: List blocked users
+      description: Returns a paginated list of users the authenticated user has blocked.
+      operationId: getBlockedUsers
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated blocked users list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/FollowListPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/search:
+    get:
+      tags: [Users]
+      summary: Search users
+      description: |
+        Full-text search over usernames and display names using PostgreSQL
+        `tsvector`. Results are ordered by relevance then alphabetically.
+        Cursor is the `username` of the last result (alphabetical pagination).
+      operationId: searchUsers
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - name: q
           in: query
           required: false
           schema:
             type: string
-            enum: [for_you, following, saved]
-            default: for_you
-          description: Feed type to load
-        - $ref: '#/components/parameters/Cursor'
+          description: Search query (username or display name)
+          example: alice
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor — the `next_cursor` from the previous response (username)
       responses:
         '200':
-          description: Paginated post feed
+          description: Search results
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PostFeedPage'
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          results:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/UserSummary'
+                          next_cursor:
+                            type: string
+                            nullable: true
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /users/{username}:
+    get:
+      tags: [Users]
+      summary: Get user profile by username
+      description: |
+        Returns a public profile. If the authenticated user is blocked by the
+        target user, returns `404` (blocked users are hidden, not exposed as 403).
+
+        Relationship fields (`is_following`, `is_blocking`, `is_blocked_by`) are
+        only present when the request is authenticated.
+      operationId: getUserProfile
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Username'
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PublicProfile'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{username}/follow:
+    post:
+      tags: [Users]
+      summary: Follow a user
+      description: |
+        Follows the specified user. Requires a confirmed email address.
+        Idempotent — following an already-followed user is a no-op.
+      operationId: followUser
+      parameters:
+        - $ref: '#/components/parameters/Username'
+      responses:
+        '204':
+          description: Now following
+        '400':
+          description: Cannot follow yourself
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/EmailNotConfirmed'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Users]
+      summary: Unfollow a user
+      description: Unfollows the specified user. Idempotent.
+      operationId: unfollowUser
+      parameters:
+        - $ref: '#/components/parameters/Username'
+      responses:
+        '204':
+          description: Unfollowed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/EmailNotConfirmed'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{username}/block:
+    post:
+      tags: [Users]
+      summary: Block a user
+      description: |
+        Blocks the specified user. Automatically removes any existing follow
+        relationship in both directions. Idempotent.
+      operationId: blockUser
+      parameters:
+        - $ref: '#/components/parameters/Username'
+      responses:
+        '204':
+          description: User blocked
+        '400':
+          description: Cannot block yourself
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Users]
+      summary: Unblock a user
+      description: Unblocks the specified user. Idempotent.
+      operationId: unblockUser
+      parameters:
+        - $ref: '#/components/parameters/Username'
+      responses:
+        '204':
+          description: User unblocked
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  /users/{username}/followers:
+    get:
+      tags: [Users]
+      summary: List followers
+      description: Returns a paginated list of users who follow the specified user.
+      operationId: getFollowers
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated followers list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/FollowListPage'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{username}/following:
+    get:
+      tags: [Users]
+      summary: List following
+      description: Returns a paginated list of users the specified user is following.
+      operationId: getFollowing
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated following list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/FollowListPage'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{username}/posts:
+    get:
+      tags: [Users, Posts]
+      summary: Get posts by a user
+      description: |
+        Returns a paginated list of posts authored by the specified user,
+        ordered newest-first (timestamp cursor).
+      operationId: getUserPosts
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated posts
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PostListPage'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   # ── Posts ──────────────────────────────────────────────────────────────────
+
+  /posts:
+    post:
+      tags: [Posts]
+      summary: Create a post
+      description: |
+        Creates a new post. Requires a confirmed email address.
+
+        Attach media by first completing the media upload flow
+        (`POST /v1/media/upload-url` → PUT to signed URL → `POST /v1/media/confirm`)
+        then including the confirmed `media_id` values in `media_ids`.
+
+        Hashtags (e.g. `#launch`) and @mentions in `content` are automatically
+        parsed and stored as entities.
+      operationId: createPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePostRequest'
+            example:
+              content: Hello from Jends! #launch @alice
+              media_ids:
+                - 550e8400-e29b-41d4-a716-446655440000
+              is_anonymous: false
+      responses:
+        '201':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Post'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/EmailNotConfirmed'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /posts/{post_id}:
     get:
       tags: [Posts]
       summary: Get a post by ID
+      description: |
+        Returns a single post. Soft-deleted posts return a tombstone with
+        `deleted_at` set; all other fields are nulled out.
       operationId: getPost
+      security:
+        - {}
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PostId'
       responses:
@@ -93,328 +774,210 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Post'
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /posts/{post_id}/comments:
-    get:
+    patch:
       tags: [Posts]
-      summary: Get comments for a post
-      description: Returns a flat list with nested `replies` on each top-level comment (one level deep).
-      operationId: getPostComments
+      summary: Edit a post
+      description: Updates the text content of a post. Only the post author can edit.
+      operationId: updatePost
+      parameters:
+        - $ref: '#/components/parameters/PostId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                  maxLength: 500
+      responses:
+        '200':
+          description: Updated post
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Post'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Posts]
+      summary: Delete a post
+      description: |
+        Soft-deletes a post. Only the post author can delete. The post becomes
+        a tombstone and is no longer shown in feeds.
+      operationId: deletePost
       parameters:
         - $ref: '#/components/parameters/PostId'
       responses:
-        '200':
-          description: List of comments
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/PostComment'
+        '204':
+          description: Post deleted
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
 
-  # ── Spaces ─────────────────────────────────────────────────────────────────
+  # ── Media ──────────────────────────────────────────────────────────────────
 
-  /spaces:
-    get:
-      tags: [Spaces]
-      summary: List all spaces
-      description: Returns the full list of available community spaces (no pagination — bounded set).
-      operationId: getSpaces
-      responses:
-        '200':
-          description: List of spaces
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Space'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /spaces/{slug}:
-    get:
-      tags: [Spaces]
-      summary: Get a space by slug
-      operationId: getSpace
-      parameters:
-        - $ref: '#/components/parameters/SpaceSlug'
-      responses:
-        '200':
-          description: Space object
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Space'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /spaces/{slug}/posts:
-    get:
-      tags: [Spaces, Feed]
-      summary: Get posts within a space
-      operationId: getSpaceFeed
-      parameters:
-        - $ref: '#/components/parameters/SpaceSlug'
-        - $ref: '#/components/parameters/Cursor'
-      responses:
-        '200':
-          description: Paginated post feed for the space
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PostFeedPage'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /spaces/{slug}/events:
-    get:
-      tags: [Spaces, Events]
-      summary: Get events for a space
+  /media/upload-url:
+    post:
+      tags: [Media]
+      summary: Request a signed upload URL
       description: |
-        Upcoming events are sorted ascending by date; past events descending.
-        When `filter=all`, upcoming events appear before past events.
-      operationId: getSpaceEvents
-      parameters:
-        - $ref: '#/components/parameters/SpaceSlug'
-        - name: filter
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [all, upcoming, past]
-            default: all
-          description: Filter events by status
+        Generates a GCS V4 signed URL for a PUT upload. The client uploads
+        the file directly to GCS (not through this API).
+
+        **Upload flow:**
+        1. `POST /v1/media/upload-url` → get `media_id` + `upload_url`
+        2. `PUT <upload_url>` with the file body and `Content-Type` header matching
+           the `mime_type` requested in step 1
+        3. `POST /v1/media/confirm` with the `media_id` → get `public_url`
+        4. Use the `media_id` in `PATCH /v1/users/me` or `POST /v1/posts`
+
+        The signed URL is valid for **15 minutes**. Unconfirmed media is
+        automatically purged by a background sweeper.
+
+        Requires a confirmed email address.
+      operationId: requestUploadURL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadURLRequest'
+            example:
+              context: post_image
+              mime_type: image/jpeg
+              size_bytes: 2097152
       responses:
-        '200':
-          description: List of events
+        '201':
+          description: Signed URL created
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SpaceEvent'
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UploadURLResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/EmailNotConfirmed'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
-  # ── Events ──────────────────────────────────────────────────────────────────
-
-  /events/{event_id}:
-    get:
-      tags: [Events]
-      summary: Get an event by ID
-      operationId: getEvent
-      parameters:
-        - $ref: '#/components/parameters/EventId'
-      responses:
-        '200':
-          description: Event object
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SpaceEvent'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  # ── Users ───────────────────────────────────────────────────────────────────
-
-  /users/suggested:
-    get:
-      tags: [Users]
-      summary: Get suggested users to follow
-      description: Returns a short curated list of user profiles (no pagination).
-      operationId: getSuggestedUsers
-      responses:
-        '200':
-          description: List of suggested user profiles
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserProfile'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /users/{username}:
-    get:
-      tags: [Users]
-      summary: Get a user profile
-      operationId: getUserProfile
-      parameters:
-        - $ref: '#/components/parameters/Username'
-      responses:
-        '200':
-          description: Full user profile
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProfileUser'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /users/{username}/posts:
-    get:
-      tags: [Users]
-      summary: Get posts by a user
-      operationId: getUserPosts
-      parameters:
-        - $ref: '#/components/parameters/Username'
-        - $ref: '#/components/parameters/Cursor'
-      responses:
-        '200':
-          description: Paginated list of the user's posts
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PostFeedPage'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  # ── Activities ──────────────────────────────────────────────────────────────
-
-  /activities:
-    get:
-      tags: [Activities]
-      summary: Get activity feed
-      description: Returns notifications grouped by type. Filter with `tab` to scope results.
-      operationId: getActivities
-      parameters:
-        - name: tab
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [all, follows, mentions, likes, comments]
-            default: all
-          description: Activity type filter
-      responses:
-        '200':
-          description: List of activities
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Activity'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  # ── Videos ──────────────────────────────────────────────────────────────────
-
-  /videos:
-    get:
-      tags: [Videos]
-      summary: Get video feed
-      description: Returns a paginated list of short-form videos, optionally filtered by category.
-      operationId: getVideos
-      parameters:
-        - name: category
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - For You
-              - Following
-              - Popular
-              - Featured
-              - Live
-              - Continue Watching
-              - Watch Later
-          description: Video category filter
-        - $ref: '#/components/parameters/Cursor'
-      responses:
-        '200':
-          description: Paginated video feed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VideoFeedPage'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  # ── Messages ─────────────────────────────────────────────────────────────────
-
-  /conversations:
-    get:
-      tags: [Messages]
-      summary: List conversations
-      description: Returns all conversations for the authenticated user, sorted by most recent message.
-      operationId: getConversations
-      responses:
-        '200':
-          description: List of conversations
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Conversation'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /conversations/{conversation_id}/messages:
-    get:
-      tags: [Messages]
-      summary: Get messages in a conversation
-      description: Returns paginated messages ordered newest-first. Use `cursor` for earlier messages.
-      operationId: getMessages
-      parameters:
-        - $ref: '#/components/parameters/ConversationId'
-        - $ref: '#/components/parameters/Cursor'
-      responses:
-        '200':
-          description: Paginated list of messages
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageFeedPage'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  # ── Discover ─────────────────────────────────────────────────────────────────
-
-  /discover:
-    get:
-      tags: [Discover]
-      summary: Get discovery feed
+  /media/confirm:
+    post:
+      tags: [Media]
+      summary: Confirm a media upload
       description: |
-        Returns trending hashtags, trending topics, featured posts, and content categories
-        in a single aggregated response — optimized for the Discover page.
-      operationId: getDiscover
+        Verifies that the object was actually uploaded to GCS and marks the
+        `media_attachment` record as confirmed. Must be called after the PUT
+        upload completes. Returns the permanent public URL.
+
+        Requires a confirmed email address.
+      operationId: confirmUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [media_id]
+              properties:
+                media_id:
+                  type: string
+                  format: uuid
+                  description: The `media_id` returned by `POST /v1/media/upload-url`
       responses:
         '200':
-          description: Discovery feed data
+          description: Upload confirmed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DiscoverFeed'
+                allOf:
+                  - $ref: '#/components/schemas/DataEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ConfirmUploadResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/EmailNotConfirmed'
+        '422':
+          description: Object not found in GCS (upload may not have completed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              example:
+                error:
+                  code: validation_error
+                  message: object not found in storage
+
+  /media/{media_id}:
+    delete:
+      tags: [Media]
+      summary: Delete a media attachment
+      description: |
+        Deletes the media record and removes the object from GCS.
+        Only the owning user can delete their own media.
+        Returns `409` if the media is still referenced by a post.
+      operationId: deleteMedia
+      parameters:
+        - name: media_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Media deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Media not found or not owned by the authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '409':
+          description: Media is still referenced by a post and cannot be deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              example:
+                error:
+                  code: conflict
+                  message: media is still referenced by a post
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # COMPONENTS
@@ -422,7 +985,7 @@ paths:
 
 components:
 
-  # ── Security ──────────────────────────────────────────────────────────────
+  # ── Security ────────────────────────────────────────────────────────────────
 
   securitySchemes:
     bearerAuth:
@@ -430,51 +993,29 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: |
-        Pass a JWT obtained from the auth service.
-        Header format: `Authorization: Bearer <token>`
+        Pass a JWT access token obtained from `/v1/auth/login` or `/v1/auth/google/callback`.
+        Header format: `Authorization: Bearer <access_token>`
 
-  # ── Reusable parameters ───────────────────────────────────────────────────
+  # ── Reusable parameters ──────────────────────────────────────────────────
 
   parameters:
-    PostId:
-      name: post_id
-      in: path
-      required: true
-      schema:
-        type: string
-      description: Unique post identifier (e.g. `t1`)
-
-    SpaceSlug:
-      name: slug
-      in: path
-      required: true
-      schema:
-        type: string
-      description: Space URL slug (e.g. `jakartavibes`)
-
-    EventId:
-      name: event_id
-      in: path
-      required: true
-      schema:
-        type: string
-      description: Unique event identifier (e.g. `ev1`)
-
     Username:
       name: username
       in: path
       required: true
       schema:
         type: string
-      description: Username without `@` prefix (e.g. `sarahcodes`)
+        example: alice
+      description: Username without `@` prefix
 
-    ConversationId:
-      name: conversation_id
+    PostId:
+      name: post_id
       in: path
       required: true
       schema:
         type: string
-      description: Unique conversation identifier
+        format: uuid
+      description: Post UUID
 
     Cursor:
       name: cursor
@@ -483,558 +1024,134 @@ components:
       schema:
         type: string
       description: |
-        Pagination cursor — the `nextCursor` value from the previous response.
+        Pagination cursor — the `next_cursor` value from the previous response.
         Omit for the first page.
 
-  # ── Reusable responses ────────────────────────────────────────────────────
+  # ── Reusable responses ───────────────────────────────────────────────────
 
   responses:
+    BadRequest:
+      description: Malformed request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: bad_request
+              message: malformed request body
+
     Unauthorized:
       description: Missing or invalid Bearer token
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            missing:
+              summary: No token provided
+              value:
+                error:
+                  code: unauthorized
+                  message: authorization header is required
+            expired:
+              summary: Token expired
+              value:
+                error:
+                  code: token_expired
+                  message: access token has expired
+
+    Forbidden:
+      description: Authenticated but not allowed (e.g. not the author)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
           example:
             error:
-              code: UNAUTHORIZED
-              message: Authentication token is missing or invalid
+              code: forbidden
+              message: you are not allowed to perform this action
+
+    EmailNotConfirmed:
+      description: Email confirmation required for this action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: email_not_confirmed
+              message: please confirm your email address to continue
 
     NotFound:
       description: Resource not found
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorEnvelope'
           example:
             error:
-              code: NOT_FOUND
-              message: The requested resource was not found
+              code: not_found
+              message: resource not found
 
-  # ── Schemas ───────────────────────────────────────────────────────────────
+    Conflict:
+      description: Resource conflict (e.g. duplicate username or email)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: conflict
+              message: username already taken
+
+    ValidationError:
+      description: Request body failed validation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: validation_error
+              message: "password: must be at least 8 characters"
+
+    RateLimited:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: rate_limited
+              message: too many requests, please try again later
+
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: internal_error
+              message: an unexpected error occurred
+
+  # ── Schemas ─────────────────────────────────────────────────────────────
 
   schemas:
 
-    # ── Core entities ─────────────────────────────────────────────────────
+    # ── Envelopes ──────────────────────────────────────────────────────────
 
-    User:
+    DataEnvelope:
       type: object
-      required: [id, username, full_name, avatar_url, created_at]
+      required: [data]
       properties:
-        id:
-          type: string
-          example: u1
-        username:
-          type: string
-          example: sarahcodes
-        full_name:
-          type: string
-          example: Sarah Kusuma
-        avatar_url:
-          type: string
-          format: uri
-        bio:
-          type: string
-          nullable: true
-          example: Software engineer based in Jakarta
-        verified:
-          type: boolean
-          default: false
-        created_at:
-          type: string
-          format: date-time
+        data:
+          description: The response payload
 
-    UserProfile:
-      description: User with social stats — used in suggested users list
-      allOf:
-        - $ref: '#/components/schemas/User'
-        - type: object
-          required: [followers_count, following_count]
-          properties:
-            followers_count:
-              type: integer
-              example: 1500
-            following_count:
-              type: integer
-              example: 340
-            mutual_follower:
-              type: string
-              nullable: true
-              description: Username of a mutual follower, if any
-              example: marcusj
-
-    ProfileUser:
-      description: Full user profile — returned on profile page
-      allOf:
-        - $ref: '#/components/schemas/User'
-        - type: object
-          required: [stats, highlights]
-          properties:
-            category:
-              type: string
-              nullable: true
-              example: Software Engineer
-            website:
-              type: string
-              format: uri
-              nullable: true
-            is_following:
-              type: boolean
-              nullable: true
-              description: Whether the authenticated user follows this user
-            stats:
-              type: object
-              required: [posts, followers, following]
-              properties:
-                posts:
-                  type: integer
-                  example: 128
-                followers:
-                  type: integer
-                  example: 4200
-                following:
-                  type: integer
-                  example: 310
-            highlights:
-              type: array
-              items:
-                type: object
-                required: [id, title, cover_image]
-                properties:
-                  id:
-                    type: string
-                  title:
-                    type: string
-                  cover_image:
-                    type: string
-                    format: uri
-
-    Space:
-      type: object
-      required: [id, name, slug, description, avatar_url, banner_url, members_count, posts_count, created_at]
-      properties:
-        id:
-          type: string
-          example: sp1
-        name:
-          type: string
-          example: Jakarta Vibes
-        slug:
-          type: string
-          example: jakartavibes
-        description:
-          type: string
-          example: Komunitas diskusi seputar kehidupan di Jakarta
-        avatar_url:
-          type: string
-          format: uri
-        banner_url:
-          type: string
-          format: uri
-        members_count:
-          type: integer
-          example: 12500
-        posts_count:
-          type: integer
-          example: 3200
-        created_at:
-          type: string
-          format: date-time
-
-    Post:
-      type: object
-      required: [id, content, user_id, user, created_at, likes_count, comments_count, reposts_count, views_count]
-      properties:
-        id:
-          type: string
-          example: t1
-        content:
-          type: string
-          example: Cuaca Jakarta hari ini bikin males keluar rumah 😅
-        image_urls:
-          type: array
-          items:
-            type: string
-            format: uri
-          nullable: true
-          description: Optional attached images (max 4)
-        user_id:
-          type: string
-        user:
-          $ref: '#/components/schemas/User'
-        created_at:
-          type: string
-          format: date-time
-        likes_count:
-          type: integer
-          example: 247
-        comments_count:
-          type: integer
-          example: 38
-        reposts_count:
-          type: integer
-          example: 12
-        views_count:
-          type: integer
-          example: 4100
-        repliers_avatars:
-          type: array
-          items:
-            type: string
-            format: uri
-          nullable: true
-          description: Avatars of recent commenters (for preview display)
-        space:
-          allOf:
-            - $ref: '#/components/schemas/Space'
-          nullable: true
-          description: Space this post belongs to, if any
-        is_anonymous:
-          type: boolean
-          nullable: true
-          default: false
-        repost:
-          allOf:
-            - $ref: '#/components/schemas/Post'
-          nullable: true
-          description: The original post, if this is a repost
-
-    PostComment:
-      type: object
-      required: [id, post_id, user, content, created_at, likes_count]
-      properties:
-        id:
-          type: string
-        post_id:
-          type: string
-        user:
-          $ref: '#/components/schemas/User'
-        content:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        likes_count:
-          type: integer
-          example: 5
-        replies:
-          type: array
-          items:
-            $ref: '#/components/schemas/PostComment'
-          description: Nested replies — one level deep only
-
-    SpaceEvent:
-      type: object
-      required: [id, space_id, title, description, banner_url, created_by, schedule, location, cta, attendees_count, status, created_at]
-      properties:
-        id:
-          type: string
-          example: ev1
-        space_id:
-          type: string
-        title:
-          type: string
-          example: Jakarta Tech Meetup Q2
-        description:
-          type: string
-        banner_url:
-          type: string
-          format: uri
-        created_by:
-          $ref: '#/components/schemas/User'
-        schedule:
-          type: object
-          required: [date, time, timezone]
-          properties:
-            date:
-              type: string
-              format: date
-              example: "2025-04-20"
-            time:
-              type: string
-              example: "19:00"
-            timezone:
-              type: string
-              example: WIB
-        location:
-          type: object
-          required: [type]
-          properties:
-            type:
-              type: string
-              enum: [online, offline, hybrid]
-            venue:
-              type: string
-              nullable: true
-              description: Venue name for offline/hybrid events
-            platform:
-              type: string
-              nullable: true
-              example: Zoom
-              description: Platform name for online/hybrid events
-            address:
-              type: string
-              nullable: true
-        cta:
-          type: object
-          required: [type, label]
-          properties:
-            type:
-              type: string
-              enum: [register, url, custom]
-            label:
-              type: string
-              example: Daftar Sekarang
-            url:
-              type: string
-              format: uri
-              nullable: true
-        attendees_count:
-          type: integer
-          example: 87
-        max_attendees:
-          type: integer
-          nullable: true
-          example: 150
-        status:
-          type: string
-          enum: [upcoming, past]
-        created_at:
-          type: string
-          format: date-time
-
-    Video:
-      type: object
-      required: [id, title, thumbnail_url, video_url, duration, views_count, user_id, user, created_at, category]
-      properties:
-        id:
-          type: string
-        title:
-          type: string
-        description:
-          type: string
-          nullable: true
-        thumbnail_url:
-          type: string
-          format: uri
-        video_url:
-          type: string
-          format: uri
-        duration:
-          type: string
-          description: Duration formatted as `MM:SS`
-          example: "3:42"
-        views_count:
-          type: integer
-          example: 18400
-        user_id:
-          type: string
-        user:
-          $ref: '#/components/schemas/User'
-        created_at:
-          type: string
-          format: date-time
-        category:
-          type: string
-          enum: [For You, Following, Popular, Featured, Live, Continue Watching, Watch Later]
-
-    Activity:
-      type: object
-      required: [id, type, user, timestamp, read]
-      properties:
-        id:
-          type: string
-        type:
-          type: string
-          enum: [follow, mention, like, comment, system]
-        user:
-          type: object
-          required: [username, avatar_url]
-          properties:
-            username:
-              type: string
-            avatar_url:
-              type: string
-              format: uri
-            verified:
-              type: boolean
-        content:
-          type: string
-          nullable: true
-          description: Contextual text for the activity
-        post:
-          type: object
-          nullable: true
-          description: Related post, if the activity is post-level
-          properties:
-            id:
-              type: string
-            content:
-              type: string
-            image_url:
-              type: string
-              format: uri
-              nullable: true
-        timestamp:
-          type: string
-          format: date-time
-        read:
-          type: boolean
-
-    Conversation:
-      type: object
-      required: [id, user, last_message, last_message_by, timestamp, unread]
-      properties:
-        id:
-          type: string
-        user:
-          type: object
-          required: [name, username, avatar_url]
-          description: The other participant in the conversation
-          properties:
-            name:
-              type: string
-            username:
-              type: string
-            avatar_url:
-              type: string
-              format: uri
-        last_message:
-          type: string
-        last_message_by:
-          type: string
-          enum: [me, them]
-        timestamp:
-          type: string
-          format: date-time
-        unread:
-          type: boolean
-
-    Message:
-      type: object
-      required: [id, conversation_id, sender, content, timestamp, type]
-      properties:
-        id:
-          type: string
-        conversation_id:
-          type: string
-        sender:
-          type: string
-          enum: [me, them]
-        content:
-          type: string
-        timestamp:
-          type: string
-          format: date-time
-        type:
-          type: string
-          enum: [text, image]
-        image_url:
-          type: string
-          format: uri
-          nullable: true
-
-    TrendingHashtag:
-      type: object
-      required: [tag, posts_count]
-      properties:
-        tag:
-          type: string
-          example: "#JakartaVibes"
-        posts_count:
-          type: integer
-          example: 4200
-
-    TrendingTopic:
-      type: object
-      required: [label, category, posts_count]
-      properties:
-        label:
-          type: string
-          example: Politik Indonesia
-        category:
-          type: string
-          example: Politik
-        posts_count:
-          type: integer
-          example: 12800
-
-    DiscoverFeed:
-      type: object
-      required: [trending_hashtags, trending_topics, posts, categories]
-      description: Aggregated discovery feed — all data for the Discover page in one request
-      properties:
-        trending_hashtags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TrendingHashtag'
-        trending_topics:
-          type: array
-          items:
-            $ref: '#/components/schemas/TrendingTopic'
-        posts:
-          type: array
-          items:
-            $ref: '#/components/schemas/Post'
-          description: Featured/trending posts for display cards
-        categories:
-          type: array
-          description: Content categories for browsing
-          items:
-            type: object
-            required: [id, name, thumbnail_url]
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              thumbnail_url:
-                type: string
-                format: uri
-
-    # ── Pagination wrappers ───────────────────────────────────────────────
-
-    PostFeedPage:
-      type: object
-      required: [items, nextCursor]
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Post'
-        nextCursor:
-          type: string
-          nullable: true
-          description: Pass as `cursor` in the next request. `null` means no more pages.
-
-    VideoFeedPage:
-      type: object
-      required: [items, nextCursor]
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Video'
-        nextCursor:
-          type: string
-          nullable: true
-
-    MessageFeedPage:
-      type: object
-      required: [items, nextCursor]
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Message'
-        nextCursor:
-          type: string
-          nullable: true
-          description: Cursor for loading older messages
-
-    # ── Error ─────────────────────────────────────────────────────────────
-
-    ErrorResponse:
+    ErrorEnvelope:
       type: object
       required: [error]
       properties:
@@ -1045,8 +1162,563 @@ components:
             code:
               type: string
               description: Machine-readable error code
-              example: NOT_FOUND
+              enum:
+                - bad_request
+                - unauthorized
+                - token_expired
+                - forbidden
+                - email_not_confirmed
+                - not_found
+                - conflict
+                - gone
+                - validation_error
+                - rate_limited
+                - internal_error
+              example: not_found
             message:
               type: string
               description: Human-readable description
-              example: The requested resource was not found
+              example: resource not found
+
+    TokenPairEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/TokenPair'
+
+    # ── Auth ───────────────────────────────────────────────────────────────
+
+    RegisterRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          pattern: '^[a-zA-Z0-9]+$'
+          description: Alphanumeric only, no spaces or special characters
+          example: alice
+        email:
+          type: string
+          format: email
+          example: alice@example.com
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+          format: password
+          example: hunter22!
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    TokenPair:
+      type: object
+      required: [access_token, refresh_token, expires_in]
+      properties:
+        access_token:
+          type: string
+          description: JWT access token — valid for 15 minutes
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refresh_token:
+          type: string
+          description: Opaque refresh token — long-lived, single-use rotation
+          example: 7f3d9b2a-1e4c-4a5b-8f6e-2d1c0b9a8e7f
+        expires_in:
+          type: integer
+          description: Access token TTL in seconds
+          example: 900
+
+    RegisterResponse:
+      type: object
+      required: [id, username, email, display_name, is_email_confirmed, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          example: alice
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+          example: alice
+        is_email_confirmed:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+
+    # ── User ───────────────────────────────────────────────────────────────
+
+    UserSummary:
+      description: Minimal user representation used in lists and search results
+      type: object
+      required: [id, username, display_name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          example: alice
+        display_name:
+          type: string
+          example: Alice Wonderland
+        avatar_url:
+          type: string
+          format: uri
+          nullable: true
+          description: Public GCS URL or null if no avatar set
+          example: https://storage.googleapis.com/jends-media/avatars/alice.jpg
+
+    MyProfile:
+      description: Full profile of the authenticated user
+      type: object
+      required:
+        - id
+        - username
+        - email
+        - display_name
+        - is_email_confirmed
+        - follower_count
+        - following_count
+        - post_count
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          example: alice
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+          example: Alice Wonderland
+        bio:
+          type: string
+          nullable: true
+          maxLength: 160
+          example: Software engineer based in Jakarta
+        website_url:
+          type: string
+          format: uri
+          nullable: true
+          example: https://alice.dev
+        avatar_url:
+          type: string
+          format: uri
+          nullable: true
+        cover_url:
+          type: string
+          format: uri
+          nullable: true
+        is_email_confirmed:
+          type: boolean
+        follower_count:
+          type: integer
+          example: 1500
+        following_count:
+          type: integer
+          example: 340
+        post_count:
+          type: integer
+          example: 42
+        created_at:
+          type: string
+          format: date-time
+
+    PublicProfile:
+      description: |
+        Public profile returned by `GET /v1/users/:username`.
+        Relationship fields are only present when the request is authenticated.
+      type: object
+      required:
+        - id
+        - username
+        - display_name
+        - follower_count
+        - following_count
+        - post_count
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          example: alice
+        display_name:
+          type: string
+          example: Alice Wonderland
+        bio:
+          type: string
+          nullable: true
+        website_url:
+          type: string
+          format: uri
+          nullable: true
+        avatar_url:
+          type: string
+          format: uri
+          nullable: true
+        cover_url:
+          type: string
+          format: uri
+          nullable: true
+        follower_count:
+          type: integer
+          example: 1500
+        following_count:
+          type: integer
+          example: 340
+        post_count:
+          type: integer
+          example: 42
+        is_following:
+          type: boolean
+          nullable: true
+          description: |
+            `true` if the authenticated user follows this user.
+            `null` when the request is unauthenticated.
+        is_blocking:
+          type: boolean
+          nullable: true
+          description: |
+            `true` if the authenticated user is blocking this user.
+            `null` when unauthenticated.
+        is_blocked_by:
+          type: boolean
+          nullable: true
+          description: |
+            `true` if this user is blocking the authenticated user.
+            `null` when unauthenticated.
+            Note: if `true`, the profile still loads but `is_blocked_by` signals
+            that the authenticated user is invisible to them.
+        created_at:
+          type: string
+          format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      description: All fields are optional — send only the fields you want to update
+      properties:
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: Alice Wonderland
+        bio:
+          type: string
+          maxLength: 160
+          example: Software engineer based in Jakarta
+        website_url:
+          type: string
+          format: uri
+          example: https://alice.dev
+        avatar_media_id:
+          type: string
+          format: uuid
+          description: |
+            UUID of a confirmed `avatar` media attachment.
+            Complete the media upload flow first to get this ID.
+        cover_media_id:
+          type: string
+          format: uuid
+          description: |
+            UUID of a confirmed `cover_photo` media attachment.
+            Complete the media upload flow first to get this ID.
+
+    FollowListItem:
+      type: object
+      required: [id, username, display_name, followed_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          example: alice
+        display_name:
+          type: string
+          example: Alice Wonderland
+        avatar_url:
+          type: string
+          format: uri
+          nullable: true
+        followed_at:
+          type: string
+          format: date-time
+          description: When the follow/block relationship was created
+
+    FollowListPage:
+      type: object
+      required: [results]
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/FollowListItem'
+        next_cursor:
+          type: string
+          nullable: true
+          description: Timestamp cursor for the next page. `null` = no more pages.
+
+    # ── Post ───────────────────────────────────────────────────────────────
+
+    CreatePostRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          maxLength: 500
+          description: Post text. Hashtags (#tag) and @mentions are parsed automatically.
+          example: Hello from Jends! #launch @alice
+        media_ids:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+            format: uuid
+          description: |
+            UUIDs of confirmed media attachments (from `POST /v1/media/confirm`).
+            All media must be of context `post_image`.
+          example:
+            - 550e8400-e29b-41d4-a716-446655440000
+        is_anonymous:
+          type: boolean
+          default: false
+          description: |
+            When `true`, the `author` field in the response is `null`.
+            The server still records the author internally.
+
+    Post:
+      type: object
+      required:
+        - id
+        - content
+        - media_urls
+        - entities
+        - like_count
+        - comment_count
+        - repost_count
+        - save_count
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        author:
+          allOf:
+            - $ref: '#/components/schemas/UserSummary'
+          type: object
+          nullable: true
+          description: '`null` for anonymous posts'
+        content:
+          type: string
+          nullable: true
+          description: '`null` for deleted (tombstone) posts'
+        media_urls:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Public GCS URLs of attached images/videos
+          example:
+            - https://storage.googleapis.com/jends-media/posts/abc123.jpg
+        entities:
+          $ref: '#/components/schemas/PostEntities'
+        like_count:
+          type: integer
+          example: 42
+        comment_count:
+          type: integer
+          example: 7
+        repost_count:
+          type: integer
+          example: 3
+        save_count:
+          type: integer
+          example: 12
+        is_liked:
+          type: boolean
+          nullable: true
+          description: Whether the authenticated user liked this post. `null` when unauthenticated.
+        is_saved:
+          type: boolean
+          nullable: true
+          description: Whether the authenticated user saved this post. `null` when unauthenticated.
+        is_reposted:
+          type: boolean
+          nullable: true
+          description: Whether the authenticated user reposted this post. `null` when unauthenticated.
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Set when the post was soft-deleted (tombstone). All other fields become null.
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    PostEntities:
+      description: Parsed entities found in the post content
+      type: object
+      required: [mentions, hashtags, urls]
+      properties:
+        mentions:
+          type: array
+          items:
+            $ref: '#/components/schemas/MentionEntity'
+        hashtags:
+          type: array
+          items:
+            $ref: '#/components/schemas/HashtagEntity'
+        urls:
+          type: array
+          items:
+            $ref: '#/components/schemas/UrlEntity'
+
+    MentionEntity:
+      type: object
+      required: [username, offset, length]
+      properties:
+        username:
+          type: string
+          example: alice
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Resolved user UUID, or `null` if the username does not exist
+        offset:
+          type: integer
+          description: Character offset in `content`
+          example: 18
+        length:
+          type: integer
+          description: Length of the mention text including `@`
+          example: 6
+
+    HashtagEntity:
+      type: object
+      required: [tag, offset, length]
+      properties:
+        tag:
+          type: string
+          description: Hashtag without the `#` prefix
+          example: launch
+        offset:
+          type: integer
+          example: 11
+        length:
+          type: integer
+          example: 7
+
+    UrlEntity:
+      type: object
+      required: [url, offset, length]
+      properties:
+        url:
+          type: string
+          format: uri
+          example: https://jends.app
+        offset:
+          type: integer
+        length:
+          type: integer
+
+    PostListPage:
+      type: object
+      required: [results]
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+        next_cursor:
+          type: string
+          nullable: true
+          description: Timestamp cursor for the next page. `null` = no more pages.
+
+    # ── Media ──────────────────────────────────────────────────────────────
+
+    UploadURLRequest:
+      type: object
+      required: [context, mime_type, size_bytes]
+      properties:
+        context:
+          type: string
+          enum: [post_image, avatar, cover_photo, story]
+          description: |
+            Where the media will be used. Determines the GCS key prefix and
+            which fields accept this `media_id`:
+            - `post_image` → accepted by `POST /v1/posts` (`media_ids`)
+            - `avatar` → accepted by `PATCH /v1/users/me` (`avatar_media_id`)
+            - `cover_photo` → accepted by `PATCH /v1/users/me` (`cover_media_id`)
+            - `story` → reserved for future use
+          example: post_image
+        mime_type:
+          type: string
+          enum: [image/jpeg, image/png, image/webp, image/gif, video/mp4]
+          example: image/jpeg
+        size_bytes:
+          type: integer
+          minimum: 1
+          maximum: 10485760
+          description: File size in bytes (max 10 MB)
+          example: 2097152
+
+    UploadURLResponse:
+      type: object
+      required: [media_id, upload_url]
+      properties:
+        media_id:
+          type: string
+          format: uuid
+          description: Use this ID in the confirm step and in post/profile requests
+        upload_url:
+          type: string
+          format: uri
+          description: |
+            GCS V4 signed PUT URL. Valid for 15 minutes.
+
+            **PUT requirements:**
+            - Method: `PUT`
+            - `Content-Type` header must exactly match the `mime_type` you requested
+            - No extra headers (signed URL is sensitive to headers)
+          example: https://storage.googleapis.com/jends-media/posts/abc123.jpg?X-Goog-Signature=...
+
+    ConfirmUploadResponse:
+      type: object
+      required: [media_id, public_url]
+      properties:
+        media_id:
+          type: string
+          format: uuid
+        public_url:
+          type: string
+          format: uri
+          description: Permanent public GCS URL for the uploaded object
+          example: https://storage.googleapis.com/jends-media/posts/abc123.jpg
