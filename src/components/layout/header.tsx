@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ClapperboardPlay, Home, Plain, Settings, Logout, PenNewSquare } from "@solar-icons/react";
+import { ClapperboardPlay, Home, Plain, Settings, Logout, PenNewSquare, VideoLibrary, PlayStream, Tv } from "@solar-icons/react";
 import { NotificationPopup } from './notification-popup';
 import { SearchOverlay } from './search-overlay';
 import { Search, Moon, Sun, Monitor } from 'lucide-react';
@@ -35,7 +35,8 @@ export function Header() {
             <SearchOverlay />
           </Suspense>
           <Link href="/videos">
-            <NavButton icon={ClapperboardPlay} label="Reels" active={pathname === '/videos'} iconType="solar" />
+            {/* <NavButton icon={ClapperboardPlay} label="Reels" active={pathname === '/videos'} iconType="solar" /> */}
+            <NavButton icon={Tv} label="Reels" active={pathname === '/videos'} iconType="solar" />
           </Link>
           <Link href="/messages">
             <NavButton icon={Plain} label="Messages" active={pathname === '/messages'} iconType="solar" />
