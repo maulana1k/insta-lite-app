@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/test-results
+test-sprint1.mjs
 
 # next.js
 /.next/
