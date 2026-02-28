@@ -31,7 +31,7 @@ export function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) 
   );
 }
 
-// Flat section container — bold header, dividers between rows, no card background
+// Section container — bold header above a bordered rounded card
 export function SettingsGroup({
   children,
   header,
@@ -50,10 +50,9 @@ export function SettingsGroup({
       {header && (
         <h3 className="text-[17px] font-bold">{header}</h3>
       )}
-      <div>
+      <div className="rounded-2xl border border-border overflow-hidden divide-y divide-border">
         {items.map((item, index) => (
           <React.Fragment key={index}>
-            {index > 0 && <div className="h-px bg-border/50" />}
             {item}
           </React.Fragment>
         ))}
@@ -65,7 +64,7 @@ export function SettingsGroup({
   );
 }
 
-// Single flat row inside a group
+// Single row inside a group
 export function SettingsRow({
   label,
   value,
@@ -80,7 +79,7 @@ export function SettingsRow({
   children?: React.ReactNode;
 }) {
   const content = (
-    <div className="flex items-center justify-between py-3.5 gap-4">
+    <div className="flex items-center justify-between px-4 py-3.5 gap-4">
       <span className={cn('text-[15px]', danger ? 'text-red-500' : 'text-foreground')}>
         {label}
       </span>
@@ -130,7 +129,7 @@ export function EditRow({
     <div>
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between py-3.5 hover:bg-muted/30 dark:hover:bg-white/[0.03] transition-colors text-left"
+        className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/30 dark:hover:bg-white/[0.03] transition-colors text-left"
       >
         <span className="text-[15px] text-foreground">{label}</span>
         <div className="flex items-center gap-1.5">
@@ -153,7 +152,7 @@ export function EditRow({
             transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
             className="overflow-hidden"
           >
-            <div className="pt-1 pb-4 space-y-2.5 border-t border-border/40">
+            <div className="px-4 pt-1 pb-4 space-y-2.5 border-t border-border/40">
               {children(() => setOpen(false))}
             </div>
           </motion.div>

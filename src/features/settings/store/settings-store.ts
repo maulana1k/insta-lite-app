@@ -5,8 +5,10 @@ interface ProfileSettings {
   username: string;
   bio: string;
   website: string;
+  instagram: string;
   twitter: string;
-  github: string;
+  youtube: string;
+  tiktok: string;
   linkedin: string;
 }
 
@@ -55,8 +57,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     username: 'jackharding',
     bio: 'Travel, Adventure & Lifestyle Photographer\nSony Imaging Ambassador',
     website: 'jackharding.photo',
+    instagram: 'jackharding',
     twitter: 'jackharding',
-    github: '',
+    youtube: '',
+    tiktok: '',
     linkedin: 'jackharding',
   },
   privacy: {

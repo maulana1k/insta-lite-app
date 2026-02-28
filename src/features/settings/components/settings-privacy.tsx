@@ -1,12 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Check } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { SettingsGroup, SettingsRow, Toggle, EditRow } from './settings-ui';
+import { cn } from '@/lib/utils';
 import { useSettingsStore } from '../store/settings-store';
 import { BLOCKED_USERS, MUTED_USERS } from '../api/mock-data';
-import { cn } from '@/lib/utils';
 
 const WHO_CAN_MESSAGE_OPTIONS = [
   { value: 'everyone', label: 'Semua Orang' },
@@ -26,13 +25,6 @@ export function SettingsPrivacy() {
   const [mutedUsers, setMutedUsers] = useState(MUTED_USERS);
   const [whoCanTag, setWhoCanTag] = useState<'everyone' | 'followers' | 'nobody'>('everyone');
 
-  const whoCanMessageLabel = WHO_CAN_MESSAGE_OPTIONS.find(
-    (o) => o.value === privacy.whoCanMessage
-  )?.label ?? 'Semua Orang';
-
-  const whoCanTagLabel = WHO_CAN_TAG_OPTIONS.find(
-    (o) => o.value === whoCanTag
-  )?.label ?? 'Semua Orang';
 
   return (
     <div className="space-y-8">
@@ -41,64 +33,76 @@ export function SettingsPrivacy() {
         header="Visibilitas"
         footer="Saat akun privat, hanya pengikut yang disetujui yang bisa melihat postingan Anda."
       >
-        <div className="flex items-center justify-between h-11 px-4">
-          <span className="text-[15px]">Akun Privat</span>
+        <SettingsRow label="Akun Privat">
           <Toggle
             on={privacy.privateAccount}
             onToggle={() => updatePrivacy({ privateAccount: !privacy.privateAccount })}
           />
-        </div>
-        <div className="flex items-center justify-between h-11 px-4">
-          <span className="text-[15px]">Tampilkan Status Aktif</span>
-          <Toggle on={true} onToggle={() => {}} />
-        </div>
+        </SettingsRow>
+        <SettingsRow label="Tampilkan Status Aktif">
+          <Toggle on={true} onToggle={() => { }} />
+        </SettingsRow>
       </SettingsGroup>
 
-      <SettingsGroup header="Interaksi">
-        <EditRow label="Siapa yang Bisa Mengirim Pesan" value={whoCanMessageLabel}>
-          {(onClose) => (
-            <div className="space-y-0.5 rounded-xl overflow-hidden bg-background border border-border/60">
-              {WHO_CAN_MESSAGE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => {
-                    updatePrivacy({ whoCanMessage: opt.value });
-                    onClose();
-                  }}
-                  className="w-full flex items-center justify-between h-11 px-4 hover:bg-muted/50 transition-colors"
+      <div className="space-y-2">
+        <h3 className="text-[17px] font-bold">Interaksi</h3>
+
+        {/* Who can message */}
+        <div className="space-y-1.5">
+          <p className="text-[13px] text-muted-foreground px-0.5">Siapa yang Bisa Mengirim Pesan</p>
+          <div className="rounded-2xl border border-border overflow-hidden divide-y divide-border">
+            {WHO_CAN_MESSAGE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => updatePrivacy({ whoCanMessage: opt.value })}
+                className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/30 dark:hover:bg-white/[0.03] transition-colors text-left"
+              >
+                <span className="text-[15px]">{opt.label}</span>
+                <span
+                  className={cn(
+                    'size-4 rounded-full border-2 transition-all flex items-center justify-center shrink-0',
+                    privacy.whoCanMessage === opt.value
+                      ? 'border-foreground bg-foreground'
+                      : 'border-border'
+                  )}
                 >
-                  <span className="text-[14px]">{opt.label}</span>
                   {privacy.whoCanMessage === opt.value && (
-                    <Check className="size-4 text-[#007AFF]" />
+                    <span className="size-1.5 rounded-full bg-background block" />
                   )}
-                </button>
-              ))}
-            </div>
-          )}
-        </EditRow>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
 
-        <EditRow label="Siapa yang Bisa Menandai Anda" value={whoCanTagLabel}>
-          {(onClose) => (
-            <div className="space-y-0.5 rounded-xl overflow-hidden bg-background border border-border/60">
-              {WHO_CAN_TAG_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => {
-                    setWhoCanTag(opt.value);
-                    onClose();
-                  }}
-                  className="w-full flex items-center justify-between h-11 px-4 hover:bg-muted/50 transition-colors"
-                >
-                  <span className="text-[14px]">{opt.label}</span>
-                  {whoCanTag === opt.value && (
-                    <Check className="size-4 text-[#007AFF]" />
+        {/* Who can tag */}
+        <div className="space-y-1.5 pt-2">
+          <p className="text-[13px] text-muted-foreground px-0.5">Siapa yang Bisa Menandai Anda</p>
+          <div className="rounded-2xl border border-border overflow-hidden divide-y divide-border">
+            {WHO_CAN_TAG_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setWhoCanTag(opt.value)}
+                className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/30 dark:hover:bg-white/[0.03] transition-colors text-left"
+              >
+                <span className="text-[15px]">{opt.label}</span>
+                <span
+                  className={cn(
+                    'size-4 rounded-full border-2 transition-all flex items-center justify-center shrink-0',
+                    whoCanTag === opt.value
+                      ? 'border-foreground bg-foreground'
+                      : 'border-border'
                   )}
-                </button>
-              ))}
-            </div>
-          )}
-        </EditRow>
-      </SettingsGroup>
+                >
+                  {whoCanTag === opt.value && (
+                    <span className="size-1.5 rounded-full bg-background block" />
+                  )}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <SettingsGroup header="Orang">
         <EditRow

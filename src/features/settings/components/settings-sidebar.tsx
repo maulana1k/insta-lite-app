@@ -1,6 +1,6 @@
 'use client';
 
-import { User, ShieldKeyhole, Bell, Palette, Database } from '@solar-icons/react';
+import { User, ShieldKeyhole, Bell, Palette, Database, ChartSquare } from '@solar-icons/react';
 
 interface SettingSection {
   id: string;
@@ -14,6 +14,7 @@ const SECTIONS: SettingSection[] = [
   { id: 'notifications', label: 'Notifikasi', icon: Bell },
   { id: 'appearance', label: 'Tampilan', icon: Palette },
   { id: 'data', label: 'Data', icon: Database },
+  { id: 'insight', label: 'Insight', icon: ChartSquare },
 ];
 
 interface SettingsSidebarProps {
