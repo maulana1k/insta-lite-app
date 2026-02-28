@@ -303,7 +303,7 @@ export function AuthPage() {
                 className={cn(
                   'w-full rounded-2xl border border-border bg-transparent px-4 py-3 text-[14px]',
                   'placeholder:text-muted-foreground/40',
-                  'outline-none focus:ring-2 focus:ring-foreground/15 focus:border-foreground/25',
+                  'outline-none focus:ring-2 focus:ring-foreground focus:border-foreground/25',
                   'transition',
                 )}
               />
@@ -313,7 +313,7 @@ export function AuthPage() {
                 onClick={handleContinue}
                 disabled={!email.trim()}
                 className={cn(
-                  'w-full flex items-center justify-center gap-2 rounded-2xl py-[11px] text-[14px] font-semibold',
+                  'w-full flex items-center justify-center gap-2 rounded-2xl py-[11px] text-[14px] font-semibold transition transition-all duration-150',
                   'transition-all duration-150 active:scale-[0.97]',
                   email.trim()
                     ? 'bg-foreground text-background hover:opacity-85'
