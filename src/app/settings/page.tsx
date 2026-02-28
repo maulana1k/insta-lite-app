@@ -8,6 +8,7 @@ import { SettingsPrivacy } from '@/features/settings/components/settings-privacy
 import { SettingsNotifications } from '@/features/settings/components/settings-notifications';
 import { SettingsAppearance } from '@/features/settings/components/settings-appearance';
 import { SettingsData } from '@/features/settings/components/settings-data';
+import { SettingsInsight } from '@/features/settings/components/settings-insight';
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState('account');
@@ -19,6 +20,7 @@ export default function SettingsPage() {
       case 'notifications': return <SettingsNotifications />;
       case 'appearance': return <SettingsAppearance />;
       case 'data': return <SettingsData />;
+      case 'insight': return <SettingsInsight />;
       default: return <SettingsAccount />;
     }
   };
