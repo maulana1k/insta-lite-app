@@ -13,10 +13,11 @@ import {
   InputGroupText,
 } from "@/components/ui/input-group";
 import { Textarea } from "@/components/ui/textarea";
-import { CURRENT_USER } from "../api/mock-data";
+import { useAuthStore } from "@/features/auth/store/auth-store";
 import { useSettingsStore } from "../store/settings-store";
 
 export function SettingsProfile() {
+  const { currentUser } = useAuthStore();
   const { profile, updateProfile } = useSettingsStore();
   const [formData, setFormData] = useState({
     ...profile,
@@ -46,12 +47,12 @@ export function SettingsProfile() {
             <div className="relative group cursor-pointer">
               <Avatar className="size-14 border-2 border-border shadow-sm">
                 <AvatarImage
-                  src={CURRENT_USER.avatar_url}
-                  alt={CURRENT_USER.full_name}
+                  src={currentUser?.avatar_url ?? undefined}
+                  alt={currentUser?.display_name ?? ""}
                   className="object-cover"
                 />
                 <AvatarFallback className="text-sm">
-                  {CURRENT_USER.full_name.slice(0, 2).toUpperCase()}
+                  {(currentUser?.display_name ?? "?").slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -151,9 +152,9 @@ export function SettingsProfile() {
               </InputGroupAddon>
               <InputGroupInput
                 className="h-8 text-[13px]"
-                value={formData.twitter}
+                value={formData.instagram}
                 onChange={(e) =>
-                  setFormData({ ...formData, twitter: e.target.value })
+                  setFormData({ ...formData, instagram: e.target.value })
                 }
                 placeholder="username"
               />
@@ -191,9 +192,9 @@ export function SettingsProfile() {
               </InputGroupAddon>
               <InputGroupInput
                 className="h-8 text-[13px]"
-                value={formData.github}
+                value={formData.youtube}
                 onChange={(e) =>
-                  setFormData({ ...formData, github: e.target.value })
+                  setFormData({ ...formData, youtube: e.target.value })
                 }
                 placeholder="username"
               />
@@ -212,9 +213,9 @@ export function SettingsProfile() {
               </InputGroupAddon>
               <InputGroupInput
                 className="h-8 text-[13px]"
-                value={formData.github}
+                value={formData.tiktok}
                 onChange={(e) =>
-                  setFormData({ ...formData, github: e.target.value })
+                  setFormData({ ...formData, tiktok: e.target.value })
                 }
                 placeholder="username"
               />

@@ -1,18 +1,20 @@
 "use client";
 
 import { CloudUpload, Pen, UserCheck } from "@solar-icons/react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowUp,
   AtSign,
   Check,
+  CheckCircle2,
   Globe,
   KeyRound,
   Lock,
+  Loader2,
   MoreHorizontal,
   Plus,
   ShieldCheck,
 } from "lucide-react";
-import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +32,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { CURRENT_USER } from "../api/mock-data";
+import { useAuthStore } from "@/features/auth/store/auth-store";
+import { useMyProfile, useUpdateProfile, useUploadAvatar } from "@/features/users/hooks/use-users";
+import { ApiError } from "@/lib/api-client";
 import { useSettingsStore } from "../store/settings-store";
 import { Toggle } from "./settings-ui";
 
@@ -84,14 +88,49 @@ function SecurityRow({
 }
 
 export function SettingsAccount() {
-  const { profile, updateProfile } = useSettingsStore();
+  const { currentUser } = useAuthStore();
+  const { profile } = useSettingsStore();
+  const { data: myProfile } = useMyProfile();
+  const {
+    mutate: saveProfile,
+    isPending: isSaving,
+    isSuccess: isSaved,
+    error: saveError,
+  } = useUpdateProfile();
+  const {
+    mutate: uploadAvatar,
+    isPending: isUploadingAvatar,
+  } = useUploadAvatar();
 
+  // Seed from currentUser on first mount (fast — already in store after login)
   const [nameForm, setNameForm] = useState({
-    displayName: profile.displayName.trim() ?? "Jack Harding",
+    displayName: currentUser?.display_name ?? profile.displayName.trim(),
   });
-  const [username, setUsername] = useState(profile.username);
+  const [username, setUsername] = useState(
+    currentUser?.username ?? profile.username,
+  );
+  // bio and website_url are not in CurrentUser — seed from API once loaded
   const [bio, setBio] = useState(profile.bio);
   const [website, setWebsite] = useState(profile.website);
+  // Local avatar preview (before upload completes)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync bio / website when full profile arrives from the API
+  useEffect(() => {
+    if (myProfile) {
+      setBio(myProfile.bio ?? "");
+      setWebsite(myProfile.website_url ?? "");
+    }
+  }, [myProfile]);
+
+  // Seed display name from API (in case currentUser store is stale)
+  useEffect(() => {
+    if (myProfile) {
+      setNameForm({ displayName: myProfile.display_name });
+      setUsername(myProfile.username);
+    }
+  }, [myProfile]);
 
   const [phone, setPhone] = useState("+62 812 3456 7890");
   const [passwords, setPasswords] = useState({
@@ -106,12 +145,34 @@ export function SettingsAccount() {
     passwords.new.length >= 8 &&
     passwords.new === passwords.confirm;
 
+  const saveErrorMessage =
+    saveError instanceof ApiError ? saveError.message : null;
+
+  // Detect if any profile field differs from what came from the API
+  const savedDisplayName = myProfile?.display_name ?? currentUser?.display_name ?? "";
+  const savedBio = myProfile?.bio ?? "";
+  const savedWebsite = myProfile?.website_url ?? "";
+  const hasChanges =
+    nameForm.displayName.trim() !== savedDisplayName ||
+    bio !== savedBio ||
+    website !== savedWebsite;
+
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Show local preview immediately
+    setAvatarPreview(URL.createObjectURL(file));
+    // Upload in background
+    uploadAvatar(file, {
+      onError: () => setAvatarPreview(null),
+    });
+  }
+
   function handleSaveProfile() {
-    updateProfile({
-      displayName: nameForm.displayName.trim(),
-      username,
-      bio,
-      website,
+    saveProfile({
+      display_name: nameForm.displayName.trim() || undefined,
+      bio: bio || undefined,
+      website_url: website || undefined,
     });
   }
 
@@ -206,31 +267,61 @@ export function SettingsAccount() {
           </div>
           {/* Avatar */}
           <div className="shrink-0 flex flex-col items-start gap-2 pt-5">
-            <label className="relative cursor-pointer group">
-              <input type="file" accept="image/*" className="sr-only" />
+            <label className="relative cursor-pointer group" onClick={() => fileInputRef.current?.click()}>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={handleAvatarChange}
+              />
               <Avatar className="size-40">
                 <AvatarImage
-                  src={CURRENT_USER.avatar_url}
-                  alt={CURRENT_USER.full_name}
+                  src={avatarPreview ?? currentUser?.avatar_url ?? undefined}
+                  alt={currentUser?.display_name ?? ""}
                 />
                 <AvatarFallback className="text-2xl font-semibold">
-                  {CURRENT_USER.full_name.slice(0, 2).toUpperCase()}
+                  {(currentUser?.display_name ?? "?").slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="absolute bottom-1 right-1 size-9 rounded-full bg-foreground outline-3 outline-background flex items-center justify-center">
-                <Pen weight="Bold" className="size-4 text-background" />
-              </div>
+              {isUploadingAvatar ? (
+                <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
+                  <Loader2 className="size-6 text-white animate-spin" />
+                </div>
+              ) : (
+                <div className="absolute bottom-1 right-1 size-9 rounded-full bg-foreground outline-3 outline-background flex items-center justify-center">
+                  <Pen weight="Bold" className="size-4 text-background" />
+                </div>
+              )}
             </label>
           </div>
         </div>
 
-        <button
-          onClick={handleSaveProfile}
-          className="mt-6 flex rounded-xl px-3 py-2.5 text-sm font-semibold bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-all self-start"
-        >
-          <CloudUpload className="size-5 mr-2" />
-          Save Changes
-        </button>
+        {saveErrorMessage && (
+          <p className="mt-2 text-sm text-red-500">{saveErrorMessage}</p>
+        )}
+
+        <div className="mt-6 flex items-center gap-3">
+          <button
+            onClick={handleSaveProfile}
+            disabled={isSaving || !hasChanges}
+            className="flex items-center rounded-xl px-3 py-2.5 text-sm font-semibold bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-all self-start disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+          >
+            {isSaving ? (
+              <Loader2 className="size-5 mr-2 animate-spin" />
+            ) : (
+              <CloudUpload className="size-5 mr-2" />
+            )}
+            Save Changes
+          </button>
+
+          {isSaved && !isSaving && (
+            <span className="flex items-center gap-1.5 text-[13px] text-emerald-500 font-medium">
+              <CheckCircle2 className="size-4" />
+              Saved
+            </span>
+          )}
+        </div>
       </section>
 
       <div className="h-px bg-border" />
