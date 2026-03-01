@@ -2,6 +2,7 @@ import { ApiError, apiClient } from "@/lib/api-client";
 import type {
   CurrentUser,
   LoginRequest,
+  OtpVerifyRequest,
   RegisterRequest,
   RegisterResponse,
   TokenPair,
@@ -55,6 +56,9 @@ function normalizeAuthError(raw: string, status: number): string {
     msg.includes("incorrect password")
   ) {
     return "Incorrect password. Please try again.";
+  }
+  if (msg.includes("invalid otp") || msg.includes("otp code")) {
+    return "Invalid code. Please try again.";
   }
   if (
     msg.includes("invalid credentials") ||
@@ -158,6 +162,10 @@ export async function logout(): Promise<void> {
 
 export async function resendVerification(email: string): Promise<void> {
   return apiClient.post<void>("/auth/resend-verification", { email });
+}
+
+export async function verifyEmailOtp(body: OtpVerifyRequest): Promise<TokenPair> {
+  return authFetch<TokenPair>("/auth/verify-email/otp", body);
 }
 
 export async function getMe(): Promise<CurrentUser> {

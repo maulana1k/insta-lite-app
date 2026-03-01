@@ -1,28 +1,14 @@
 "use client";
 
-import { ArrowRight, ChevronDown, ChevronUp, Heart } from "lucide-react";
+import { ArrowRight, Heart, X } from "lucide-react";
 import Link from "next/link";
-import type React from "react";
-import { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLogin, useRegister } from "@/features/auth/hooks/use-auth";
 import { ApiError } from "@/lib/api-client";
+import { type RecentLogin, getRecentLogins, removeRecentLogin } from "@/lib/recent-logins";
 import { cn } from "@/lib/utils";
 
 /* ─── OAuth Provider Icons ─────────────────────────────────────── */
-
-function AppleIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="size-[18px]"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09z" />
-      <path d="M15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701" />
-    </svg>
-  );
-}
 
 function GoogleIcon() {
   return (
@@ -47,30 +33,6 @@ function GoogleIcon() {
   );
 }
 
-function MicrosoftIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-[18px]" aria-hidden="true">
-      <path d="M11.4 11.4H0V0h11.4v11.4z" fill="#7FBA00" />
-      <path d="M24 11.4H12.6V0H24v11.4z" fill="#FFB900" />
-      <path d="M11.4 24H0V12.6h11.4V24z" fill="#F25022" />
-      <path d="M24 24H12.6V12.6H24V24z" fill="#00A4EF" />
-    </svg>
-  );
-}
-
-function GitHubIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="size-[18px]"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-    </svg>
-  );
-}
-
 /* ─── Floating post cards (left panel decoration) ───────────────── */
 
 const FLOATING_CARDS: {
@@ -79,49 +41,49 @@ const FLOATING_CARDS: {
   name: string;
   style: React.CSSProperties;
 }[] = [
-  {
-    text: "Golden hour at 5am in the Scottish Highlands. Worth every cold step. 🏔️",
-    likes: "3.2k",
-    name: "jackharding",
-    style: { top: "6%", left: "7%", transform: "rotate(-5deg)" },
-  },
-  {
-    text: "Hot take: the best travel photos are taken at 6am when the world is yours alone.",
-    likes: "1.8k",
-    name: "jackharding",
-    style: { top: "8%", right: "6%", transform: "rotate(5deg)" },
-  },
-  {
-    text: "Gear doesn't make the photo. Stop waiting for the perfect camera. Go outside.",
-    likes: "4.4k",
-    name: "jackharding",
-    style: { top: "22%", left: "34%", transform: "rotate(-2deg)" },
-  },
-  {
-    text: "Keep shooting. Your follower count doesn't determine the quality of your work.",
-    likes: "5.5k",
-    name: "jackharding",
-    style: { top: "30%", left: "5%", transform: "rotate(3deg)" },
-  },
-  {
-    text: "Croatia — June 2024. The Adriatic never gets old.",
-    likes: "5.6k",
-    name: "jackharding",
-    style: { top: "28%", right: "5%", transform: "rotate(-4deg)" },
-  },
-  {
-    text: "Some observations from 3 weeks in Indonesia: get off the tourist trail by day 3.",
-    likes: "2.9k",
-    name: "jackharding",
-    style: { top: "46%", left: "8%", transform: "rotate(-3deg)" },
-  },
-  {
-    text: "Madeira from above. Drone nearly didn't make it back 😅",
-    likes: "6.9k",
-    name: "jackharding",
-    style: { top: "44%", right: "7%", transform: "rotate(4deg)" },
-  },
-];
+    {
+      text: "Golden hour at 5am in the Scottish Highlands. Worth every cold step. 🏔️",
+      likes: "3.2k",
+      name: "jackharding",
+      style: { top: "6%", left: "7%", transform: "rotate(-5deg)" },
+    },
+    {
+      text: "Hot take: the best travel photos are taken at 6am when the world is yours alone.",
+      likes: "1.8k",
+      name: "jackharding",
+      style: { top: "8%", right: "6%", transform: "rotate(5deg)" },
+    },
+    {
+      text: "Gear doesn't make the photo. Stop waiting for the perfect camera. Go outside.",
+      likes: "4.4k",
+      name: "jackharding",
+      style: { top: "22%", left: "34%", transform: "rotate(-2deg)" },
+    },
+    {
+      text: "Keep shooting. Your follower count doesn't determine the quality of your work.",
+      likes: "5.5k",
+      name: "jackharding",
+      style: { top: "30%", left: "5%", transform: "rotate(3deg)" },
+    },
+    {
+      text: "Croatia — June 2024. The Adriatic never gets old.",
+      likes: "5.6k",
+      name: "jackharding",
+      style: { top: "28%", right: "5%", transform: "rotate(-4deg)" },
+    },
+    {
+      text: "Some observations from 3 weeks in Indonesia: get off the tourist trail by day 3.",
+      likes: "2.9k",
+      name: "jackharding",
+      style: { top: "46%", left: "8%", transform: "rotate(-3deg)" },
+    },
+    {
+      text: "Madeira from above. Drone nearly didn't make it back 😅",
+      likes: "6.9k",
+      name: "jackharding",
+      style: { top: "44%", right: "7%", transform: "rotate(4deg)" },
+    },
+  ];
 
 function FloatingCard({
   text,
@@ -153,17 +115,104 @@ function FloatingCard({
   );
 }
 
-/* ─── Provider data ─────────────────────────────────────────────── */
+/* ─── Avatar initials helper ─────────────────────────────────────── */
 
-const PRIMARY_PROVIDERS = [
-  { id: "apple", label: "Apple", icon: <AppleIcon /> },
-  { id: "google", label: "Google", icon: <GoogleIcon /> },
-  { id: "microsoft", label: "Microsoft", icon: <MicrosoftIcon /> },
-];
+function AvatarFallback({ displayName }: { displayName: string }) {
+  const initials = displayName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+  return (
+    <div className="size-10 rounded-full bg-muted flex items-center justify-center text-[13px] font-semibold text-muted-foreground shrink-0">
+      {initials || "?"}
+    </div>
+  );
+}
 
-const MORE_PROVIDERS = [
-  { id: "github", label: "GitHub", icon: <GitHubIcon /> },
-];
+/* ─── Recent login card ──────────────────────────────────────────── */
+
+function RecentLoginCard({
+  login,
+  onSelect,
+  onRemove,
+}: {
+  login: RecentLogin;
+  onSelect: (login: RecentLogin) => void;
+  onRemove: (username: string) => void;
+}) {
+  return (
+    <div className="relative group">
+      <button
+        type="button"
+        onClick={() => onSelect(login)}
+        className="w-full flex items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 hover:bg-muted/60 active:scale-[0.98] transition-all duration-150 text-left"
+      >
+        {login.avatar_url ? (
+          <img
+            src={login.avatar_url}
+            alt={login.display_name}
+            className="size-10 rounded-full object-cover shrink-0"
+          />
+        ) : (
+          <AvatarFallback displayName={login.display_name || login.username} />
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="text-[14px] font-semibold truncate">
+            {login.display_name || login.username}
+          </p>
+          <p className="text-[12px] text-muted-foreground truncate">
+            @{login.username}
+          </p>
+        </div>
+      </button>
+      <button
+        type="button"
+        onClick={() => onRemove(login.username)}
+        aria-label={`Remove ${login.username} from recent logins`}
+        className="absolute right-3 top-1/2 -translate-y-1/2 size-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-muted transition-all duration-150"
+      >
+        <X className="size-3.5 text-muted-foreground" />
+      </button>
+    </div>
+  );
+}
+
+/* ─── Divider ────────────────────────────────────────────────────── */
+
+function Divider({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex-1 h-px bg-border/60" />
+      <span className="text-[12px] text-muted-foreground/50 shrink-0">
+        {label}
+      </span>
+      <div className="flex-1 h-px bg-border/60" />
+    </div>
+  );
+}
+
+/* ─── Input field ────────────────────────────────────────────────── */
+
+const AuthInput = React.forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement>
+>(function AuthInput(props, ref) {
+  return (
+    <input
+      {...props}
+      ref={ref}
+      className={cn(
+        "w-full rounded-2xl border border-border bg-transparent px-4 py-3 text-[14px]",
+        "placeholder:text-muted-foreground/40",
+        "outline-none focus:ring-2 focus:ring-foreground focus:border-foreground/25",
+        "transition",
+        props.className,
+      )}
+    />
+  );
+});
 
 /* ─── Main component ────────────────────────────────────────────── */
 
@@ -171,27 +220,58 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/v1";
 
 export function AuthPage() {
   const [mode, setMode] = useState<"signup" | "login">("signup");
+
+  // Form fields
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [moreOpen, setMoreOpen] = useState(false);
+
+  // Recent logins (login mode only)
+  const [recentLogins, setRecentLogins] = useState<RecentLogin[]>([]);
+  const [selectedRecent, setSelectedRecent] = useState<RecentLogin | null>(null);
+
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   const loginMutation = useLogin();
   const registerMutation = useRegister();
 
   const isSignup = mode === "signup";
-  const verb = isSignup ? "Sign up" : "Log in";
   const isPending = loginMutation.isPending || registerMutation.isPending;
+
+  // Load recent logins from localStorage on mount (client only)
+  useEffect(() => {
+    setRecentLogins(getRecentLogins());
+  }, []);
+
+  const handleSelectRecent = (login: RecentLogin) => {
+    setSelectedRecent(login);
+    setEmail(login.email);
+    setPassword("");
+    setTimeout(() => passwordRef.current?.focus(), 50);
+  };
+
+  const handleRemoveRecent = (username: string) => {
+    removeRecentLogin(username);
+    setRecentLogins((prev) => prev.filter((l) => l.username !== username));
+    if (selectedRecent?.username === username) {
+      setSelectedRecent(null);
+      setEmail("");
+    }
+  };
 
   const handleContinue = async () => {
     if (!email.trim() || !password.trim()) return;
+    if (isSignup && !username.trim()) return;
     setError(null);
 
     try {
       if (isSignup) {
-        // Derive a username from the email prefix; user can update it in onboarding
-        const username = email.trim().split("@")[0].replace(/[^a-z0-9_]/gi, "_").toLowerCase();
-        await registerMutation.mutateAsync({ email: email.trim(), password, username });
+        await registerMutation.mutateAsync({
+          email: email.trim(),
+          password,
+          username: username.trim(),
+        });
       } else {
         await loginMutation.mutateAsync({ email: email.trim(), password });
       }
@@ -208,13 +288,20 @@ export function AuthPage() {
     window.location.href = `${API_URL}/auth/google`;
   };
 
-  const handleComingSoon = () => {
-    alert("Coming soon! Only Google login is available right now.");
+  const handleModeSwitch = () => {
+    setMode(isSignup ? "login" : "signup");
+    setError(null);
+    setEmail("");
+    setUsername("");
+    setPassword("");
+    setSelectedRecent(null);
   };
 
-  const allProviders = moreOpen
-    ? [...PRIMARY_PROVIDERS, ...MORE_PROVIDERS]
-    : PRIMARY_PROVIDERS;
+  const canSubmit =
+    email.trim() &&
+    password.trim() &&
+    (isSignup ? username.trim() : true) &&
+    !isPending;
 
   return (
     <div className="min-h-screen flex bg-background text-foreground">
@@ -279,7 +366,6 @@ export function AuthPage() {
       >
         {/* Top bar */}
         <header className="flex items-center justify-between px-8 py-5">
-          {/* Brand (visible on mobile only — left panel hides it on desktop) */}
           <Link
             href="/"
             className="text-lg font-bold tracking-tighter select-none lg:invisible"
@@ -291,7 +377,7 @@ export function AuthPage() {
             {isSignup ? "Already a member?" : "Don't have an account?"}{" "}
             <button
               type="button"
-              onClick={() => setMode(isSignup ? "login" : "signup")}
+              onClick={handleModeSwitch}
               className="font-semibold text-foreground underline underline-offset-2 hover:opacity-70 transition-opacity"
             >
               {isSignup ? "Log in" : "Sign up"}
@@ -301,80 +387,101 @@ export function AuthPage() {
 
         {/* Form */}
         <main className="flex-1 flex flex-col items-center justify-center px-8 py-10">
-          <div className="w-full max-w-[360px] flex flex-col gap-7">
+          <div className="w-full max-w-[360px] flex flex-col gap-6">
             {/* Heading */}
             <div>
               <h1 className="text-[36px] font-black leading-tight tracking-tight">
-                {verb}
+                {isSignup ? "Create your account" : "Sign in to continue"}
               </h1>
               <p className="text-muted-foreground mt-1 text-[14px]">
                 {isSignup ? "You belong here." : "Good to see you again."}
               </p>
             </div>
 
-            {/* OAuth buttons */}
-            <div className="flex flex-col gap-2">
-              {allProviders.map((provider) => (
-                <button
-                  key={provider.id}
-                  type="button"
-                  onClick={
-                    provider.id === "google"
-                      ? handleGoogleClick
-                      : handleComingSoon
-                  }
-                  className="w-full flex items-center gap-3.5 bg-white text-black font-semibold rounded-2xl py-[11px] px-5 hover:bg-gray-50 active:scale-[0.98] transition-all duration-150"
-                >
-                  <span className="size-[18px] shrink-0">{provider.icon}</span>
-                  <span className="flex-1 text-center text-[14px]">
-                    {verb} with {provider.label}
-                  </span>
-                </button>
-              ))}
-
-              <button
-                type="button"
-                onClick={() => setMoreOpen((o) => !o)}
-                className="flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors self-end mt-0.5"
-              >
-                {moreOpen ? "Fewer options" : "More options"}
-                {moreOpen ? (
-                  <ChevronUp className="size-3.5" />
-                ) : (
-                  <ChevronDown className="size-3.5" />
-                )}
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-border/60" />
-              <span className="text-[12px] text-muted-foreground/50 shrink-0">
-                or continue with email
+            {/* Google (social first) */}
+            <button
+              type="button"
+              onClick={handleGoogleClick}
+              className="w-full flex items-center gap-3.5 bg-white text-black font-semibold rounded-2xl py-[11px] px-5 hover:bg-gray-50 active:scale-[0.98] transition-all duration-150"
+            >
+              <span className="size-[18px] shrink-0">
+                <GoogleIcon />
               </span>
-              <div className="flex-1 h-px bg-border/60" />
-            </div>
+              <span className="flex-1 text-center text-[14px]">
+                Continue with Google
+              </span>
+            </button>
 
-            {/* Email + password + continue */}
+            {/* Recent accounts (login mode only) */}
+            {!isSignup && recentLogins.length > 0 && (
+              <>
+                <Divider label="or continue as" />
+                <div className="flex flex-col gap-2">
+                  {recentLogins.map((login) => (
+                    <RecentLoginCard
+                      key={login.username}
+                      login={login}
+                      onSelect={handleSelectRecent}
+                      onRemove={handleRemoveRecent}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Email form divider */}
+            <Divider label={isSignup ? "or sign up with email" : "or use email"} />
+
+            {/* Selected recent hint */}
+            {selectedRecent && (
+              <p className="text-[13px] text-muted-foreground -mb-2">
+                Signing in as{" "}
+                <span className="font-semibold text-foreground">
+                  @{selectedRecent.username}
+                </span>
+              </p>
+            )}
+
+            {/* Email + (username for signup) + password */}
             <div className="flex flex-col gap-3">
-              <input
+              <AuthInput
                 type="email"
+                id="email"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                   setError(null);
+                  if (selectedRecent && e.target.value !== selectedRecent.email) {
+                    setSelectedRecent(null);
+                  }
                 }}
                 placeholder="yourname@email.com"
-                className={cn(
-                  "w-full rounded-2xl border border-border bg-transparent px-4 py-3 text-[14px]",
-                  "placeholder:text-muted-foreground/40",
-                  "outline-none focus:ring-2 focus:ring-foreground focus:border-foreground/25",
-                  "transition",
-                )}
               />
 
-              <input
+              {isSignup && (
+                <AuthInput
+                  type="text"
+                  id="username"
+                  value={username}
+                  onChange={(e) => {
+                    setUsername(
+                      e.target.value
+                        .replace(/[^a-z0-9_.]/gi, "")
+                        .replace(/\.{2,}/g, ".")
+                        .replace(/^\./, "")
+                        .toLowerCase()
+                    );
+                    setError(null);
+                  }}
+                  placeholder="username"
+                  autoComplete="username"
+                />
+              )}
+
+              <AuthInput
+                ref={passwordRef}
                 type="password"
+                id="password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -382,12 +489,6 @@ export function AuthPage() {
                 }}
                 onKeyDown={(e) => e.key === "Enter" && handleContinue()}
                 placeholder="Password"
-                className={cn(
-                  "w-full rounded-2xl border border-border bg-transparent px-4 py-3 text-[14px]",
-                  "placeholder:text-muted-foreground/40",
-                  "outline-none focus:ring-2 focus:ring-foreground focus:border-foreground/25",
-                  "transition",
-                )}
               />
 
               {error && (
@@ -397,19 +498,17 @@ export function AuthPage() {
               <button
                 type="button"
                 onClick={handleContinue}
-                disabled={!email.trim() || !password.trim() || isPending}
+                disabled={!canSubmit}
                 className={cn(
                   "w-full flex items-center justify-center gap-2 rounded-2xl py-[11px] text-[14px] font-semibold",
                   "transition-all duration-150 active:scale-[0.97]",
-                  email.trim() && password.trim() && !isPending
+                  canSubmit
                     ? "bg-foreground text-background hover:opacity-85"
                     : "bg-muted text-muted-foreground cursor-not-allowed opacity-40",
                 )}
               >
-                {isPending ? "Please wait…" : "Continue"}
-                {!isPending && email.trim() && password.trim() && (
-                  <ArrowRight className="size-4" />
-                )}
+                {isPending ? "Please wait…" : isSignup ? "Create account" : "Continue"}
+                {!isPending && canSubmit && <ArrowRight className="size-4" />}
               </button>
             </div>
           </div>

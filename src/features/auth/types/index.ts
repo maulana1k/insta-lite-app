@@ -11,7 +11,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  username?: string;
+  username: string;
   display_name?: string;
 }
 
@@ -22,6 +22,12 @@ export interface RegisterResponse {
     username: string;
   };
   message: string;
+  otp_sent: boolean;
+}
+
+export interface OtpVerifyRequest {
+  email: string;
+  code: string;
 }
 
 // Minimal user shape returned by GET /users/me
@@ -31,6 +37,6 @@ export interface CurrentUser {
   username: string;
   display_name: string;
   email: string;
-  avatar_url: string | null;
+  avatar_url: string; // always "" when the user has no avatar — never null
   is_verified: boolean;
 }

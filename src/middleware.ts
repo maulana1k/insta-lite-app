@@ -25,7 +25,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Already has session → redirect away from /auth
+  // Already has session → redirect away from /auth (but not /auth/verify which needs to remain accessible)
   if (pathname === "/auth" && refreshToken) {
     const url = req.nextUrl.clone();
     url.pathname = "/";
@@ -45,5 +45,6 @@ export const config = {
     "/saved/:path*",
     "/following/:path*",
     "/auth",
+    "/auth/verify",
   ],
 };

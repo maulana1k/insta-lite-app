@@ -113,6 +113,50 @@ paths:
         '429':
           $ref: '#/components/responses/RateLimited'
 
+  /auth/verify-email/otp:
+    post:
+      summary: Verify email address with OTP code
+      tags: [Auth]
+      security: []
+      operationId: verifyEmailOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code]
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+                  example: "482910"
+      responses:
+        "200":
+          description: Email verified — returns token pair (auto-login)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPairEnvelope'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "410":
+          description: Code expired (10-minute window)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              example:
+                error:
+                  code: gone
+                  message: OTP code has expired
+        "429":
+          $ref: '#/components/responses/RateLimited'
+
   /auth/verify-email:
     get:
       tags: [Auth]
@@ -1198,7 +1242,7 @@ components:
           minLength: 3
           maxLength: 30
           pattern: '^[a-zA-Z0-9]+$'
-          description: Alphanumeric only, no spaces or special characters
+          description: Alphanumeric and period characters only, no spaces or special chars
           example: alice
         email:
           type: string
@@ -1261,6 +1305,10 @@ components:
         created_at:
           type: string
           format: date-time
+        otp_sent:
+          type: boolean
+          description: Always true — OTP code emailed; redirect frontend to /auth/verify
+          example: true
 
     # ── User ───────────────────────────────────────────────────────────────
 
