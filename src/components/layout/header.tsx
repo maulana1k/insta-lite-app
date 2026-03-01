@@ -12,12 +12,14 @@ import {
   VideoLibrary,
 } from "@solar-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Monitor, Moon, Search, Sun } from "lucide-react";
+import { Loader2, Monitor, Moon, Search, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/features/auth/store/auth-store";
+import { useLogout } from "@/features/auth/hooks/use-auth";
 import { CreatePostModal } from "@/features/post/components/create-post-modal";
 import { cn } from "@/lib/utils";
 import { NotificationPopup } from "./notification-popup";
@@ -140,6 +142,8 @@ function ProfileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const menuRef = useRef<HTMLDivElement>(null);
+  const { currentUser } = useAuthStore();
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -187,11 +191,17 @@ function ProfileMenu() {
         onClick={() => setIsOpen(!isOpen)}
         className="shrink-0 rounded-full overflow-hidden size-8 ring-2 ring-transparent hover:ring-muted-foreground/20 transition-all"
       >
-        <img
-          src="https://github.com/shadcn.png"
-          alt="User"
-          className="h-full w-full object-cover"
-        />
+        {currentUser?.avatar_url ? (
+          <img
+            src={currentUser.avatar_url}
+            alt={currentUser.display_name}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="h-full w-full flex items-center justify-center bg-muted text-xs font-semibold">
+            {currentUser?.display_name?.slice(0, 2).toUpperCase() ?? "?"}
+          </div>
+        )}
       </button>
 
       <AnimatePresence>
@@ -211,19 +221,28 @@ function ProfileMenu() {
             <div className="bg-background dark:bg-neutral-900 border border-border rounded-3xl shadow-[0_20px_40px_-12px_rgba(0,0,0,0.25)] overflow-hidden">
               {/* Profile Info */}
               <Link
-                href="/u/shadcn"
+                href={`/u/${currentUser?.username ?? ""}`}
                 className="flex items-center gap-3 p-4 hover:bg-muted/40 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 <div className="size-12 rounded-full overflow-hidden ring-1 ring-border">
-                  <img
-                    src="https://github.com/shadcn.png"
-                    alt="User"
-                    className="h-full w-full object-cover"
-                  />
+                  {currentUser?.avatar_url ? (
+                    <img
+                      src={currentUser.avatar_url}
+                      alt={currentUser.display_name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center bg-muted text-base font-semibold">
+                      {currentUser?.display_name?.slice(0, 2).toUpperCase() ??
+                        "?"}
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-semibold">shadcn</span>
+                  <span className="font-semibold">
+                    {currentUser?.display_name ?? currentUser?.username}
+                  </span>
                   <span className="text-sm text-muted-foreground">
                     View your profile
                   </span>
@@ -262,14 +281,21 @@ function ProfileMenu() {
               {/* Sign Out */}
               <div className="p-2">
                 <button
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/40 transition-colors"
+                  disabled={isLoggingOut}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/40 transition-colors disabled:opacity-50"
                   onClick={() => {
                     setIsOpen(false);
-                    // Add sign out logic here
+                    logout();
                   }}
                 >
-                  <Logout className="size-5" />
-                  <span className="text-sm font-medium">Sign out</span>
+                  {isLoggingOut ? (
+                    <Loader2 className="size-5 animate-spin" />
+                  ) : (
+                    <Logout className="size-5" />
+                  )}
+                  <span className="text-sm font-medium">
+                    {isLoggingOut ? "Signing out…" : "Sign out"}
+                  </span>
                 </button>
               </div>
             </div>

@@ -3,7 +3,11 @@
 import { ArrowRight, Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { useAuthStore } from "@/features/auth/store/auth-store";
+import { useUpdateProfile } from "@/features/users/hooks/use-users";
 import { cn } from "@/lib/utils";
+
+const PENDING_PROFILE_KEY = "pendingProfile";
 
 const inputClass = cn(
   "w-full rounded-2xl border border-border bg-transparent px-4 py-3 text-[14px]",
@@ -15,19 +19,36 @@ export function OnboardingPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatar, setAvatar] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    username: "",
-    bio: "",
-  });
+  const [form, setForm] = useState({ displayName: "", bio: "" });
 
-  const canContinue = form.firstName.trim() && form.username.trim();
+  const { currentUser } = useAuthStore();
+  const { mutate: updateProfile, isPending } = useUpdateProfile();
+
+  const canContinue = form.displayName.trim().length > 0;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setAvatar(URL.createObjectURL(file));
   };
+
+  function handleGetStarted() {
+    if (!canContinue) return;
+
+    const payload = {
+      display_name: form.displayName.trim(),
+      bio: form.bio.trim() || undefined,
+    };
+
+    if (currentUser) {
+      // Already authenticated (e.g. logged in via OAuth or returning user) — save now.
+      updateProfile(payload, { onSettled: () => router.push("/") });
+    } else {
+      // No session yet (email-registration flow — user hasn't verified + logged in).
+      // Persist the data so use-auth picks it up after the next successful login.
+      sessionStorage.setItem(PENDING_PROFILE_KEY, JSON.stringify(payload));
+      router.push("/");
+    }
+  }
 
   return (
     <div
@@ -85,56 +106,20 @@ export function OnboardingPage() {
           </div>
         </div>
 
-        {/* Name row */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              First name <span className="text-foreground/40">*</span>
-            </label>
-            <input
-              type="text"
-              value={form.firstName}
-              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-              placeholder="Jane"
-              className={inputClass}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Last name
-            </label>
-            <input
-              type="text"
-              value={form.lastName}
-              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-              placeholder="Doe"
-              className={inputClass}
-            />
-          </div>
-        </div>
-
-        {/* Username */}
+        {/* Display name */}
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Username <span className="text-foreground/40">*</span>
+            Display name <span className="text-foreground/40">*</span>
           </label>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] text-muted-foreground/40 select-none pointer-events-none">
-              @
-            </span>
-            <input
-              type="text"
-              value={form.username}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  username: e.target.value.toLowerCase().replace(/\s/g, ""),
-                })
-              }
-              placeholder="yourhandle"
-              className={cn(inputClass, "pl-8")}
-            />
-          </div>
+          <input
+            type="text"
+            value={form.displayName}
+            onChange={(e) =>
+              setForm({ ...form, displayName: e.target.value })
+            }
+            placeholder="Jane Doe"
+            className={inputClass}
+          />
         </div>
 
         {/* Bio */}
@@ -157,18 +142,18 @@ export function OnboardingPage() {
         {/* CTA */}
         <button
           type="button"
-          onClick={() => canContinue && router.push("/")}
-          disabled={!canContinue}
+          onClick={handleGetStarted}
+          disabled={!canContinue || isPending}
           className={cn(
             "w-full flex items-center justify-center gap-2 rounded-2xl py-[13px] text-[14px] font-semibold",
             "transition-all duration-150 active:scale-[0.97]",
-            canContinue
+            canContinue && !isPending
               ? "bg-foreground text-background hover:opacity-85"
               : "bg-muted text-muted-foreground cursor-not-allowed opacity-40",
           )}
         >
-          Get started
-          {canContinue && <ArrowRight className="size-4" />}
+          {isPending ? "Saving…" : "Get started"}
+          {canContinue && !isPending && <ArrowRight className="size-4" />}
         </button>
 
         <p className="text-center text-[12px] text-muted-foreground/40">

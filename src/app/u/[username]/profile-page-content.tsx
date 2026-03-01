@@ -14,7 +14,7 @@ export function ProfilePageContent({ username }: { username: string }) {
     <div className="min-h-screen bg-background font-sans text-foreground">
       <Header />
 
-      <main className="container max-w-7xl mx-auto px-4 py-8 pt-20">
+      <main className="container max-w-6xl mx-auto px-4 py-8 pt-20">
         {isLoading || !user ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />

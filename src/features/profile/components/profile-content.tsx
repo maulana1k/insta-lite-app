@@ -9,13 +9,14 @@ import {
   RefreshCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Post } from "@/types/database";
+import type { UserPostsPage } from "@/features/users/api";
 import { useProfilePosts } from "../hooks/use-profile";
 import { useProfileStore } from "../store/profile-store";
 
+type ApiPost = UserPostsPage["results"][number];
+
 type ProfileTab = "posts" | "media" | "repost" | "bookmark" | "mentions";
 
-// Solar icons support weight="Bold"; RefreshCcw (Lucide) uses strokeWidth instead
 const TABS: {
   id: ProfileTab;
   Icon: React.ElementType;
@@ -34,7 +35,7 @@ interface ProfileContentProps {
 }
 
 export function ProfileContent({ username }: ProfileContentProps) {
-  const { data: posts, isLoading } = useProfilePosts(username);
+  const { data, isLoading } = useProfilePosts(username);
   const { activeTab, setActiveTab } = useProfileStore();
 
   if (isLoading) {
@@ -45,8 +46,10 @@ export function ProfileContent({ username }: ProfileContentProps) {
     );
   }
 
-  const filtered = (posts ?? []).filter((post) => {
-    if (activeTab === "media") return !!post.image_url;
+  const allPosts: ApiPost[] = (data?.pages.flatMap((p) => p.results) ?? []).filter(Boolean);
+
+  const filtered = allPosts.filter((post) => {
+    if (activeTab === "media") return (post.media_urls ?? []).length > 0;
     return true;
   });
 
@@ -82,7 +85,7 @@ export function ProfileContent({ username }: ProfileContentProps) {
       ) : (
         <div className="grid grid-cols-3 gap-5">
           {filtered.map((post) =>
-            post.image_url ? (
+            (post.media_urls ?? []).length > 0 ? (
               <ImagePostCard key={post.id} post={post} />
             ) : (
               <TextPostCard key={post.id} post={post} />
@@ -94,99 +97,53 @@ export function ProfileContent({ username }: ProfileContentProps) {
   );
 }
 
-function PostHeader({ post }: { post: Post }) {
-  return (
-    <div className="flex items-center gap-2 shrink-0">
-      {post.user?.avatar_url && (
-        <img
-          src={post.user.avatar_url}
-          alt=""
-          className="size-6 rounded-full object-cover"
-        />
-      )}
-      <span className="text-[11px] font-medium text-foreground/60 truncate">
-        {post.user?.username}
-      </span>
-    </div>
-  );
-}
-
-function PostStats({ post }: { post: Post }) {
+function PostStats({ post }: { post: ApiPost }) {
   return (
     <div className="flex items-center gap-3 text-[11px] text-muted-foreground shrink-0 font-semibold">
       <span className="flex items-center gap-1">
         <Heart className="size-3" />
-        {post.likes_count.toLocaleString()}
+        {post.like_count.toLocaleString()}
       </span>
       <span className="flex items-center gap-1">
         <MessageCircle className="size-3" />
-        {post.comments_count.toLocaleString()}
+        {post.comment_count.toLocaleString()}
       </span>
     </div>
   );
 }
 
-function ImagePostCard({ post }: { post: Post }) {
+function ImagePostCard({ post }: { post: ApiPost }) {
   return (
     <div className="aspect-square rounded-2xl bg-muted/60 border border-border/40 cursor-pointer group hover:bg-muted transition-colors duration-200 overflow-hidden flex flex-col">
-      {/* Header */}
-      <div className="flex items-center gap-2 px-3 pt-3">
-        {post.user?.avatar_url && (
-          <img
-            src={post.user.avatar_url}
-            alt=""
-            className="size-6 rounded-full object-cover"
-          />
-        )}
-        <span className="text-[11px] font-medium text-foreground/60 truncate">
-          {post.user?.username}
-        </span>
-      </div>
-
-      {/* Image — fills remaining space */}
-      <div className="flex-1 min-h-0 w-full overflow-hidden mt-2.5">
+      {/* Image — fills space */}
+      <div className="flex-1 min-h-0 w-full overflow-hidden">
         <img
-          src={post.image_url!}
+          src={(post.media_urls ?? [])[0]}
           alt=""
           className="w-full h-full object-cover"
         />
       </div>
 
-      {/* Caption */}
-      <p className="text-[13px] text-foreground/80 group-hover:text-foreground transition-colors duration-200 truncate px-3 pt-2">
-        {post.caption}
-      </p>
-
       {/* Stats */}
       <div className="flex items-center gap-3 px-3 py-2.5 text-[11px] text-muted-foreground font-semibold">
         <span className="flex items-center gap-1">
           <Heart className="size-3" />
-          {post.likes_count.toLocaleString()}
+          {post.like_count.toLocaleString()}
         </span>
         <span className="flex items-center gap-1">
           <MessageCircle className="size-3" />
-          {post.comments_count.toLocaleString()}
+          {post.comment_count.toLocaleString()}
         </span>
       </div>
     </div>
   );
 }
 
-function TextPostCard({ post }: { post: Post }) {
+function TextPostCard({ post }: { post: ApiPost }) {
   return (
     <div className="aspect-square rounded-2xl bg-muted/60 border border-border/40 cursor-pointer group hover:bg-muted transition-colors duration-200 p-4 flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="mb-2.5">
-        <PostHeader post={post} />
-      </div>
-
-      {/* Caption */}
-      <p className="flex-1 text-[15px] leading-relaxed text-foreground/80 group-hover:text-foreground transition-colors duration-200 overflow-hidden">
-        {post.caption}
-      </p>
-
       {/* Stats */}
-      <div className="mt-3">
+      <div className="mt-auto">
         <PostStats post={post} />
       </div>
     </div>

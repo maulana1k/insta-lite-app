@@ -1,9 +1,15 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, EllipsisVertical, X } from "lucide-react";
+import { ArrowLeft, EllipsisVertical, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuthStore } from "@/features/auth/store/auth-store";
+import {
+  useBlockUser,
+  useFollowUser,
+  useUnfollowUser,
+} from "@/features/users/hooks/use-users";
 import type { ProfileUser } from "../types";
 import { ProfileHighlights } from "./profile-highlights";
 
@@ -14,6 +20,29 @@ interface ProfileInfoProps {
 export function ProfileInfo({ user }: ProfileInfoProps) {
   const router = useRouter();
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const [blockMenuOpen, setBlockMenuOpen] = useState(false);
+
+  const { currentUser } = useAuthStore();
+  const isOwnProfile = currentUser?.username === user.username;
+
+  const { mutate: follow, isPending: isFollowing } = useFollowUser();
+  const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUser();
+  const { mutate: blockUser, isPending: isBlocking } = useBlockUser();
+
+  const followPending = isFollowing || isUnfollowing;
+
+  function handleFollowToggle() {
+    if (user.is_following) {
+      unfollow(user.username);
+    } else {
+      follow(user.username);
+    }
+  }
+
+  function handleBlock() {
+    setBlockMenuOpen(false);
+    blockUser(user.username);
+  }
 
   return (
     <div className="flex flex-col w-full md:w-[320px] shrink-0 gap-6">
@@ -33,14 +62,57 @@ export function ProfileInfo({ user }: ProfileInfoProps) {
           aria-label="View avatar"
         >
           <div className="size-42 rounded-full border-4 border-background overflow-hidden relative">
-            <img
-              src={user.avatar_url}
-              alt={user.username}
-              className="w-full h-full object-cover"
-            />
+            {user.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt={user.username}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-muted flex items-center justify-center text-4xl font-bold text-muted-foreground">
+                {user.full_name.slice(0, 2).toUpperCase()}
+              </div>
+            )}
           </div>
         </button>
-        <EllipsisVertical className="size-7 text-muted-foreground hover:text-foreground cursor-pointer" />
+
+        {!isOwnProfile && (
+          <div className="relative">
+            <button
+              onClick={() => setBlockMenuOpen(!blockMenuOpen)}
+              aria-label="More options"
+            >
+              <EllipsisVertical className="size-7 text-muted-foreground hover:text-foreground cursor-pointer" />
+            </button>
+
+            <AnimatePresence>
+              {blockMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                  transition={{ duration: 0.12 }}
+                  className="absolute right-0 top-8 z-20 min-w-[140px] bg-background border border-border rounded-xl shadow-lg overflow-hidden"
+                >
+                  <button
+                    onClick={handleBlock}
+                    disabled={isBlocking}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-muted/50 transition-colors disabled:opacity-60"
+                  >
+                    {isBlocking ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : null}
+                    Block @{user.username}
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {isOwnProfile && (
+          <EllipsisVertical className="size-7 text-muted-foreground hover:text-foreground cursor-pointer" />
+        )}
       </div>
 
       {/* Bio */}
@@ -83,14 +155,25 @@ export function ProfileInfo({ user }: ProfileInfoProps) {
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2">
-        <button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl py-2 transition-colors">
-          Follow
-        </button>
-        <button className="w-full bg-muted hover:bg-muted/70 font-medium rounded-xl py-2 transition-colors">
-          Message
-        </button>
-      </div>
+      {!isOwnProfile && (
+        <div className="flex gap-2">
+          <button
+            onClick={handleFollowToggle}
+            disabled={followPending}
+            className={`w-full font-medium rounded-xl py-2 transition-colors flex items-center justify-center gap-2 disabled:opacity-70 ${
+              user.is_following
+                ? "bg-muted hover:bg-muted/70"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
+            }`}
+          >
+            {followPending && <Loader2 className="size-4 animate-spin" />}
+            {user.is_following ? "Following" : "Follow"}
+          </button>
+          <button className="w-full bg-muted hover:bg-muted/70 font-medium rounded-xl py-2 transition-colors">
+            Message
+          </button>
+        </div>
+      )}
 
       {/* Highlights */}
       <ProfileHighlights highlights={user.highlights} />
@@ -114,11 +197,17 @@ export function ProfileInfo({ user }: ProfileInfoProps) {
               className="relative size-72 rounded-full overflow-hidden ring-4 ring-white/20 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={user.avatar_url}
-                alt={user.username}
-                className="w-full h-full object-cover"
-              />
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt={user.username}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center text-6xl font-bold text-muted-foreground">
+                  {user.full_name.slice(0, 2).toUpperCase()}
+                </div>
+              )}
             </motion.div>
             <button
               onClick={() => setAvatarOpen(false)}
